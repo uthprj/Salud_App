@@ -12,7 +12,7 @@ import com.example.salud_app.ui.screen.data.DataScreen
 @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "splash") {
-        composable("splash") { SplashScreen(navController) }
+        composable("Splash") { SplashScreen(navController, onAnimationComplete = {}) }
         composable("screen-test") { ScreenTest(navController, onBackClicked = { navController.popBackStack() }) }
         composable("data") { DataScreen(navController) }
     }

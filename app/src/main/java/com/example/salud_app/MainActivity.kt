@@ -68,9 +68,9 @@ fun MainApp(navController: NavHostController) {
     ) {
         NavHost(
             navController = navController,
-            startDestination = "splash"
+            startDestination = "Splash"
         ) {
-            composable("splash") { SplashScreen(navController) }
+            composable("Splash") { SplashScreen(navController, onAnimationComplete = {}) }
             composable("screen-test") { ScreenTest(navController, onBackClicked = { navController.popBackStack() }) }
             composable("data") { DataScreen(navController) }
 
