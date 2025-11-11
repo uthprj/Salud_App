@@ -4,11 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.DataExploration
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.PendingActions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -72,10 +74,11 @@ fun AppScaffold(
             if (screenLevel == ScreenLevel.MAIN) {
                 Text(
                     text = title,
-                    fontSize = 48.sp,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 30.dp, bottom = 12.dp)
+                        .padding(start = 50.dp, top = 20.dp, bottom = 0.dp)
                 )
             }
 
@@ -178,21 +181,29 @@ fun BottomNavigationBar(navController: NavController) {
     ) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Nhật ký") },
+            label = { Text("Tổng quan") },
             selected = selectedIndex == 0,
             onClick = { selectedIndex = 0 /* navController.navigate("home") */ }
         )
         NavigationBarItem(
+            icon = { Icon(Icons.Default.PendingActions, contentDescription = "Sức khỏe") },
+            label = { Text("Nhật ký") },
+            selected = selectedIndex == 1,
+            onClick = { selectedIndex = 1 /* navController.navigate("history") */ }
+        )
+
+        NavigationBarItem(
             icon = { Icon(Icons.Default.Favorite, contentDescription = "Sức khỏe") },
             label = { Text("Dữ liệu") },
-            selected = selectedIndex == 1,
-            onClick = { selectedIndex = 1 /* navController.navigate("health") */ }
+            selected = selectedIndex == 2,
+            onClick = { selectedIndex = 2 /* navController.navigate("health") */ }
         )
+
         NavigationBarItem(
             icon = { Icon(Icons.Default.Person, contentDescription = "Hồ sơ") },
             label = { Text("Hồ sơ") },
-            selected = selectedIndex == 2,
-            onClick = { selectedIndex = 2 /* navController.navigate("profile") */ }
+            selected = selectedIndex == 3,
+            onClick = { selectedIndex = 3 /* navController.navigate("profile") */ }
         )
     }
 }
