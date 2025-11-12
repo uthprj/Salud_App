@@ -2,16 +2,22 @@ package com.example.salud_app.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.DataExploration
 import androidx.compose.material.icons.filled.FormatListBulleted
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PendingActions
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -91,6 +97,7 @@ fun AppScaffold(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainTopBar(title: String) {
+    var expanded by remember { mutableStateOf(false) }
     TopAppBar(
         title = {
             Row(
@@ -104,15 +111,47 @@ fun MainTopBar(title: String) {
                     Image(
                         painter = painterResource(id = R.drawable.salud_logo),
                         contentDescription = "Logo Salud",
-                        modifier = Modifier.size(60.dp),
+                        modifier = Modifier
+                            .size(60.dp),
                         contentScale = ContentScale.Inside
                     )
                 }
-                IconButton(onClick = { }) {
+                IconButton(onClick = { expanded = true }) {
                     Icon(
                         imageVector = Icons.Default.FormatListBulleted,
                         contentDescription = "Menu"
                     )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .background(Color(0xFFE8E8E8))
+                            .padding(4.dp)
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Tìm phòng tập") },
+                            onClick = { expanded = false },
+                            leadingIcon = { Icon(Icons.Default.Place, contentDescription = null) }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Đánh giá") },
+                            onClick = { expanded = false },
+                            leadingIcon = { Icon(Icons.Default.Chat, contentDescription = null) }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Hỗ trợ") },
+                            onClick = { expanded = false },
+                            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) }
+                        )
+
+                        DropdownMenuItem(
+                            text = { Text("Thông tin") },
+                            onClick = { expanded = false },
+                            leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) }
+                        )
+                    }
                 }
             }
         },
