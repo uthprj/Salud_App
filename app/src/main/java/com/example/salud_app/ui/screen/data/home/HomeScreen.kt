@@ -1,15 +1,21 @@
 package com.example.salud_app.ui.screen.data.home
 
+import android.media.Image
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.salud_app.R
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -18,6 +24,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.salud_app.components.*
 import com.example.salud_app.ui.theme.Salud_AppTheme
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.ColorFilter
 
 data class RingData(
     val progress: Float,
@@ -94,17 +105,54 @@ fun HomeScreen() {
 
                     MultiRingProgress(rings = rings, size = 260.dp)
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
+                    
+                    Column(
+                        modifier = Modifier
+                            .background(
+                                color = Color(0x9CE7E7E7),
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .padding(vertical = 7.dp),
+                    ) {
 
-                    Text("Nước uống hôm nay", fontSize = 18.sp, fontWeight = FontWeight.Medium)
-                    Text("1500 / 2000 ml", fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(start = 10.dp, end = 10.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            InfoItem(R.drawable.barefoot_24px, "1400 mét", Color(0xFF4CAF50))
+                            InfoItem(R.drawable.cardiology_24px, "72 pbm", Color(0xFF2196F3))
+                            InfoItem(R.drawable.water_drop_24px, "1,5/2 lít nước", Color(0xFF64B5F6))
+                        }
 
-                    Spacer(modifier = Modifier.height(40.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
 
-                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        InfoRow("Bước chân", "4300 / 10000", Color(0xFF3F51B5))
-                        InfoRow("Calo đốt", "263 kcal", Color(0xFF9C27B0))
-                        InfoRow("Nhịp tim", "96 bpm", Color(0xFF2196F3))
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(start = 35.dp, end = 35.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            InfoItem(R.drawable.bolt_24px, "400/2000 calo", Color(0xFFFFEB3B))
+                            InfoItem(R.drawable.snooze_24px, "8/8h ngủ", Color(0xFF7E57C2))
+                        }
+                    }
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFFF2F8FF))
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        item {
+                            GoalCard(index = 1)
+                        }
+                        item {
+                            GoalCard(index = 1)
+                        }
+                        item {
+                            GoalCard(index = 1)
+                        }
                     }
                 }
             }
@@ -113,13 +161,58 @@ fun HomeScreen() {
 }
 
 @Composable
-fun InfoRow(label: String, value: String, color: Color) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+fun GoalCard(index: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Text(label, fontSize = 18.sp, color = color, fontWeight = FontWeight.Medium)
-        Text(value, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Mục tiêu ${index}",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Mô tả chi tiết về mục tiêu số ${index}.",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp,
+                    color = Color.DarkGray
+                )
+            )
+        }
+    }
+
+}
+
+@Composable
+fun InfoItem(iconRes: Int, text: String, color: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            modifier = Modifier
+                .size(25.dp)
+                .padding(end = 4.dp),
+            colorFilter = ColorFilter.tint(color)
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontSize = 16.sp,
+                color = Color.Black
+            )
+        )
     }
 }
 
