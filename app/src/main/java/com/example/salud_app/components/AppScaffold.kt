@@ -1,6 +1,7 @@
 package com.example.salud_app.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -93,7 +94,9 @@ fun MainTopBar(title: String) {
     TopAppBar(
         title = {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
+
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -176,18 +179,32 @@ fun BottomNavigationBar(navController: NavController) {
     var selectedIndex by remember { mutableStateOf(0) }
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = Color(0xFF345DA7),
         tonalElevation = 3.dp
     ) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
             label = { Text("Tổng quan") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,          // màu icon khi chọn
+                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedTextColor = Color.White,
+                unselectedTextColor = Color(0xFFB0C4FF),
+                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+            ),
             selected = selectedIndex == 0,
             onClick = { selectedIndex = 0 /* navController.navigate("home") */ }
         )
         NavigationBarItem(
             icon = { Icon(Icons.Default.PendingActions, contentDescription = "Sức khỏe") },
             label = { Text("Nhật ký") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,          // màu icon khi chọn
+                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedTextColor = Color.White,
+                unselectedTextColor = Color(0xFFB0C4FF),
+                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+            ),
             selected = selectedIndex == 1,
             onClick = { selectedIndex = 1 /* navController.navigate("history") */ }
         )
@@ -195,6 +212,13 @@ fun BottomNavigationBar(navController: NavController) {
         NavigationBarItem(
             icon = { Icon(Icons.Default.Favorite, contentDescription = "Sức khỏe") },
             label = { Text("Dữ liệu") },
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,          // màu icon khi chọn
+                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedTextColor = Color.White,
+                unselectedTextColor = Color(0xFFB0C4FF),
+                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+            ),
             selected = selectedIndex == 2,
             onClick = { selectedIndex = 2 /* navController.navigate("health") */ }
         )
@@ -203,6 +227,13 @@ fun BottomNavigationBar(navController: NavController) {
             icon = { Icon(Icons.Default.Person, contentDescription = "Hồ sơ") },
             label = { Text("Hồ sơ") },
             selected = selectedIndex == 3,
+            colors = NavigationBarItemDefaults.colors(
+                selectedIconColor = Color.White,          // màu icon khi chọn
+                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedTextColor = Color.White,
+                unselectedTextColor = Color(0xFFB0C4FF),
+                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+            ),
             onClick = { selectedIndex = 3 /* navController.navigate("profile") */ }
         )
     }
