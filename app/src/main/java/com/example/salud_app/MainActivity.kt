@@ -72,7 +72,8 @@ fun MainApp(navController: NavHostController) {
         ) {
             composable("Splash") { SplashScreen(navController, onAnimationComplete = {}) }
             composable("screen-test") { ScreenTest(navController, onBackClicked = { navController.popBackStack() }) }
-            composable("data") { DataScreen(navController) }
+            composable("data") { DataScreen(navController, onBackClicked = { navController.popBackStack()}) }
+
 
         }
     }

@@ -77,15 +77,16 @@ fun AppScaffold(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
+                .padding(16.dp)
         ) {
             if (screenLevel == ScreenLevel.MAIN) {
                 Text(
                     text = title,
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 50.sp,
+                    fontWeight = FontWeight.Thin,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .padding(start = 50.dp, top = 20.dp, bottom = 0.dp)
+                        .padding( top = 0.dp, bottom = 0.dp)
                 )
             }
 

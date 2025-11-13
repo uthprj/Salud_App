@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">Salud_App</string>
+    <string name="app_name">Salud</string>
     <string name="your_health_is_our_pleasure">Sức khỏe của bạn \n là niềm vui của chúng tôi!</string>
+    <string name="data">Dữ liệu</string>
 </resources>

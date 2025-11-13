@@ -1,4 +1,4 @@
-package com.example.salud_app.ui.screen.data.sign
+package com.example.salud_app.ui.screen.sign
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -11,17 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.*
-import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.salud_app.R
 import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 
 
 @Composable
-fun RegisterScreen(
+fun LoginScreen(
     navController: NavController
 ) {
 
@@ -35,7 +33,7 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Spacer(modifier = Modifier.height(60.dp))
+        Spacer(modifier = Modifier.height(130.dp))
 
         Image(
             painter = painterResource(id = R.drawable.salud_logo),
@@ -48,7 +46,7 @@ fun RegisterScreen(
 
 
         Text(
-            text = "Đăng Ký",
+            text = "Đăng nhập",
             fontSize = 40.sp,
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontWeight = FontWeight.Bold,
@@ -69,34 +67,10 @@ fun RegisterScreen(
                         .size(20.dp)
                 )
                 Text(
-                    text = "Mail",
+                    text = "Mail hoặc username",
                     modifier = Modifier.padding(start = 30.dp)
                 )
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            singleLine = true,
-            shape = RoundedCornerShape(25.dp)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            placeholder = {
-                Image(
-                    painter = painterResource(id = R.drawable.password_24px),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-                Text(
-                    text = "Tên đăng nhập",
-                    modifier = Modifier.padding(start = 30.dp)
-                )
-            },
+                          },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp),
@@ -135,32 +109,7 @@ fun RegisterScreen(
             shape = RoundedCornerShape(25.dp)
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            placeholder = {
-                Image(
-                    painter = painterResource(id = R.drawable.password_24px),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-                Text(
-                    text = "Nhập lại mật khẩu",
-                    modifier = Modifier.padding(start = 30.dp)
-                )
-
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(55.dp),
-            singleLine = true,
-            shape = RoundedCornerShape(25.dp)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         Text(
             text = "Quên mật khẩu?",
@@ -182,7 +131,7 @@ fun RegisterScreen(
             shape = RoundedCornerShape(25.dp)
         ) {
             Text(
-                text = "ĐĂNG KÝ",
+                text = "ĐĂNG NHẬP",
                 color = Color.White,
                 fontWeight = FontWeight.Bold
             )
@@ -208,10 +157,10 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(25.dp))
 
         Row {
-            Text("Đã có tài khoản?")
+            Text("Chưa có tài khoản?")
             Spacer(modifier = Modifier.width(4.dp))
             Text(
-                text = "Đăng nhập ngay!",
+                text = "Đăng ký ngay!",
                 color = Color(0xFF3B82F6),
                 fontWeight = FontWeight.Bold
             )
@@ -221,7 +170,7 @@ fun RegisterScreen(
 
 @Preview
 @Composable
-fun RegisterScreenPreview() {
-    RegisterScreen(navController = NavController(LocalContext.current) )
+fun LoginScreenPreview() {
+    LoginScreen(navController = NavController(LocalContext.current) )
 }
 
