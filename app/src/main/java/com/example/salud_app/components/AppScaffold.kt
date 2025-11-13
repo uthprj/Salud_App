@@ -218,7 +218,7 @@ fun BottomNavigationBar(navController: NavController) {
     var selectedIndex by remember { mutableStateOf(0) }
 
     NavigationBar(
-        containerColor = Color(0xFF345DA7),
+        containerColor = MaterialTheme.colorScheme.primary,
         tonalElevation = 3.dp
     ) {
         NavigationBarItem(
@@ -288,6 +288,7 @@ fun AppScaffoldPreview() {
             navController = navController,
             title = "Nhật ký",
             screenLevel = ScreenLevel.MAIN,
+
 
         ) { paddingValues ->
             Box(modifier = Modifier.padding(paddingValues)) {
