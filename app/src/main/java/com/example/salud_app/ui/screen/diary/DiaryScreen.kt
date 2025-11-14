@@ -7,8 +7,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,14 +24,21 @@ import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.model.TaskType
 import com.example.salud_app.model.Tasks
 import com.example.salud_app.ui.theme.Salud_AppTheme
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryScreen(
     tasks: List<Tasks> = sampleTasks
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
     var expandedTaskId by remember { mutableStateOf<Long?>(null) }
+
+    // State mở DatePicker
+    var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
 
     Salud_AppTheme {
         val navController = rememberNavController()
@@ -44,17 +53,17 @@ fun DiaryScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
-                    .background(Color(0xFFF7F7F7))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
 
                 DateSelector(
                     currentDate = currentDate,
-                    onDateChange = { newDate -> currentDate = newDate }
+                    onDateChange = { newDate -> currentDate = newDate },
+                    onOpenDatePicker = { showDatePicker = true }
                 )
 
                 Spacer(Modifier.height(12.dp))
 
-                // Danh sách task + chi tiết ngay dưới từng card
                 TaskCardList(
                     tasks = tasks,
                     expandedTaskId = expandedTaskId,
@@ -64,6 +73,32 @@ fun DiaryScreen(
                     }
                 )
             }
+
+            // ----------------------
+            //     DATE PICKER UI
+            // ----------------------
+            if (showDatePicker) {
+                DatePickerDialog(
+                    onDismissRequest = { showDatePicker = false },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                val millis = datePickerState.selectedDateMillis
+                                if (millis != null) {
+                                    currentDate = Instant.ofEpochMilli(millis)
+                                        .atZone(ZoneId.systemDefault())
+                                        .toLocalDate()
+                                }
+                                showDatePicker = false
+                            }
+                        ) {
+                            Text("Done")
+                        }
+                    }
+                ) {
+                    DatePicker(state = datePickerState)
+                }
+            }
         }
     }
 }
@@ -71,12 +106,13 @@ fun DiaryScreen(
 @Composable
 fun DateSelector(
     currentDate: LocalDate,
-    onDateChange: (LocalDate) -> Unit
+    onDateChange: (LocalDate) -> Unit,
+    onOpenDatePicker: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(12.dp))
+            .background(Color(0xFF4EA0AC), RoundedCornerShape(12.dp))
             .padding(horizontal = 20.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -89,7 +125,8 @@ fun DateSelector(
 
         Text(
             text = currentDate.toString(),
-            style = MaterialTheme.typography.titleMedium
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.clickable { onOpenDatePicker() }
         )
 
         Text(">",
@@ -110,7 +147,6 @@ fun TaskCardList(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp)
     ) {
         tasks.forEach { task ->
-
 
             Box(
                 modifier = Modifier
@@ -167,7 +203,7 @@ fun TaskCardList(
 }
 
 // ------------------------
-// Dữ liệu mẫu
+// DỮ LIỆU MẪU
 // ------------------------
 val sampleTasks = listOf(
     Tasks(
