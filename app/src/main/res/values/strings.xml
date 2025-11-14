@@ -2,4 +2,11 @@
     <string name="app_name">Salud</string>
     <string name="your_health_is_our_pleasure">Sức khỏe của bạn \n là niềm vui của chúng tôi!</string>
     <string name="data">Dữ liệu</string>
+    <string name="health">Sức khỏe</string>
+    <string name="nutrition">Dinh dưỡng</string>
+    <string name="exercise">Luyện tập</string>
+    <string name="sleep">Giấc ngủ</string>
+    <string name="report">Báo cáo</string>
+    <string name="weight">Cân nặng</string>
+    <string name="save">Lưu</string>
 </resources>

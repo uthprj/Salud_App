@@ -77,7 +77,7 @@ fun AppScaffold(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .padding(16.dp)
+                .padding(horizontal = 16.dp)
         ) {
             if (screenLevel == ScreenLevel.MAIN) {
                 Text(
@@ -86,7 +86,7 @@ fun AppScaffold(
                     fontWeight = FontWeight.Thin,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .padding( top = 0.dp, bottom = 0.dp)
+                        .padding( top = 0.dp, bottom = 20.dp)
                 )
             }
 
@@ -184,8 +184,9 @@ fun SubTopBar(
         title = {
             Text(
                 text = title,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge,
+//                fontSize = 22.sp,
+//                fontWeight = FontWeight.Bold
             )
         },
         actions = {
@@ -213,7 +214,7 @@ fun SubTopBar(
     )
 }
 
-/* ✅ BOTTOM NAVIGATION BAR */
+/* BOTTOM NAVIGATION BAR */
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     var selectedIndex by remember { mutableStateOf(0) }
@@ -288,7 +289,7 @@ fun AppScaffoldPreview() {
         AppScaffold(
             navController = navController,
             title = "Nhật ký",
-            screenLevel = ScreenLevel.MAIN,
+            screenLevel = ScreenLevel.SUB,
 
 
         ) { paddingValues ->

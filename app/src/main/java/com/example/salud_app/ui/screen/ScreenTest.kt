@@ -1,7 +1,10 @@
 package com.example.salud_app.ui.screen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -17,49 +20,55 @@ import com.example.salud_app.ui.theme.Salud_AppTheme
 @Composable
 fun ScreenTest(
     navController: NavController,
-//     onBackClicked không cần thiết ở HomeScreen vì nó là màn hình chính
-     onBackClicked: () -> Unit
+    onBackClicked: () -> Unit
 ) {
+//    *********************************
+//    *
+//    *  THÊM CÁC BUTTON VÀO ĐÂY
+//    * <title_button> to <route>
+//    *
+//    *********************************
+    // Danh sách các màn hình để điều hướng đến
+
+    val screenDestinations = listOf(
+        "Splash" to "splash",
+        "Screen Test" to "screen-test",
+        "Data" to "data",
+
+        // Thêm các màn hình khác vào đây
+    )
+
     AppScaffold(
         navController = navController,
         title = "Screen Test",
         screenLevel = ScreenLevel.MAIN,
 
-    ) { innerPadding ->
+        ) { innerPadding ->
 
-        Column(
+
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding) // Áp dụng padding từ Scaffold
-                .padding(16.dp), // Thêm padding riêng cho nội dung
-            horizontalAlignment = Alignment.CenterHorizontally, // Căn giữa các button
-            verticalArrangement = Arrangement.Center // Căn các button ra giữa màn hình
+                .padding(innerPadding),
+            contentPadding = PaddingValues(16.dp), // Padding cho nội dung bên trong LazyColumn
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp) // Khoảng cách giữa các button
         ) {
-            Button(
-                onClick = { navController.navigate("splash") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Splash Screen")
+            items(screenDestinations) { (buttonText, route) ->
+                Button(
+                    onClick = { navController.navigate(route) },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(buttonText, style = MaterialTheme.typography.bodyMedium)
+                }
             }
-
-            // data screen
-            Button(
-                onClick = { navController.navigate("data") },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Data Screen")
-            }
-
-
-
-            // Thêm các button khác nếu cần...
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun HomeScreenPreview() {
+fun ScreenTestPreview() { // Đổi tên Preview cho đúng
     val navController = rememberNavController()
 
     Salud_AppTheme {
