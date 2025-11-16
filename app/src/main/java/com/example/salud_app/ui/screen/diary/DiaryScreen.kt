@@ -3,10 +3,13 @@ package com.example.salud_app.ui.screen.diary
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.*
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -15,9 +18,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
@@ -27,6 +32,7 @@ import com.example.salud_app.ui.theme.Salud_AppTheme
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import com.example.salud_app.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,9 +80,6 @@ fun DiaryScreen(
                 )
             }
 
-            // ----------------------
-            //     DATE PICKER UI
-            // ----------------------
             if (showDatePicker) {
                 DatePickerDialog(
                     onDismissRequest = { showDatePicker = false },
@@ -112,28 +115,59 @@ fun DateSelector(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color(0xFF4EA0AC), RoundedCornerShape(12.dp))
-            .padding(horizontal = 20.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 10.dp, vertical = 10.dp)
     ) {
-        Text("<",
-            fontWeight = FontWeight.Bold,
-            fontSize = MaterialTheme.typography.titleLarge.fontSize,
-            modifier = Modifier.clickable { onDateChange(currentDate.minusDays(1)) }
-        )
+        Row(
+            modifier = Modifier
+                .background(Color(0xFF6AB9F5), RoundedCornerShape(12.dp))
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Nhật ký ngày  ",
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+            )
 
-        Text(
-            text = currentDate.toString(),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.clickable { onOpenDatePicker() }
-        )
+            Text(
+                text = currentDate.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
 
-        Text(">",
-            fontWeight = FontWeight.Bold,
-            fontSize = MaterialTheme.typography.titleLarge.fontSize,
-            modifier = Modifier.clickable { onDateChange(currentDate.plusDays(1)) }
-        )
+            Image(
+                painter = painterResource(R.drawable.arrow_back_ios_24px),
+                contentDescription = "back ngày",
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { onDateChange(currentDate.plusDays(-1)) }
+            )
+
+            Icon(
+                imageVector = Icons.Default.CalendarToday,
+                contentDescription = "Chọn ngày",
+                tint = Color(MaterialTheme.colorScheme.onBackground.value),
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { onOpenDatePicker() }
+            )
+
+            Image(
+                painter = painterResource(R.drawable.arrow_forward_ios_24px),
+                contentDescription = "Next ngày",
+                modifier = Modifier
+                    .size(20.dp)
+                    .clickable { onDateChange(currentDate.plusDays(1)) }
+            )
+        }
     }
 }
 
