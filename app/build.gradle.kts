@@ -41,6 +41,39 @@ android {
 }
 
 dependencies {
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
+
+
+    implementation("com.google.firebase:firebase-messaging:24.1.0")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // --- Firebase BoM (bắt buộc phải ở đầu nhóm Firebase) ---
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+
+    // --- Firebase services ---
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+
+
+    // --- Google Sign-In ---
+    implementation("com.google.android.gms:play-services-auth:21.4.0")
+
+    // --- Compose & Navigation ---
+    implementation("androidx.compose.material3:material3:1.3.1")
+
+//    Data store Preferences
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")
     implementation("androidx.navigation:navigation-compose:2.8.3")

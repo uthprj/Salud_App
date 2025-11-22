@@ -1,23 +1,12 @@
 package com.example.salud_app.model
 
-import androidx.room.PrimaryKey
-
-enum class Gender {
-    MALE,
-    FEMALE,
-    OTHER
-}
-
-
-
 data class User(
-    @PrimaryKey(autoGenerate = true)
-    val userId: Long = 0,
+    val userId: String = "",
     val username: String = "",
     val password: String = "",
     val fullName: String = "",
     val birthDate: String = "",
-    val gender: Gender = Gender.MALE,
+    val gender: String = "MALE",
     val numPhone: String = "",
-    val email: String = "",
+    val email: String = ""
 )

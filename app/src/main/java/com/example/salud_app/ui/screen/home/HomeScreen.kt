@@ -119,7 +119,11 @@ fun HomeScreen() {
                         ) {
                             InfoItem(R.drawable.barefoot_24px, "1400 mét", Color(0xFF4CAF50))
                             InfoItem(R.drawable.cardiology_24px, "72 pbm", Color(0xFF2196F3))
-                            InfoItem(R.drawable.water_drop_24px, "1,5/2 lít nước", Color(0xFF64B5F6))
+                            InfoItem(
+                                R.drawable.water_drop_24px,
+                                "1,5/2 lít nước",
+                                Color(0xFF64B5F6)
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(10.dp))

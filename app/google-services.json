@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "718456115746",
+    "project_id": "salud-app-263a5",
+    "storage_bucket": "salud-app-263a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:718456115746:android:d117a2f6560654011e307b",
+        "android_client_info": {
+          "package_name": "com.example.salud_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "718456115746-j6lg9s4klp4m80vm2bc6d26prsg9ngfv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.salud_app",
+            "certificate_hash": "34c066c971e461f662ac9840b9327b720959ff0f"
+          }
+        },
+        {
+          "client_id": "718456115746-ted4vm0g0vfge3k6sd1d669seu9lfvj4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.salud_app",
+            "certificate_hash": "acce550c9e776146d29129439280e05914dedad2"
+          }
+        },
+        {
+          "client_id": "718456115746-u2r1nra9sl6gsvaee31n8fag69mj17d0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZ_pYYTR0GiQl5jhmpL3W4gUphCIGTp1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "718456115746-u2r1nra9sl6gsvaee31n8fag69mj17d0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
