@@ -1,35 +1,45 @@
 package com.example.salud_app.ui.screen.sign
 
-import androidx.compose.foundation.*
+import android.app.Activity
+import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.*
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.salud_app.R
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-
+import com.example.salud_app.R
+import com.example.salud_app.model.User
 
 @Composable
 fun LoginScreen(
-    navController: NavController
+    navController: NavController,
+    viewModel: SignInViewModel
 ) {
+    val context = LocalContext.current
+
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
     Column(
-
         modifier = Modifier
-            .background(color = Color.White)
+            .background(Color.White)
             .fillMaxSize()
             .padding(horizontal = 32.dp),
-
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
@@ -38,39 +48,24 @@ fun LoginScreen(
         Image(
             painter = painterResource(id = R.drawable.salud_logo),
             contentDescription = null,
-            modifier = Modifier
-                .height(150.dp)
+            modifier = Modifier.height(150.dp)
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-
 
         Text(
             text = "Đăng nhập",
             fontSize = 40.sp,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-            )
-
+            fontWeight = FontWeight.Bold
         )
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Email / username
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            placeholder = {
-                Image(
-                    painter = painterResource(id = R.drawable.person_24px),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-                Text(
-                    text = "Mail hoặc username",
-                    modifier = Modifier.padding(start = 30.dp)
-                )
-                          },
+            value = email,
+            onValueChange = { email = it },
+            placeholder = { Text(text = "Mail hoặc username") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp),
@@ -80,28 +75,11 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
+        // Password
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
-            placeholder = {
-                Image(
-                    painter = painterResource(id = R.drawable.password_24px),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-                Text(
-                    text = "Mật khẩu",
-                    modifier = Modifier.padding(start = 30.dp)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.visibility_24px),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(20.dp)
-                        .align(Alignment.End)
-                )
-            },
+            value = password,
+            onValueChange = { password = it },
+            placeholder = { Text(text = "Mật khẩu") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(55.dp),
@@ -114,20 +92,20 @@ fun LoginScreen(
         Text(
             text = "Quên mật khẩu?",
             color = Color(0xFF3B82F6),
-            modifier = Modifier
-                .align(Alignment.End)
+            modifier = Modifier.align(Alignment.End)
         )
 
         Spacer(modifier = Modifier.height(15.dp))
 
+        // Button đăng nhập
         Button(
-            onClick = {},
+            onClick = {
+                Toast.makeText(context, "Đăng nhập bằng email/password", Toast.LENGTH_SHORT).show()
+            },
             modifier = Modifier
                 .width(200.dp)
                 .height(45.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF3B82F6)
-            ),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
             shape = RoundedCornerShape(25.dp)
         ) {
             Text(
@@ -147,11 +125,28 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Google Sign In
         Image(
             painter = painterResource(id = R.drawable.google_icon),
             contentDescription = null,
             modifier = Modifier
-                .size(32.dp)
+                .size(40.dp)
+                .clickable {
+                    // Bỏ launcher, chỉ truyền null
+                    viewModel.signInWithGoogle(
+                        context,
+                        launcher = null,
+                        onSuccess = { user ->
+                            Toast.makeText(context, "Đăng nhập thành công: ${user.username}", Toast.LENGTH_SHORT).show()
+                            navController.navigate("home") {
+                                popUpTo("login") { inclusive = true }
+                            }
+                        },
+                        onFailure = { error ->
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
         )
 
         Spacer(modifier = Modifier.height(25.dp))
@@ -162,15 +157,11 @@ fun LoginScreen(
             Text(
                 text = "Đăng ký ngay!",
                 color = Color(0xFF3B82F6),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.clickable {
+                    Toast.makeText(context, "Đi đến màn hình đăng ký", Toast.LENGTH_SHORT).show()
+                }
             )
         }
     }
 }
-
-@Preview
-@Composable
-fun LoginScreenPreview() {
-    LoginScreen(navController = NavController(LocalContext.current) )
-}
-

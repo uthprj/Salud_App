@@ -34,6 +34,7 @@ fun ScreenTest(
         "Splash" to "splash",
         "Screen Test" to "screen-test",
         "Data" to "data",
+        "Sign In" to "sign-in",
 
         // Thêm các màn hình khác vào đây
     )

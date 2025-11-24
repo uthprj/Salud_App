@@ -25,6 +25,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.navigation.NavController
 
 data class RingData(
     val progress: Float,
@@ -68,7 +69,9 @@ fun MultiRingProgress(
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navController: NavController
+) {
     Salud_AppTheme {
         val navController = rememberNavController()
 
@@ -215,9 +218,9 @@ fun InfoItem(iconRes: Int, text: String, color: Color) {
         )
     }
 }
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    HomeScreen()
-}
+//
+//@Preview
+//@Composable
+//fun HomeScreenPreview() {
+//    HomeScreen()
+//}

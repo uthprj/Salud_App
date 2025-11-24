@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import com.example.salud_app.R
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -112,9 +113,17 @@ fun SplashScreen(
 
         delay(350)
 
-        navController.navigate("Screen-test") {
-            popUpTo("Splash") { inclusive = true }
-        }
+        // // Nếu đã đăng nhập (Firebase user tồn tại) -> vào thẳng Home
+        // val currentUser = FirebaseAuth.getInstance().currentUser
+        // if (currentUser != null) {
+        //     navController.navigate("home") {
+        //         popUpTo("Splash") { inclusive = true }
+        //     }
+        // } else {
+            navController.navigate("Screen-test") {
+                popUpTo("Splash") { inclusive = true }
+            }
+        // }
         onAnimationComplete()
     }
 }
