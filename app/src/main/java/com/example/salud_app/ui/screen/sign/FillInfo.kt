@@ -50,7 +50,8 @@ fun FillInfo(navController: NavController) {
     var expandedGender by remember { mutableStateOf(false) }
     val genderOptions = listOf("Nam", "Nữ", "Khác")
 
-    val isFormValid = fullName.isNotBlank() && phone.length == 10 && birthDate.isNotBlank() && gender.isNotBlank()
+    // Chỉ validate số điện thoại nếu có nhập - không bắt buộc điền hết
+    val isPhoneValid = phone.isEmpty() || phone.length == 10
 
     Box(
         modifier = Modifier
@@ -216,11 +217,11 @@ fun FillInfo(navController: NavController) {
                     Button(
                         onClick = {
                             val currentUser = auth.currentUser
-                            if (currentUser != null && isFormValid) {
+                            if (currentUser != null && isPhoneValid) {
                                 val uid = currentUser.uid
                                 val user = User(
                                     userId = uid,
-                                    fullName = fullName,
+                                    fullName = fullName.ifBlank { currentUser.displayName ?: "" },
                                     birthDate = birthDate,
                                     gender = gender,
                                     numPhone = phone,
@@ -243,7 +244,7 @@ fun FillInfo(navController: NavController) {
                                         Toast.makeText(context, "Lỗi khi lưu thông tin: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
                                     }
                             } else {
-                                Toast.makeText(context, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Vui lòng kiểm tra lại số điện thoại", Toast.LENGTH_SHORT).show()
                             }
                         },
                         modifier = Modifier
@@ -251,9 +252,55 @@ fun FillInfo(navController: NavController) {
                             .height(50.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6)),
-                        enabled = isFormValid
+                        enabled = isPhoneValid
                     ) {
-                        Text(text = "Gửi", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(text = "Lưu thông tin", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Skip button
+                    Button(
+                        onClick = {
+                            val currentUser = auth.currentUser
+                            if (currentUser != null) {
+                                val uid = currentUser.uid
+                                // Lưu thông tin cơ bản để đánh dấu đã qua màn hình này
+                                val user = User(
+                                    userId = uid,
+                                    fullName = currentUser.displayName ?: "",
+                                    birthDate = "",
+                                    gender = "",
+                                    numPhone = "",
+                                    email = currentUser.email ?: "",
+                                    photoUrl = currentUser.photoUrl?.toString() ?: ""
+                                )
+
+                                db.collection("User")
+                                    .document(uid)
+                                    .set(user)
+                                    .addOnSuccessListener {
+                                        Log.d("FillInfo", "User skipped fill info: $uid")
+                                        navController.navigate("home") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("FillInfo", "Failed to skip", e)
+                                        // Vẫn cho phép tiếp tục ngay cả khi lỗi
+                                        navController.navigate("home") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    }
+                            }
+                        },
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(40.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF3B82F6))
+                    ) {
+                        Text(text = "Bỏ qua", fontWeight = FontWeight.Bold)
                     }
                 }
             }

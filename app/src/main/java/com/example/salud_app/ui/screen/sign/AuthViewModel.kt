@@ -150,7 +150,18 @@ class SignInViewModel : ViewModel() {
 
         viewModelScope.launch(Dispatchers.Main) {
             try {
-                auth.sendPasswordResetEmail(email)
+                // Configure action code settings to use custom URL
+                val actionCodeSettings = com.google.firebase.auth.ActionCodeSettings.newBuilder()
+                    .setUrl("https://salud-app-263a5.web.app")
+                    .setHandleCodeInApp(false)
+                    .setAndroidPackageName(
+                        "com.example.salud_app",
+                        false,
+                        null
+                    )
+                    .build()
+
+                auth.sendPasswordResetEmail(email, actionCodeSettings)
                     .addOnSuccessListener {
                         onSuccess()
                     }

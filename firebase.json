@@ -1,0 +1,10 @@
+{
+  "hosting": {
+    "public": "password-reset",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
