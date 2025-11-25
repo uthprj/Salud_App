@@ -18,6 +18,8 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -58,14 +60,44 @@ class SignInViewModel : ViewModel() {
                             .addOnSuccessListener { authResult ->
                                 val firebaseUser = authResult.user
                                 if (firebaseUser != null) {
-                                    onSuccess(
-                                        User(
-                                            username = firebaseUser.displayName ?: "",
-                                            email = firebaseUser.email ?: "",
-                                            photoUrl = firebaseUser.photoUrl?.toString() ?: "",
-                                            fullName = firebaseUser.displayName ?: ""
-                                        )
+                                    // Build User object to pass to UI
+                                    val user = User(
+                                        username = firebaseUser.displayName ?: "",
+                                        email = firebaseUser.email ?: "",
+                                        photoUrl = firebaseUser.photoUrl?.toString() ?: "",
+                                        fullName = firebaseUser.displayName ?: ""
                                     )
+
+                                    // Notify UI immediately
+                                    onSuccess(user)
+
+                                    // Asynchronously write user data to Firestore (collection: "User", doc id = uid)
+                                    try {
+                                        val db = FirebaseFirestore.getInstance()
+                                        val uid = firebaseUser.uid
+                                        val userData = hashMapOf<String, Any>(
+                                            "userId" to uid,
+                                            "username" to (user.username),
+                                            "fullName" to (user.fullName),
+                                            "birthDate" to "",
+                                            "gender" to "",
+                                            "numPhone" to "",
+                                            "email" to (user.email),
+                                            "photoUrl" to (user.photoUrl)
+                                        )
+
+                                        db.collection("User")
+                                            .document(uid)
+                                            .set(userData)
+                                            .addOnSuccessListener {
+                                                Log.d("AuthViewModel", "User saved to Firestore: $uid")
+                                            }
+                                            .addOnFailureListener { e ->
+                                                Log.e("AuthViewModel", "Failed saving user to Firestore", e)
+                                            }
+                                    } catch (e: Exception) {
+                                        Log.e("AuthViewModel", "Error writing to Firestore", e)
+                                    }
                                 } else {
                                     onFailure("Không lấy được thông tin người dùng")
                                 }

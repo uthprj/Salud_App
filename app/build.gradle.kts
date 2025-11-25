@@ -43,6 +43,15 @@ android {
 
 dependencies {
 
+    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
+
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    // Use an explicit Firestore KTX version known to exist
+    implementation("com.google.firebase:firebase-firestore-ktx:25.1.4")
+
+
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
@@ -50,20 +59,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
 
 
-    implementation("com.google.firebase:firebase-messaging:24.1.0")
-
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     implementation("androidx.credentials:credentials:1.5.0")
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
-    // --- Firebase BoM (bắt buộc phải ở đầu nhóm Firebase) ---
-    implementation(platform("com.google.firebase:firebase-bom:34.4.0"))
-
-    // --- Firebase services ---
-    implementation("com.google.firebase:firebase-analytics")
-    implementation("com.google.firebase:firebase-auth")
 
 
     // --- Google Sign-In ---
@@ -74,6 +75,7 @@ dependencies {
 
 //    Data store Preferences
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+    // Firestore KTX provided explicitly above; remove libs alias to avoid unresolved alias
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")
