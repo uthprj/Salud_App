@@ -28,6 +28,141 @@ class SignInViewModel : ViewModel() {
     // Initialize FirebaseAuth lazily to avoid initialization-order issues
     private val auth by lazy { FirebaseAuth.getInstance() }
 
+    // Sign in with Email/Password
+    fun signInWithEmail(
+        email: String,
+        password: String,
+        onSuccess: (User) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        if (email.isBlank() || password.isBlank()) {
+            onFailure("Email và mật khẩu không được để trống")
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.Main) {
+            try {
+                auth.signInWithEmailAndPassword(email, password)
+                    .addOnSuccessListener { authResult ->
+                        val firebaseUser = authResult.user
+                        if (firebaseUser != null) {
+                            val user = User(
+                                email = firebaseUser.email ?: "",
+                                photoUrl = firebaseUser.photoUrl?.toString() ?: "",
+                                fullName = firebaseUser.displayName ?: ""
+                            )
+                            onSuccess(user)
+                        } else {
+                            onFailure("Không lấy được thông tin người dùng")
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
+                    }
+            } catch (e: Exception) {
+                onFailure("Lỗi: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    // Sign up with Email/Password
+    fun signUpWithEmail(
+        email: String,
+        password: String,
+        fullName: String,
+        onSuccess: (User) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        if (email.isBlank() || password.isBlank()) {
+            onFailure("Email và mật khẩu không được để trống")
+            return
+        }
+
+        if (password.length < 6) {
+            onFailure("Mật khẩu phải có ít nhất 6 ký tự")
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.Main) {
+            try {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnSuccessListener { authResult ->
+                        val firebaseUser = authResult.user
+                        if (firebaseUser != null) {
+                            val user = User(
+                                email = firebaseUser.email ?: "",
+                                photoUrl = firebaseUser.photoUrl?.toString() ?: "",
+                                fullName = fullName
+                            )
+
+                            // Save user to Firestore
+                            try {
+                                val db = FirebaseFirestore.getInstance()
+                                val uid = firebaseUser.uid
+                                val userData = hashMapOf<String, Any>(
+                                    "userId" to uid,
+                                    "fullName" to fullName,
+                                    "birthDate" to "",
+                                    "gender" to "",
+                                    "numPhone" to "",
+                                    "email" to email,
+                                    "photoUrl" to ""
+                                )
+
+                                db.collection("User")
+                                    .document(uid)
+                                    .set(userData)
+                                    .addOnSuccessListener {
+                                        Log.d("AuthViewModel", "User saved to Firestore: $uid")
+                                        onSuccess(user)
+                                    }
+                                    .addOnFailureListener { e ->
+                                        Log.e("AuthViewModel", "Failed saving user to Firestore", e)
+                                        onFailure("Lỗi lưu thông tin người dùng")
+                                    }
+                            } catch (e: Exception) {
+                                Log.e("AuthViewModel", "Error writing to Firestore", e)
+                                onFailure("Lỗi: ${e.localizedMessage}")
+                            }
+                        } else {
+                            onFailure("Không lấy được thông tin người dùng")
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure("Đăng ký thất bại: ${e.localizedMessage}")
+                    }
+            } catch (e: Exception) {
+                onFailure("Lỗi: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    // Reset Password
+    fun resetPassword(
+        email: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        if (email.isBlank()) {
+            onFailure("Email không được để trống")
+            return
+        }
+
+        viewModelScope.launch(Dispatchers.Main) {
+            try {
+                auth.sendPasswordResetEmail(email)
+                    .addOnSuccessListener {
+                        onSuccess()
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure("Gửi email thất bại: ${e.localizedMessage}")
+                    }
+            } catch (e: Exception) {
+                onFailure("Lỗi: ${e.localizedMessage}")
+            }
+        }
+    }
+
     fun signInWithGoogle(
         context: Context,
         launcher: ManagedActivityResultLauncher<Intent, ActivityResult>?,

@@ -23,8 +23,14 @@ import androidx.navigation.NavController
 import com.example.salud_app.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
 fun LoginScreen(
@@ -33,6 +39,12 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var isSignUpMode by remember { mutableStateOf(false) }
+    var fullName by remember { mutableStateOf("") }
+    var showForgotPasswordDialog by remember { mutableStateOf(false) }
+    var resetEmail by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -71,7 +83,7 @@ fun LoginScreen(
                 ) {
 
                     Text(
-                        text = "Chào mừng trở lại",
+                        text = if (isSignUpMode) "Đăng ký tài khoản" else "Chào mừng trở lại",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.SemiBold,
                         textAlign = TextAlign.Center
@@ -79,6 +91,21 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(18.dp))
 
+                    // Full Name field (only for sign up)
+                    if (isSignUpMode) {
+                        OutlinedTextField(
+                            value = fullName,
+                            onValueChange = { fullName = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            placeholder = { Text("Họ và tên") },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+
+                    // Email field
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -89,11 +116,77 @@ fun LoginScreen(
                         shape = RoundedCornerShape(12.dp)
                     )
 
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Password field
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text("Mật khẩu") },
+                        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                        trailingIcon = {
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(
+                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                    contentDescription = if (passwordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu"
+                                )
+                            }
+                        },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    // Forgot Password link (only for sign in)
+                    if (!isSignUpMode) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Quên mật khẩu?",
+                            color = Color(0xFF3B82F6),
+                            fontSize = 14.sp,
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .clickable { showForgotPasswordDialog = true },
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Sign In/Sign Up Button
                     Button(
                         onClick = {
-                            Toast.makeText(context, "Đăng nhập bằng email/password", Toast.LENGTH_SHORT).show()
+                            if (isSignUpMode) {
+                                viewModel.signUpWithEmail(
+                                    email = email,
+                                    password = password,
+                                    fullName = fullName,
+                                    onSuccess = {
+                                        Toast.makeText(context, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
+                                        navController.navigate("fill-info") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    },
+                                    onFailure = { error ->
+                                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            } else {
+                                viewModel.signInWithEmail(
+                                    email = email,
+                                    password = password,
+                                    onSuccess = {
+                                        Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
+                                        navController.navigate("fill-info") {
+                                            popUpTo("login") { inclusive = true }
+                                        }
+                                    },
+                                    onFailure = { error ->
+                                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                    }
+                                )
+                            }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -102,7 +195,7 @@ fun LoginScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
                     ) {
                         Text(
-                            text = "Đăng nhập",
+                            text = if (isSignUpMode) "Đăng ký" else "Đăng nhập",
                             color = Color.White,
                             fontWeight = FontWeight.Bold
                         )
@@ -152,9 +245,82 @@ fun LoginScreen(
                         Text(text = "Đăng nhập bằng Google", color = Color.Black)
                     }
 
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Toggle between Sign In and Sign Up
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = if (isSignUpMode) "Đã có tài khoản? " else "Chưa có tài khoản? ",
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
+                        Text(
+                            text = if (isSignUpMode) "Đăng nhập" else "Đăng ký",
+                            color = Color(0xFF3B82F6),
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable {
+                                isSignUpMode = !isSignUpMode
+                                password = ""
+                                fullName = ""
+                            }
+                        )
+                    }
+
                     Spacer(modifier = Modifier.height(12.dp))
                 }
             }
+        }
+
+        // Forgot Password Dialog
+        if (showForgotPasswordDialog) {
+            AlertDialog(
+                onDismissRequest = { showForgotPasswordDialog = false },
+                title = { Text("Quên mật khẩu") },
+                text = {
+                    Column {
+                        Text("Nhập email của bạn để nhận liên kết đặt lại mật khẩu")
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = resetEmail,
+                            onValueChange = { resetEmail = it },
+                            placeholder = { Text("Email") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.resetPassword(
+                                email = resetEmail,
+                                onSuccess = {
+                                    Toast.makeText(context, "Email đặt lại mật khẩu đã được gửi", Toast.LENGTH_SHORT).show()
+                                    showForgotPasswordDialog = false
+                                    resetEmail = ""
+                                },
+                                onFailure = { error ->
+                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+                    ) {
+                        Text("Gửi")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        showForgotPasswordDialog = false
+                        resetEmail = ""
+                    }) {
+                        Text("Hủy")
+                    }
+                }
+            )
         }
     }
 }
