@@ -62,7 +62,6 @@ class SignInViewModel : ViewModel() {
                                 if (firebaseUser != null) {
                                     // Build User object to pass to UI
                                     val user = User(
-                                        username = firebaseUser.displayName ?: "",
                                         email = firebaseUser.email ?: "",
                                         photoUrl = firebaseUser.photoUrl?.toString() ?: "",
                                         fullName = firebaseUser.displayName ?: ""
@@ -77,7 +76,6 @@ class SignInViewModel : ViewModel() {
                                         val uid = firebaseUser.uid
                                         val userData = hashMapOf<String, Any>(
                                             "userId" to uid,
-                                            "username" to (user.username),
                                             "fullName" to (user.fullName),
                                             "birthDate" to "",
                                             "gender" to "",

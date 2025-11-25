@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
     implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
 
+    implementation("androidx.compose.ui:ui")
 
 
     // --- Google Sign-In ---
@@ -101,6 +102,6 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.compose.material:material-icons-extended") // material-icons-extended
+//    implementation("androidx.compose.material:material-icons-extended") // material-icons-extended
 //    implementation("dev.chrisbanes.snapper:snapper:0.4.0")
 }

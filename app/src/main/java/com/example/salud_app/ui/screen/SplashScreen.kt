@@ -113,17 +113,17 @@ fun SplashScreen(
 
         delay(350)
 
-        // // Nếu đã đăng nhập (Firebase user tồn tại) -> vào thẳng Home
-        // val currentUser = FirebaseAuth.getInstance().currentUser
-        // if (currentUser != null) {
-        //     navController.navigate("home") {
-        //         popUpTo("Splash") { inclusive = true }
-        //     }
-        // } else {
+         // Nếu đã đăng nhập (Firebase user tồn tại) -> vào thẳng Home
+         val currentUser = FirebaseAuth.getInstance().currentUser
+         if (currentUser != null) {
+             navController.navigate("home") {
+                 popUpTo("Splash") { inclusive = true }
+             }
+         } else {
             navController.navigate("Screen-test") {
                 popUpTo("Splash") { inclusive = true }
             }
-        // }
+         }
         onAnimationComplete()
     }
 }

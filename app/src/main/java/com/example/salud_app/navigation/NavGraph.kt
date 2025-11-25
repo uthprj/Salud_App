@@ -11,6 +11,7 @@ import com.example.salud_app.ui.screen.data.*
 import com.example.salud_app.ui.screen.data.health.DataHealthScreen
 import com.example.salud_app.ui.screen.data.health.weight.DataHealthWeightScreen
 import com.example.salud_app.ui.screen.home.HomeScreen
+import com.example.salud_app.ui.screen.sign.FillInfo
 import com.example.salud_app.ui.screen.sign.LoginScreen
 import com.example.salud_app.ui.screen.sign.SignInViewModel
 
@@ -29,5 +30,6 @@ fun NavGraph(navController: NavHostController) {
             LoginScreen(navController = navController, viewModel = signInViewModel)
         }
         composable("home") { HomeScreen(navController) }
+        composable("fill-info") { FillInfo(navController) }
     }
 }

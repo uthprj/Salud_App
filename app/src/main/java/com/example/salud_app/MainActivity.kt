@@ -21,9 +21,11 @@ import com.example.salud_app.ui.screen.data.DataScreen
 import com.example.salud_app.ui.screen.data.health.DataHealthScreen
 import com.example.salud_app.ui.screen.data.health.weight.DataHealthWeightScreen
 import com.example.salud_app.ui.screen.home.HomeScreen
+import com.example.salud_app.ui.screen.sign.FillInfo
 import com.example.salud_app.ui.screen.sign.LoginScreen
 import com.example.salud_app.ui.screen.sign.SignInViewModel
 import com.example.salud_app.ui.theme.Salud_AppTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +43,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainApp(navController: NavHostController) {
+//    // Kiểm tra xem user đã đăng nhập chưa
+//    val auth = FirebaseAuth.getInstance()
+//    val startDestination = if (auth.currentUser != null) "home" else "sign-in"
+    
     Surface( modifier = Modifier
         .fillMaxSize()
         .safeDrawingPadding()
@@ -62,6 +68,7 @@ fun MainApp(navController: NavHostController) {
                 LoginScreen(navController = navController, viewModel = signInViewModel)
             }
             composable("home") { HomeScreen(navController) }
+            composable("fill-info") { FillInfo(navController) }
         }
     }
 }
