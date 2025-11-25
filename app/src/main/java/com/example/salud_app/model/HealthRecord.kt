@@ -7,5 +7,6 @@ data class HealthRecord(
     val systolic: Int = 0, // Tâm thu
     val diastolic: Int = 0, // Tâm trương
     val heartRate: Int = 0,
-    val bmi: Int = 0
+    val bmi: Int = 0,
+    val note : String? = ""
 )

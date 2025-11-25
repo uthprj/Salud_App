@@ -37,6 +37,7 @@ import com.example.salud_app.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryScreen(
+    navController: androidx.navigation.NavController = rememberNavController(),
     tasks: List<Tasks> = sampleTasks
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
@@ -47,8 +48,6 @@ fun DiaryScreen(
     val datePickerState = rememberDatePickerState()
 
     Salud_AppTheme {
-        val navController = rememberNavController()
-
         AppScaffold(
             navController = navController,
             title = "Nhật ký",

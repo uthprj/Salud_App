@@ -21,12 +21,11 @@ fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "splash") {
         composable("Splash") { SplashScreen(navController, onAnimationComplete = {}) }
         composable("screen-test") { ScreenTest(navController, onBackClicked = { navController.popBackStack() }) }
-//        data
         composable("data") { DataScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-health") { DataHealthScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-health-weight") { DataHealthWeightScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("sign-in") {
-            val signInViewModel: SignInViewModel = viewModel()
+            val signInViewModel: SignInViewModel = viewModel() // Lấy ViewModel mặc định
             LoginScreen(navController = navController, viewModel = signInViewModel)
         }
         composable("home") { HomeScreen(navController) }

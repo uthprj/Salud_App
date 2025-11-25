@@ -217,7 +217,16 @@ fun SubTopBar(
 /* BOTTOM NAVIGATION BAR */
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    var selectedIndex by remember { mutableStateOf(0) }
+    // Lấy route hiện tại từ navController
+    val currentRoute = navController.currentBackStackEntry?.destination?.route
+
+    val selectedIndex = when (currentRoute) {
+        "home" -> 0
+        "diary" -> 1
+        "data" -> 2
+        "profile" -> 3
+        else -> 0
+    }
 
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.primary,
@@ -227,41 +236,56 @@ fun BottomNavigationBar(navController: NavController) {
             icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
             label = { Text("Tổng quan") },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,          // màu icon khi chọn
-                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedIconColor = Color.White,
+                unselectedIconColor = Color(0xFFB0C4FF),
                 selectedTextColor = Color.White,
                 unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+                indicatorColor = Color(0xFF274B8A)
             ),
             selected = selectedIndex == 0,
-            onClick = { selectedIndex = 0 /* navController.navigate("home") */ }
+            onClick = {
+                navController.navigate("home") {
+                    popUpTo("home") { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
         )
         NavigationBarItem(
-            icon = { Icon(Icons.Default.PendingActions, contentDescription = "Sức khỏe") },
+            icon = { Icon(Icons.Default.PendingActions, contentDescription = "Nhật ký") },
             label = { Text("Nhật ký") },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,          // màu icon khi chọn
-                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedIconColor = Color.White,
+                unselectedIconColor = Color(0xFFB0C4FF),
                 selectedTextColor = Color.White,
                 unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+                indicatorColor = Color(0xFF274B8A)
             ),
             selected = selectedIndex == 1,
-            onClick = { selectedIndex = 1 /* navController.navigate("history") */ }
+            onClick = {
+                navController.navigate("diary") {
+                    popUpTo("home")
+                    launchSingleTop = true
+                }
+            }
         )
 
         NavigationBarItem(
-            icon = { Icon(Icons.Default.Favorite, contentDescription = "Sức khỏe") },
+            icon = { Icon(Icons.Default.Favorite, contentDescription = "Dữ liệu") },
             label = { Text("Dữ liệu") },
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,          // màu icon khi chọn
-                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedIconColor = Color.White,
+                unselectedIconColor = Color(0xFFB0C4FF),
                 selectedTextColor = Color.White,
                 unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+                indicatorColor = Color(0xFF274B8A)
             ),
             selected = selectedIndex == 2,
-            onClick = { selectedIndex = 2 /* navController.navigate("health") */ }
+            onClick = {
+                navController.navigate("data") {
+                    popUpTo("home")
+                    launchSingleTop = true
+                }
+            }
         )
 
         NavigationBarItem(
@@ -269,13 +293,18 @@ fun BottomNavigationBar(navController: NavController) {
             label = { Text("Hồ sơ") },
             selected = selectedIndex == 3,
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,          // màu icon khi chọn
-                unselectedIconColor = Color(0xFFB0C4FF),  // màu icon khi chưa chọn
+                selectedIconColor = Color.White,
+                unselectedIconColor = Color(0xFFB0C4FF),
                 selectedTextColor = Color.White,
                 unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)        // nền tròn khi được chọn
+                indicatorColor = Color(0xFF274B8A)
             ),
-            onClick = { selectedIndex = 3 /* navController.navigate("profile") */ }
+            onClick = {
+                navController.navigate("profile") {
+                    popUpTo("home")
+                    launchSingleTop = true
+                }
+            }
         )
     }
 }
