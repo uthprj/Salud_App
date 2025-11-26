@@ -40,7 +40,9 @@ fun LoginScreen(
     val context = LocalContext.current
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
     var isSignUpMode by remember { mutableStateOf(false) }
     var fullName by remember { mutableStateOf("") }
     var showForgotPasswordDialog by remember { mutableStateOf(false) }
@@ -138,6 +140,38 @@ fun LoginScreen(
                         shape = RoundedCornerShape(12.dp)
                     )
 
+                    // Confirm Password field (only for sign up)
+                    if (isSignUpMode) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        OutlinedTextField(
+                            value = confirmPassword,
+                            onValueChange = { confirmPassword = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            placeholder = { Text("Xác nhận mật khẩu") },
+                            leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
+                            trailingIcon = {
+                                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                    Icon(
+                                        imageVector = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                        contentDescription = if (confirmPasswordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu"
+                                    )
+                                }
+                            },
+                            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                            shape = RoundedCornerShape(12.dp),
+                            isError = confirmPassword.isNotEmpty() && password != confirmPassword
+                        )
+                        if (confirmPassword.isNotEmpty() && password != confirmPassword) {
+                            Text(
+                                text = "Mật khẩu không khớp",
+                                color = MaterialTheme.colorScheme.error,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                            )
+                        }
+                    }
+
                     // Forgot Password link (only for sign in)
                     if (!isSignUpMode) {
                         Spacer(modifier = Modifier.height(8.dp))
@@ -158,6 +192,15 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             if (isSignUpMode) {
+                                // Validate passwords match
+                                if (password != confirmPassword) {
+                                    Toast.makeText(context, "Mật khẩu không khớp", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
+                                if (password.length < 6) {
+                                    Toast.makeText(context, "Mật khẩu phải có ít nhất 6 ký tự", Toast.LENGTH_SHORT).show()
+                                    return@Button
+                                }
                                 viewModel.signUpWithEmail(
                                     email = email,
                                     password = password,
@@ -265,6 +308,7 @@ fun LoginScreen(
                             modifier = Modifier.clickable {
                                 isSignUpMode = !isSignUpMode
                                 password = ""
+                                confirmPassword = ""
                                 fullName = ""
                             }
                         )
@@ -328,5 +372,5 @@ fun LoginScreen(
 //@Preview
 //@Composable
 //fun LoginScreenPreview() {
-//    LoginScreen(navController = NavController(LocalContext.current), viewModel = ())
+//        LoginScreen(navController = NavController(LocalContext.current), viewModel = ())
 //}

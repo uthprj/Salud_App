@@ -82,11 +82,12 @@ fun AppScaffold(
             if (screenLevel == ScreenLevel.MAIN) {
                 Text(
                     text = title,
-                    fontSize = 50.sp,
-                    fontWeight = FontWeight.Thin,
+                    fontSize = 35.sp,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                     modifier = Modifier
-                        .padding( top = 0.dp, bottom = 20.dp)
+                        .padding( top = 0.dp, bottom = 10.dp)
+                        .padding(start = 10.dp)
                 )
             }
 
@@ -318,7 +319,7 @@ fun AppScaffoldPreview() {
         AppScaffold(
             navController = navController,
             title = "Nhật ký",
-            screenLevel = ScreenLevel.SUB,
+            screenLevel = ScreenLevel.MAIN,
 
 
         ) { paddingValues ->
