@@ -1,14 +1,15 @@
 package com.example.salud_app.model
 
-import androidx.room.PrimaryKey
-
 data class Nutrition(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    val id: String = "",
     val userId: String = "",
     val date: String = "",
-    val meals: List<Meal> = emptyList(),
-    val totalCalories: Int = 0,
+    val timestamp: Long = System.currentTimeMillis(),
+    val breakfastCalories: Long = 0,
+    val lunchCalories: Long = 0,
+    val dinnerCalories: Long = 0,
+    val snackCalories: Long = 0,
+    val totalCalories: Long = 0,
     val totalProteins: Double = 0.0, // grams
     val totalCarbohydrates: Double = 0.0, // grams
     val totalFats: Double = 0.0 // grams

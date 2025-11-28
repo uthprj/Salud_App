@@ -62,8 +62,6 @@ class ProfileViewModel : ViewModel() {
         numPhone: String? = null,
         birthDate: String? = null,
         gender: String? = null,
-        weight: String? = null,
-        height: String? = null,
         photoUrl: String? = null
     ) {
         viewModelScope.launch {
@@ -75,9 +73,8 @@ class ProfileViewModel : ViewModel() {
                 numPhone?.let { updates["numPhone"] = it }
                 birthDate?.let { updates["birthDate"] = it }
                 gender?.let { updates["gender"] = it }
-                weight?.let { updates["weight"] = it }
-                height?.let { updates["height"] = it }
                 photoUrl?.let { updates["photoUrl"] = it }
+                updates["updatedAt"] = System.currentTimeMillis()
 
                 if (updates.isNotEmpty()) {
                     firestore.collection("User")

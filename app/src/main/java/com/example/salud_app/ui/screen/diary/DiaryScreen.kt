@@ -3,49 +3,33 @@ package com.example.salud_app.ui.screen.diary
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.*
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
-import com.example.salud_app.model.TaskType
-import com.example.salud_app.model.Tasks
+import com.example.salud_app.components.date_picker.AppDatePicker
 import com.example.salud_app.ui.theme.Salud_AppTheme
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
-import com.example.salud_app.R
+import com.example.salud_app.model.Task
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiaryScreen(
     navController: androidx.navigation.NavController = rememberNavController(),
-    tasks: List<Tasks> = sampleTasks
+    tasks: List<Task> = sampleTasks
 ) {
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
-    var expandedTaskId by remember { mutableStateOf<Long?>(null) }
-
-    // State mở DatePicker
-    var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState()
+    var expandedTaskId by remember { mutableStateOf<String?>(null) }
 
     Salud_AppTheme {
         AppScaffold(
@@ -61,10 +45,11 @@ fun DiaryScreen(
                     .background(MaterialTheme.colorScheme.background)
             ) {
 
-                DateSelector(
+                // Sử dụng AppDatePicker component dùng chung
+                AppDatePicker(
                     currentDate = currentDate,
                     onDateChange = { newDate -> currentDate = newDate },
-                    onOpenDatePicker = { showDatePicker = true }
+                    label = "Nhật ký "
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -78,103 +63,15 @@ fun DiaryScreen(
                     }
                 )
             }
-
-            if (showDatePicker) {
-                DatePickerDialog(
-                    onDismissRequest = { showDatePicker = false },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                val millis = datePickerState.selectedDateMillis
-                                if (millis != null) {
-                                    currentDate = Instant.ofEpochMilli(millis)
-                                        .atZone(ZoneId.systemDefault())
-                                        .toLocalDate()
-                                }
-                                showDatePicker = false
-                            }
-                        ) {
-                            Text("Done")
-                        }
-                    }
-                ) {
-                    DatePicker(state = datePickerState)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun DateSelector(
-    currentDate: LocalDate,
-    onDateChange: (LocalDate) -> Unit,
-    onOpenDatePicker: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 10.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .background(Color(0xFF6AB9F5), RoundedCornerShape(12.dp))
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                "Nhật ký ngày  ",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-            )
-
-            Text(
-                text = currentDate.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-
-            Image(
-                painter = painterResource(R.drawable.arrow_back_ios_24px),
-                contentDescription = "back ngày",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { onDateChange(currentDate.plusDays(-1)) }
-            )
-
-            Icon(
-                imageVector = Icons.Default.CalendarToday,
-                contentDescription = "Chọn ngày",
-                tint = Color(MaterialTheme.colorScheme.onBackground.value),
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { onOpenDatePicker() }
-            )
-
-            Image(
-                painter = painterResource(R.drawable.arrow_forward_ios_24px),
-                contentDescription = "Next ngày",
-                modifier = Modifier
-                    .size(20.dp)
-                    .clickable { onDateChange(currentDate.plusDays(1)) }
-            )
         }
     }
 }
 
 @Composable
 fun TaskCardList(
-    tasks: List<Tasks>,
-    expandedTaskId: Long?,
-    onCardClick: (Tasks) -> Unit
+    tasks: List<Task>,
+    expandedTaskId: String?,
+    onCardClick: (Task) -> Unit
 ) {
     Column(
         Modifier.fillMaxWidth().padding(horizontal = 16.dp)
@@ -192,9 +89,10 @@ fun TaskCardList(
                 Column {
                     Text(
                         text = when (task.type) {
-                            TaskType.Eat -> "🍽️ Ăn uống"
-                            TaskType.Sleep -> "😴 Ngủ nghỉ"
-                            TaskType.Exercise -> "🏃‍♂️ Tập luyện"
+                            "EAT" -> "🍽️ Ăn uống"
+                            "SLEEP" -> "😴 Ngủ nghỉ"
+                            "EXERCISE" -> "🏃‍♂️ Tập luyện"
+                            else -> "❓ Khác"
                         },
                         fontWeight = FontWeight.Bold,
                         fontSize = MaterialTheme.typography.titleMedium.fontSize
@@ -239,26 +137,29 @@ fun TaskCardList(
 // DỮ LIỆU MẪU
 // ------------------------
 val sampleTasks = listOf(
-    Tasks(
-        id = 1,
+    Task(
+        id = "1",
         userId = "user123",
-        type = TaskType.Eat,
+        type = "EAT",
         date = "2025-11-14",
-        description = "Ăn sáng: 2 trứng, 1 ly sữa"
+        description = "Ăn sáng: 2 trứng, 1 ly sữa",
+        isCompleted = false
     ),
-    Tasks(
-        id = 2,
+    Task(
+        id = "2",
         userId = "user123",
-        type = TaskType.Sleep,
+        type = "SLEEP",
         date = "2025-11-14",
-        description = "Ngủ trưa 30 phút"
+        description = "Ngủ trưa 30 phút",
+        isCompleted = false
     ),
-    Tasks(
-        id = 3,
+    Task(
+        id = "3",
         userId = "user123",
-        type = TaskType.Exercise,
+        type = "EXERCISE",
         date = "2025-11-14",
-        description = "Chạy bộ 20 phút"
+        description = "Chạy bộ 20 phút",
+        isCompleted = true
     )
 )
 

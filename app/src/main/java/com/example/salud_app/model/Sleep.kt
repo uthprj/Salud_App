@@ -1,11 +1,12 @@
 package com.example.salud_app.model
 
-import androidx.room.PrimaryKey
-
 data class Sleep(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+    val id: String = "",
     val userId: String = "",
     val date: String = "",
-    val sleepRecords: List<SleepRecord> = emptyList()
+    val timestamp: Long = System.currentTimeMillis(),
+    val startTime: String = "",
+    val endTime: String = "",
+    val duration: Long = 0, // in minutes
+    val quality: String = "NORMAL" // EXCELLENT, GOOD, NORMAL, FAIR, POOR
 )

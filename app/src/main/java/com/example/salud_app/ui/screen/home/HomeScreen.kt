@@ -73,8 +73,6 @@ fun HomeScreen(
     navController: NavController
 ) {
     Salud_AppTheme {
-        val navController = rememberNavController()
-
         AppScaffold(
             navController = navController,
             title = "Tổng quan",

@@ -9,8 +9,10 @@ import com.example.salud_app.ui.screen.SplashScreen
 import com.example.salud_app.ui.screen.ScreenTest
 import com.example.salud_app.ui.screen.data.*
 import com.example.salud_app.ui.screen.data.health.DataHealthScreen
-import com.example.salud_app.ui.screen.data.health.weight.DataHealthWeightScreen
+import com.example.salud_app.ui.screen.data.health.data_health.DataHealthWeightScreen
+import com.example.salud_app.ui.screen.diary.DiaryScreen
 import com.example.salud_app.ui.screen.home.HomeScreen
+import com.example.salud_app.ui.screen.profile.ProfileScreen
 import com.example.salud_app.ui.screen.sign.FillInfo
 import com.example.salud_app.ui.screen.sign.LoginScreen
 import com.example.salud_app.ui.screen.sign.SignInViewModel
@@ -19,7 +21,7 @@ import com.example.salud_app.ui.screen.sign.SignInViewModel
 @Composable
 fun NavGraph(navController: NavHostController) {
     NavHost(navController = navController, startDestination = "splash") {
-        composable("Splash") { SplashScreen(navController, onAnimationComplete = {}) }
+        composable("splash") { SplashScreen(navController, onAnimationComplete = {}) }
         composable("screen-test") { ScreenTest(navController, onBackClicked = { navController.popBackStack() }) }
         composable("data") { DataScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-health") { DataHealthScreen(navController, onBackClicked = { navController.popBackStack()}) }
@@ -29,6 +31,8 @@ fun NavGraph(navController: NavHostController) {
             LoginScreen(navController = navController, viewModel = signInViewModel)
         }
         composable("home") { HomeScreen(navController) }
+        composable("diary") { DiaryScreen(navController) }
+        composable("profile") { ProfileScreen(navController) }
         composable("fill-info") { FillInfo(navController) }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.salud_app.model
 
+import com.example.salud_app.model.*
 data class User(
     val userId: String = "",
     val fullName: String = "",
@@ -8,6 +9,11 @@ data class User(
     val numPhone: String = "",
     val email: String = "",
     val photoUrl: String = "",
-    val weight: String = "",
-    val height: String = ""
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis(),
+    val healthRecord: HealthRecord = HealthRecord(),
+    val nutrition: Nutrition = Nutrition(),
+    val sleep: Sleep = Sleep(),
+    val exercise: Exercise = Exercise(),
+    val task: Task = Task()
 )

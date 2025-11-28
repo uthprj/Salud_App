@@ -50,7 +50,7 @@ fun NumberPicker(
     visibleItemsCount: Int = 3,
     textModifier: Modifier = Modifier.padding(vertical = 12.dp),
     textStyle: TextStyle = LocalTextStyle.current,
-    dividerColor: Color = LocalContentColor.current,
+//    dividerColor: Color = LocalContentColor.current,
 ) {
     // --- CÁC BIẾN MỚI ĐỂ HỖ TRỢ NHẬP LIỆU ---
     var isEditing by remember { mutableStateOf(false) }
@@ -160,11 +160,18 @@ fun NumberPicker(
                     }
             ) {
                 items(listScrollCount) { index ->
+                    val isCenter = (index - listState.firstVisibleItemIndex) == visibleItemsMiddle
+                    val itemTextStyle = if (isCenter) {
+                        textStyle.copy(fontSize = textStyle.fontSize * 1.3f)
+                    } else {
+                        textStyle.copy(color = textStyle.color.copy(alpha = 0.5f))
+                    }
+                    
                     Text(
                         text = getItem(index),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        style = textStyle,
+                        style = itemTextStyle,
                         modifier = Modifier
                             .onSizeChanged { size -> itemHeightPixels.value = size.height }
                             .then(textModifier)
@@ -178,8 +185,8 @@ fun NumberPicker(
             .offset(y = itemHeightDp * visibleItemsMiddle)
             .padding(horizontal = 20.dp)
 
-        Divider(color = dividerColor, modifier = dividerModifier)
-        Divider(color = dividerColor, modifier = dividerModifier.offset(y = itemHeightDp))
+//        Divider(color = dividerColor, modifier = dividerModifier)
+//        Divider(color = dividerColor, modifier = dividerModifier.offset(y = itemHeightDp))
     }
 }
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,16 +32,16 @@ import coil.compose.AsyncImage
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.ui.theme.Salud_AppTheme
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ProfileScreen(
     navController: NavController,
     viewModel: ProfileViewModel = viewModel()) {
     val uiState by viewModel.uiState.collectAsState()
+    val auth = FirebaseAuth.getInstance()
 
     Salud_AppTheme {
-        val navController = rememberNavController()
-
         AppScaffold(
             navController = navController,
             title = "Hồ Sơ",
@@ -79,7 +80,13 @@ fun ProfileScreen(
                 ProfileContent(
                     modifier = Modifier.padding(paddingValues),
                     uiState = uiState,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    onLogout = {
+                        auth.signOut()
+                        navController.navigate("sign-in") {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 )
             }
         }
@@ -90,18 +97,14 @@ fun ProfileScreen(
 private fun ProfileContent(
     modifier: Modifier = Modifier,
     uiState: ProfileUiState,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    onLogout: () -> Unit
 ) {
     var isEditPersonalInfo by remember { mutableStateOf(false) }
-    var isEditHealthMetrics by remember { mutableStateOf(false) }
     
     // Editable fields for personal info
     var editFullName by remember { mutableStateOf("") }
     var editNumPhone by remember { mutableStateOf("") }
-    
-    // Editable fields for health metrics
-    var editWeight by remember { mutableStateOf("") }
-    var editHeight by remember { mutableStateOf("") }
 
     val user = uiState.user
     
@@ -110,13 +113,6 @@ private fun ProfileContent(
         if (isEditPersonalInfo) {
             editFullName = user.fullName
             editNumPhone = user.numPhone
-        }
-    }
-    
-    LaunchedEffect(isEditHealthMetrics) {
-        if (isEditHealthMetrics) {
-            editWeight = user.weight
-            editHeight = user.height
         }
     }
 
@@ -256,6 +252,11 @@ private fun ProfileContent(
                             value = user.numPhone.ifEmpty { "Chưa có" },
                             modifier = Modifier.weight(1f)
                         )
+                        CompactInfoCard(
+                            label = "Email",
+                            value = user.email.ifEmpty { "Chưa có" },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
 
@@ -295,89 +296,30 @@ private fun ProfileContent(
                 }
             }
 
+            // Logout Button
             item {
-                Divider(color = Color.LightGray, thickness = 1.dp, modifier = Modifier.padding(vertical = 4.dp))
-            }
-
-            // CHỈ SỐ SỨC KHỎE
-            item {
-                SectionHeader(title = "Chỉ số sức khỏe")
-            }
-
-            if (isEditHealthMetrics) {
-                // Edit Mode - Health Metrics
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        RoundedDropdown(
-                            value = if (editWeight.isNotEmpty()) "$editWeight kg" else "Cân nặng",
-                            onValueChange = { editWeight = it.replace(" kg", "") },
-                            items = listOf("50 kg", "55 kg", "59 kg", "60 kg", "65 kg", "70 kg", "75 kg", "80 kg", "85 kg", "90 kg"),
-                            modifier = Modifier.weight(1f)
-                        )
-                        RoundedDropdown(
-                            value = if (editHeight.isNotEmpty()) "$editHeight cm" else "Chiều cao",
-                            onValueChange = { editHeight = it.replace(" cm", "") },
-                            items = listOf("150 cm", "155 cm", "160 cm", "165 cm", "170 cm", "175 cm", "180 cm", "185 cm", "190 cm"),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-                item {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedButton(
-                            onClick = { isEditHealthMetrics = false },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Hủy")
-                        }
-                        Button(
-                            onClick = {
-                                viewModel.updateUserProfile(
-                                    weight = editWeight,
-                                    height = editHeight
-                                )
-                                isEditHealthMetrics = false
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Lưu")
-                        }
-                    }
-                }
-            } else {
-                // View Mode - Health Metrics
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        CompactInfoCard(
-                            label = "Cân nặng",
-                            value = if (user.weight.isNotEmpty()) "${user.weight} kg" else "Chưa có",
-                            modifier = Modifier.weight(1f)
-                        )
-                        CompactInfoCard(
-                            label = "Chiều cao",
-                            value = if (user.height.isNotEmpty()) "${user.height} cm" else "Chưa có",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-                item {
-                    Button(
-                        onClick = { isEditHealthMetrics = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Cập nhật chỉ số")
-                    }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    onClick = onLogout,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFEF5350)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ExitToApp,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Đăng xuất",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
 

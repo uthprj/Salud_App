@@ -1,0 +1,405 @@
+package com.example.salud_app.ui.screen.data.health.data_health
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.salud_app.R
+import com.example.salud_app.components.AppScaffold
+import com.example.salud_app.components.ScreenLevel
+import com.example.salud_app.components.date_picker.AppDatePicker
+import com.example.salud_app.components.draw_chart.AppLineChart
+import com.example.salud_app.components.draw_chart.ChartDataPoint
+import com.example.salud_app.components.number_picker.NumberPicker
+import com.example.salud_app.components.number_picker.rememberPickerState
+import com.example.salud_app.ui.theme.Salud_AppTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+@Composable
+fun DataHealthWeightScreen(
+    navController: NavController,
+    onBackClicked: () -> Unit
+) {
+    var currentDate by remember { mutableStateOf(java.time.LocalDate.now()) }
+
+    AppScaffold(
+        navController = navController,
+        title = stringResource(R.string.weight),
+        screenLevel = ScreenLevel.SUB,
+        showMoreMenu = true,
+        onBackClicked = onBackClicked,
+    ) { innerPadding ->
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            // --- PHẦN: THÊM DỮ LIỆU ---
+            item {
+                Column(Modifier.fillMaxWidth()) {
+                    SectionHeader(text = "Thêm dữ liệu")
+                    AppDatePicker(
+                        currentDate = currentDate,
+                        onDateChange = { newDate -> currentDate = newDate },
+                        label = "Ngày"
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    WeightInputRow()
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
+            // Đường phân cách
+            item { Divider(color = MaterialTheme.colorScheme.surfaceVariant) }
+
+            // --- PHẦN: THỐNG KÊ ---
+            item {
+                Column(Modifier.padding(horizontal = 16.dp)) {
+                    SectionHeader(text = "Thống kê")
+                }
+            }
+            item {
+                StatisticsView()
+            }
+
+            // --- PHẦN: DANH SÁCH LỊCH SỬ ---
+
+            item { Divider(color = MaterialTheme.colorScheme.surfaceVariant) }
+            item {
+                Column(Modifier.fillMaxWidth()) {
+                    SectionHeader(text = "Lịch sử")
+                    AppDatePicker(
+                        currentDate = currentDate,
+                        onDateChange = { newDate -> currentDate = newDate },
+                        label = "Ngày"
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    HistoryView()
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Tiêu đề cho mỗi phần
+ */
+@Composable
+fun SectionHeader(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp)
+    )
+}
+
+/**
+ * Hàng hiển thị Thời gian (Ngày & Giờ)
+ */
+//@Composable
+//fun TimePickerRow(
+//    date: String,
+//    time: String,
+//    onDateClick: () -> Unit,
+//    onTimeClick: () -> Unit
+//) {
+//    Row(
+//        modifier = Modifier.fillMaxWidth(),
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.SpaceBetween
+//    ) {
+//        Text(
+//            text = "Thời gian",
+//            style = MaterialTheme.typography.bodyLarge
+//        )
+//        Row(horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+//            Text(
+//                text = date,
+//                style = MaterialTheme.typography.bodyLarge,
+//                color = MaterialTheme.colorScheme.primary,
+//                modifier = Modifier
+//                    .clickable(onClick = onDateClick)
+//                    .padding(vertical = 4.dp)
+//            )
+//            Text(
+//                text = time,
+//                style = MaterialTheme.typography.bodyLarge,
+//                color = MaterialTheme.colorScheme.primary,
+//                modifier = Modifier
+//                    .clickable(onClick = onTimeClick)
+//                    .padding(vertical = 4.dp)
+//            )
+//        }
+//    }
+//}
+
+/**
+ * Hàng nhập Cân nặng (với Number Picker)
+ */
+@Composable
+fun WeightInputRow() {
+    // 1. Tạo danh sách giá trị cho mỗi picker
+    val integerItems = remember { (0..200).map { it.toString() } }
+    val fractionalItems = remember { (10..90).map { "%02d".format(it) } }
+
+    // 2. Tạo và nhớ trạng thái cho mỗi picker
+    val integerState = rememberPickerState("70")
+    val fractionalState = rememberPickerState("00")
+
+    Column {
+        // --- Hàng tiêu đề và đơn vị ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Cân nặng (kg)",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // --- Hàng chứa các Number Picker ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            val textStyle = MaterialTheme.typography.headlineLarge
+            val itemHeight = 65.dp
+
+            // 3. Picker cho phần nguyên
+            NumberPicker(
+                state = integerState,
+                items = integerItems,
+                startIndex = integerItems.indexOf("70"),
+                textStyle = textStyle,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(itemHeight * 3)
+            )
+
+            // Dấu chấm ngăn cách
+            Text(
+                text = ".",
+                style = textStyle,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            // 4. Picker cho phần thập phân
+            NumberPicker(
+                state = fractionalState,
+                items = fractionalItems,
+                startIndex = fractionalItems.indexOf("00"),
+                textStyle = textStyle,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(itemHeight * 3)
+            )
+        }
+    }
+}
+
+
+/**
+ * Composable cho phần Thống kê (Tab và Biểu đồ)
+ */
+@Composable
+fun StatisticsView(
+    weightData: List<ChartDataPoint> = sampleWeightData
+) {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabs = listOf("Tuần", "Tháng", "Năm")
+
+    val today = LocalDate.now()
+    
+    // Tạo danh sách các điểm hiển thị dựa vào tab
+    val displayPoints: List<ChartDataPoint> = when (selectedTabIndex) {
+        0 -> {
+            // Tuần: 7 điểm, mỗi điểm là 1 ngày
+            (0..6).mapNotNull { i ->
+                val date = today.minusDays((6 - i).toLong())
+                weightData.find { it.date == date }
+            }
+        }
+        1 -> {
+            // Tháng: 10 điểm, cách nhau 3 ngày (27 ngày)
+            (0..9).mapNotNull { i ->
+                val targetDate = today.minusDays(((9 - i) * 3).toLong())
+                // Tìm dữ liệu gần nhất trong khoảng +-1 ngày
+                weightData.filter { 
+                    val diff = kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                    diff <= 1
+                }.minByOrNull { 
+                    kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                }
+            }
+        }
+        else -> {
+            // Năm: 12 điểm, cách nhau 30 ngày (330 ngày ~ 11 tháng)
+            (0..11).mapNotNull { i ->
+                val targetDate = today.minusDays(((11 - i) * 30).toLong())
+                // Tìm dữ liệu gần nhất trong khoảng +-15 ngày
+                weightData.filter { 
+                    val diff = kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                    diff <= 15
+                }.minByOrNull { 
+                    kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                }
+            }
+        }
+    }
+
+    // Format ngày theo tab
+    val dateFormat = when (selectedTabIndex) {
+        0 -> DateTimeFormatter.ofPattern("dd/MM")  // Tuần: dd/MM
+        1 -> DateTimeFormatter.ofPattern("dd/MM")  // Tháng: dd/MM
+        else -> DateTimeFormatter.ofPattern("dd/MM") // Năm: Tháng (T.01, T.02...)
+    }
+
+    Column {
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = Color.Transparent
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(text = title) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp)
+                .background(
+                    color = Color(0),
+                    RoundedCornerShape(12.dp)
+
+                )
+                .padding(start = 8.dp, end = 10.dp, top = 10.dp, bottom = 20.dp)
+        ) {
+            if (displayPoints.isNotEmpty()) {
+                AppLineChart(
+                    dataPoints = displayPoints,
+                    lineColor = Color(0xFF6AB9F5),
+                    chartHeight = 220.dp,
+                    unit = "kg",
+                    showGrid = true,
+                    showLabels = true,
+                    dateFormat = dateFormat
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Chưa có dữ liệu",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Dữ liệu mẫu cho biểu đồ cân nặng
+val sampleWeightData: List<ChartDataPoint> = run {
+    val today = LocalDate.now()
+    listOf(
+        // Dữ liệu tuần (7 ngày gần nhất)
+        ChartDataPoint(today.minusDays(6), 72.5f),
+        ChartDataPoint(today.minusDays(5), 72.3f),
+        ChartDataPoint(today.minusDays(4), 72.8f),
+        ChartDataPoint(today.minusDays(3), 73.0f),
+        ChartDataPoint(today.minusDays(2), 72.6f),
+        ChartDataPoint(today.minusDays(1), 72.4f),
+        ChartDataPoint(today, 72.2f),
+        // Dữ liệu tháng (cách nhau ~3 ngày)
+        ChartDataPoint(today.minusDays(9), 73.1f),
+        ChartDataPoint(today.minusDays(12), 73.3f),
+        ChartDataPoint(today.minusDays(15), 73.5f),
+        ChartDataPoint(today.minusDays(18), 73.8f),
+        ChartDataPoint(today.minusDays(21), 74.0f),
+        ChartDataPoint(today.minusDays(24), 74.2f),
+        ChartDataPoint(today.minusDays(27), 74.5f),
+        // Dữ liệu năm (cách nhau ~30 ngày)
+        ChartDataPoint(today.minusDays(60), 75.0f),
+        ChartDataPoint(today.minusDays(90), 75.5f),
+        ChartDataPoint(today.minusDays(120), 76.0f),
+        ChartDataPoint(today.minusDays(150), 76.5f),
+        ChartDataPoint(today.minusDays(180), 77.0f),
+        ChartDataPoint(today.minusDays(210), 77.5f),
+        ChartDataPoint(today.minusDays(240), 78.0f),
+        ChartDataPoint(today.minusDays(270), 78.5f),
+        ChartDataPoint(today.minusDays(300), 79.0f),
+        ChartDataPoint(today.minusDays(330), 79.5f),
+    )
+}
+
+/**
+ * Một hàng trong danh sách lịch sử cân nặng
+ */
+@Composable
+fun WeightHistoryItem(time: String, weight: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = time,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = weight,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+fun HistoryView(){
+
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DataHealthWeightScreenPreview() {
+    val navController = rememberNavController()
+
+    Salud_AppTheme {
+        DataHealthWeightScreen(navController = navController, onBackClicked = {})
+    }
+}
+

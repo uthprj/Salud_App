@@ -1,18 +1,11 @@
 package com.example.salud_app.model
 
-import androidx.room.PrimaryKey
-
-enum class TaskType {
-    Eat,
-    Sleep,
-    Exercise,
-}
-
-data class Tasks(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
+data class Task(
+    val id: String = "",
     val userId: String = "",
-    val type: TaskType = TaskType.Eat,
+    val type: String = "EAT", // EAT, SLEEP, EXERCISE
     val date: String = "",
-    val description: String = ""
+    val timestamp: Long = System.currentTimeMillis(),
+    val description: String = "",
+    val isCompleted: Boolean = false
 )
