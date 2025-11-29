@@ -69,7 +69,7 @@ fun DataScreen(
                 iconTint = nutritionIcon,
                 backgroundColor = nutritionBg,
                 text = stringResource(R.string.nutrition),
-                onClick = {  }
+                onClick = { navController.navigate("data-nutrition") }
             )
 
             // 3. Luyện tập

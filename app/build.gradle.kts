@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 android {
@@ -76,7 +77,9 @@ dependencies {
 
 //    Data store Preferences
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation(libs.generativeai)
     // Firestore KTX provided explicitly above; remove libs alias to avoid unresolved alias
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")

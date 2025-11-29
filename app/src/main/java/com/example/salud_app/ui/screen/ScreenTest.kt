@@ -35,6 +35,8 @@ fun ScreenTest(
         "Screen Test" to "screen-test",
         "Data" to "data",
         "Sign In" to "sign-in",
+        "Nutrition" to "data-nutrition",
+        "Health" to "data-health",
 
         // Thêm các màn hình khác vào đây
     )

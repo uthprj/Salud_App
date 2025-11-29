@@ -37,6 +37,7 @@ import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
 import com.example.salud_app.components.date_picker.CompactDatePicker
+import com.example.salud_app.model.NutritionSummary
 import com.example.salud_app.ui.screen.data.health.wieght.WeightViewModel
 import com.example.salud_app.ui.theme.Salud_AppTheme
 import java.util.Calendar
@@ -46,13 +47,65 @@ import java.util.Calendar
 fun DataNutritionScreen(
     navController: NavController,
     onBackClicked: () -> Unit,
-    weightViewModel: WeightViewModel? = null,
+    nutritionViewModel: NutritionViewModel = viewModel()
 ) {
+    val uiState by nutritionViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    
     var selectedTab by remember { mutableStateOf(0) }
     val mealTabs = listOf("Sáng", "Trưa", "Chiều", "Khác")
 
     var mealType by remember { mutableStateOf("Bữa chính") }
     var foodInput by remember { mutableStateOf("") }
+    var currentDate by remember { mutableStateOf(java.time.LocalDate.now()) }
+    var currentTime by remember { mutableStateOf(java.time.LocalTime.now()) }
+    
+    // Cập nhật khi có kết quả phân tích từ Gemini
+    LaunchedEffect(uiState.analysisResult) {
+        uiState.analysisResult?.let { result ->
+            // Tự động lưu với dữ liệu phân tích được
+            if (foodInput.isNotBlank()) {
+                nutritionViewModel.saveMeal(
+                    date = currentDate,
+                    time = currentTime.format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")),
+                    mealType = mealTabs[selectedTab],
+                    mealCategory = mealType,
+                    mealName = foodInput,
+                    calories = result.calories,
+                    protein = result.protein,
+                    carbs = result.carbs,
+                    fat = result.fat
+                )
+                nutritionViewModel.clearAnalysisResult()
+            }
+        }
+    }
+    
+    // Hiển thị lỗi phân tích
+    LaunchedEffect(uiState.analysisError) {
+        uiState.analysisError?.let {
+            android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_SHORT).show()
+            nutritionViewModel.clearAnalysisResult()
+        }
+    }
+    
+    // Hiển thị thông báo khi lưu thành công
+    LaunchedEffect(uiState.saveSuccess) {
+        if (uiState.saveSuccess) {
+            android.widget.Toast.makeText(context, "Đã lưu món ăn thành công", android.widget.Toast.LENGTH_SHORT).show()
+            nutritionViewModel.clearSaveSuccess()
+            // Reset form
+            foodInput = ""
+        }
+    }
+    
+    // Hiển thị thông báo lỗi
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let {
+            android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_SHORT).show()
+            nutritionViewModel.clearError()
+        }
+    }
 
     AppScaffold(
         navController = navController,
@@ -76,7 +129,7 @@ fun DataNutritionScreen(
                 color = Color.Black.copy(alpha = 0.8f)
             )
 
-            NutritionGrid()
+            NutritionGrid(summary = uiState.todaySummary)
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(
@@ -89,12 +142,27 @@ fun DataNutritionScreen(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Normal
                     )
-                    Text(
-                        text = "Thêm",
-                        color = Color(0xFF4A90E2),
-                        modifier = Modifier.clickable { /* Xử lý thêm */ },
-                        fontWeight = FontWeight.Medium
-                    )
+                    TextButton(
+                        onClick = {
+                            if (foodInput.isNotBlank()) {
+                                // Gọi Gemini để phân tích món ăn
+                                nutritionViewModel.analyzeMealWithGemini(foodInput)
+                            } else {
+                                android.widget.Toast.makeText(context, "Vui lòng nhập tên món ăn", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        enabled = !uiState.isSaving && !uiState.isAnalyzing
+                    ) {
+                        Text(
+                            text = when {
+                                uiState.isAnalyzing -> "Đang phân tích..."
+                                uiState.isSaving -> "Đang lưu..."
+                                else -> "Thêm"
+                            },
+                            color = Color(0xFF4A90E2),
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
 
                 Row(
@@ -130,23 +198,31 @@ fun DataNutritionScreen(
             InputFormSection(
                 mealType = mealType,
                 foodInput = foodInput,
+                currentDate = currentDate,
+                currentTime = currentTime,
                 onMealTypeChange = { mealType = it },
-                onFoodInputChange = { foodInput = it }
+                onFoodInputChange = { foodInput = it },
+                onDateChange = { currentDate = it },
+                onTimeChange = { currentTime = it }
             )
         }
     }
 }
 
 @Composable
-fun NutritionGrid() {
+fun NutritionGrid(summary: NutritionSummary) {
+    val carbsPercent = if (summary.totalCalories > 0) (summary.totalCarbs * 4 / summary.totalCalories * 100).toInt() else 45
+    val proteinPercent = if (summary.totalCalories > 0) (summary.totalProtein * 4 / summary.totalCalories * 100).toInt() else 45
+    val fatPercent = if (summary.totalCalories > 0) (summary.totalFat * 9 / summary.totalCalories * 100).toInt() else 45
+    
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             NutritionCard(
                 modifier = Modifier.weight(1f),
                 title = "Tổng calo",
-                value = "1500",
+                value = summary.totalCalories.toInt().toString(),
                 unit = "kcal",
-                subText = "Mục tiêu: 2500 kcal",
+                subText = "Mục tiêu: ${summary.targetCalories.toInt()} kcal",
                 icon = Icons.Filled.LocalFireDepartment,
                 backgroundColor = Color(0xFFFFF9C4),
                 iconColor = Color(0xFFAF861D)
@@ -154,9 +230,9 @@ fun NutritionGrid() {
             NutritionCard(
                 modifier = Modifier.weight(1f),
                 title = "Carb",
-                value = "1500",
+                value = summary.totalCarbs.toInt().toString(),
                 unit = "g",
-                subText = "45 % tổng calo",
+                subText = "$carbsPercent % tổng calo",
                 icon = Icons.Outlined.Spa,
                 backgroundColor = Color(0xFFC8E6C9),
                 iconColor = Color(0xFF2E7D32)
@@ -166,9 +242,9 @@ fun NutritionGrid() {
             NutritionCard(
                 modifier = Modifier.weight(1f),
                 title = "Protein",
-                value = "1500",
-                unit = "kcal",
-                subText = "45 % tổng calo",
+                value = summary.totalProtein.toInt().toString(),
+                unit = "g",
+                subText = "$proteinPercent % tổng calo",
                 icon = Icons.Outlined.DonutLarge,
                 backgroundColor = Color(0xFFB3E5FC),
                 iconColor = Color(0xFF0277BD)
@@ -176,9 +252,9 @@ fun NutritionGrid() {
             NutritionCard(
                 modifier = Modifier.weight(1f),
                 title = "Fat",
-                value = "1500",
-                unit = "kcal",
-                subText = "45 % tổng calo",
+                value = summary.totalFat.toInt().toString(),
+                unit = "g",
+                subText = "$fatPercent % tổng calo",
                 icon = Icons.Outlined.LocalFireDepartment,
                 backgroundColor = Color(0xFFFFCCBC),
                 iconColor = Color(0xFFD84315)
@@ -266,12 +342,13 @@ fun NutritionCard(
 fun InputFormSection(
     mealType: String,
     foodInput: String,
+    currentDate: java.time.LocalDate,
+    currentTime: java.time.LocalTime,
     onMealTypeChange: (String) -> Unit,
-    onFoodInputChange: (String) -> Unit
+    onFoodInputChange: (String) -> Unit,
+    onDateChange: (java.time.LocalDate) -> Unit,
+    onTimeChange: (java.time.LocalTime) -> Unit
 ) {
-    // --- STATE CHO DATE VÀ TIME ---
-    var currentDate by remember { mutableStateOf(java.time.LocalDate.now()) }
-    var currentTime by remember { mutableStateOf(java.time.LocalTime.now()) }
     var showTimePicker by remember { mutableStateOf(false) }
 
     // --- DIALOG MỚI SỬ DỤNG TIME PICKER CỦA MATERIAL 3 ---
@@ -308,7 +385,7 @@ fun InputFormSection(
                     }
                     TextButton(
                         onClick = {
-                            currentTime = java.time.LocalTime.of(timePickerState.hour, timePickerState.minute)
+                            onTimeChange(java.time.LocalTime.of(timePickerState.hour, timePickerState.minute))
                             showTimePicker = false
                         }
                     ) {
@@ -388,7 +465,7 @@ fun InputFormSection(
                 // Component chọn ngày
                 CompactDatePicker(
                     currentDate = currentDate,
-                    onDateChange = { newDate -> currentDate = newDate },
+                    onDateChange = { newDate -> onDateChange(newDate) },
                 )
 
                 // Text hiển thị giờ, có thể nhấn để mở Time Picker
