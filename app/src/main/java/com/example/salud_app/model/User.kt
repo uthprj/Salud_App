@@ -11,9 +11,9 @@ data class User(
     val photoUrl: String = "",
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
-    val healthRecord: HealthRecord = HealthRecord(),
-    val nutrition: Nutrition = Nutrition(),
-    val sleep: Sleep = Sleep(),
-    val exercise: Exercise = Exercise(),
-    val task: Task = Task()
+    // val healthRecord: HealthRecord = HealthRecord(),
+    // val nutrition: Nutrition = Nutrition(),
+    // val sleep: Sleep = Sleep(),
+    // val exercise: Exercise = Exercise(),
+    // val task: Task = Task()
 )

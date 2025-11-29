@@ -9,6 +9,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,18 +22,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.salud_app.R
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
+import com.example.salud_app.ui.screen.data.health.wieght.WeightViewModel
 import com.example.salud_app.ui.theme.Salud_AppTheme
 
 @Composable
 fun DataHealthScreen(
     navController: NavController,
-    onBackClicked: () -> Unit
+    onBackClicked: () -> Unit,
+    weightViewModel: WeightViewModel = viewModel()
 ) {
+    val weightState by weightViewModel.uiState.collectAsState()
+    
+    // Lấy record mới nhất
+    val latestWeight = weightState.weightRecords.firstOrNull()
+    val weightValue = latestWeight?.weight?.toString() ?: "--"
+    val weightLastUpdated = latestWeight?.date?.let { "Cập nhật lần cuối $it" } ?: "Chưa có dữ liệu"
+
     AppScaffold(
         navController = navController,
         title = stringResource(R.string.health),
@@ -54,9 +66,9 @@ fun DataHealthScreen(
             item {
                 HealthMetricCard(
                     title = stringResource(R.string.weight),
-                    value = "60",
+                    value = weightValue,
                     unit = "kg",
-                    lastUpdated = "Cập nhật lần cuối 01/09/2025",
+                    lastUpdated = weightLastUpdated,
                     onClick = { navController.navigate("data-health-weight") }
                 )
                 Spacer(modifier = Modifier.height(12.dp)) // Khoảng cách giữa các thẻ

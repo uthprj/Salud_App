@@ -9,7 +9,7 @@ import com.example.salud_app.ui.screen.SplashScreen
 import com.example.salud_app.ui.screen.ScreenTest
 import com.example.salud_app.ui.screen.data.*
 import com.example.salud_app.ui.screen.data.health.DataHealthScreen
-import com.example.salud_app.ui.screen.data.health.data_health.DataHealthWeightScreen
+import com.example.salud_app.ui.screen.data.health.wieght.DataHealthWeightScreen
 import com.example.salud_app.ui.screen.diary.DiaryScreen
 import com.example.salud_app.ui.screen.home.HomeScreen
 import com.example.salud_app.ui.screen.profile.ProfileScreen
@@ -20,7 +20,7 @@ import com.example.salud_app.ui.screen.sign.SignInViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "splash") {
+    NavHost(navController = navController, startDestination = "sign-in") {
         composable("splash") { SplashScreen(navController, onAnimationComplete = {}) }
         composable("screen-test") { ScreenTest(navController, onBackClicked = { navController.popBackStack() }) }
         composable("data") { DataScreen(navController, onBackClicked = { navController.popBackStack()}) }
