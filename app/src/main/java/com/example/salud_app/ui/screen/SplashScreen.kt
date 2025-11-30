@@ -116,12 +116,13 @@ fun SplashScreen(
          // Nếu đã đăng nhập (Firebase user tồn tại) -> vào thẳng Home
          val currentUser = FirebaseAuth.getInstance().currentUser
          if (currentUser != null) {
-             navController.navigate("Screen-test") {
-                 popUpTo("Splash") { inclusive = true }
+             navController.navigate("home") {
+                 popUpTo("splash") { inclusive = true }
              }
          } else {
-            navController.navigate("Screen-test") {
-                popUpTo("Splash") { inclusive = true }
+            // Chưa đăng nhập -> vào màn hình đăng nhập
+            navController.navigate("sign-in") {
+                popUpTo("splash") { inclusive = true }
             }
          }
         onAnimationComplete()

@@ -9,6 +9,10 @@ import com.example.salud_app.ui.screen.SplashScreen
 import com.example.salud_app.ui.screen.ScreenTest
 import com.example.salud_app.ui.screen.data.*
 import com.example.salud_app.ui.screen.data.health.DataHealthScreen
+import com.example.salud_app.ui.screen.data.health.bloodpressure.DataHealthBPScreen
+import com.example.salud_app.ui.screen.data.health.bmi.DataHealthBMIScreen
+import com.example.salud_app.ui.screen.data.health.heartrate.DataHealthHRScreen
+import com.example.salud_app.ui.screen.data.health.height.DataHealthHeightScreen
 import com.example.salud_app.ui.screen.data.health.weight.DataHealthWeightScreen
 import com.example.salud_app.ui.screen.data.nutrition.DataNutritionScreen
 import com.example.salud_app.ui.screen.diary.DiaryScreen
@@ -21,12 +25,16 @@ import com.example.salud_app.ui.screen.sign.SignInViewModel
 
 @Composable
 fun NavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "sign-in") {
+    NavHost(navController = navController, startDestination = "splash") {
         composable("splash") { SplashScreen(navController, onAnimationComplete = {}) }
         composable("screen-test") { ScreenTest(navController, onBackClicked = { navController.popBackStack() }) }
         composable("data") { DataScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-health") { DataHealthScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-health-weight") { DataHealthWeightScreen(navController, onBackClicked = { navController.popBackStack()}) }
+        composable("data-health-height") { DataHealthHeightScreen(navController, onBackClicked = { navController.popBackStack()}) }
+        composable("data-health-BMI") { DataHealthBMIScreen(navController, onBackClicked = { navController.popBackStack()}) }
+        composable("data-health-BP") { DataHealthBPScreen(navController, onBackClicked = { navController.popBackStack()}) }
+        composable("data-health-HR") { DataHealthHRScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-nutrition") { DataNutritionScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("sign-in") {
             val signInViewModel: SignInViewModel = viewModel() // Lấy ViewModel mặc định

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.salud_app.model.Nutrition
 import com.example.salud_app.model.NutritionSummary
+import com.example.salud_app.BuildConfig
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.generationConfig
 import com.google.firebase.auth.FirebaseAuth
@@ -56,9 +57,10 @@ class NutritionViewModel : ViewModel() {
     // THÊM DÒNG NÀY: Cấu hình bộ phân tích JSON
     private val json = Json { ignoreUnknownKeys = true }
 
+    private val apiKey = BuildConfig.API_KEY
+
     // SỬA LẠI Ở ĐÂY: Gộp hai khối init làm một
     init {
-        val apiKey = "AIzaSyA2To3lzualjlQ9rlEK89eLGtRFw--9UhU"
 
         generativeModel = GenerativeModel(
             modelName = "gemini-2.0-flash-lite",
