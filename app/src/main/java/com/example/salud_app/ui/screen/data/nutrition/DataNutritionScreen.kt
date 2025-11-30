@@ -38,7 +38,6 @@ import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
 import com.example.salud_app.components.date_picker.CompactDatePicker
 import com.example.salud_app.model.NutritionSummary
-import com.example.salud_app.ui.screen.data.health.weight.WeightViewModel
 import com.example.salud_app.ui.theme.Salud_AppTheme
 import java.util.Calendar
 
@@ -153,15 +152,14 @@ fun DataNutritionScreen(
                         },
                         enabled = !uiState.isSaving && !uiState.isAnalyzing
                     ) {
-                        Text(
-                            text = when {
-                                uiState.isAnalyzing -> "Đang phân tích..."
-                                uiState.isSaving -> "Đang lưu..."
-                                else -> "Thêm"
-                            },
-                            color = Color(0xFF4A90E2),
-                            fontWeight = FontWeight.Medium
-                        )
+                        if (uiState.isAnalyzing || uiState.isSaving) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text("Thêm")
+                        }
                     }
                 }
 

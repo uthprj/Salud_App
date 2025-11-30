@@ -78,7 +78,7 @@ fun DataScreen(
                 iconTint = exerciseIcon,
                 backgroundColor = exerciseBg,
                 text = stringResource(R.string.exercise),
-                onClick = {  }
+                onClick = { navController.navigate("data-exercise") }
             )
 
             // 4. Giấc ngủ

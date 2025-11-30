@@ -72,20 +72,12 @@ fun DataHealthHRScreen(
         showMoreMenu = true,
         onBackClicked = onBackClicked,
         showSaveButton = true,
+        isSaving = uiState.isSaving,
         onSaveClicked = {
             val heartRate = hrState.selectedItem.toLongOrNull() ?: 72
             viewModel.saveHR(currentDate, heartRate)
         }
     ) { innerPadding ->
-
-        if (uiState.isSaving) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
 
         LazyColumn(
             modifier = Modifier

@@ -44,6 +44,7 @@ fun AppScaffold(
     screenLevel: ScreenLevel = ScreenLevel.MAIN,
     onBackClicked: (() -> Unit)? = null,
     showSaveButton: Boolean = false,
+    isSaving: Boolean = false,
     onSaveClicked: () -> Unit = {},
     showMoreMenu: Boolean = false,
     moreMenuItems: @Composable ColumnScope.() -> Unit = {},
@@ -59,6 +60,7 @@ fun AppScaffold(
                     SubTopBar(
                         title = title,
                         showSaveButton = showSaveButton,
+                        isSaving = isSaving,
                         onSaveClicked = onSaveClicked,
                         showMoreMenu = showMoreMenu,
                         moreMenuItems = moreMenuItems,
@@ -166,6 +168,7 @@ fun MainTopBar(title: String) {
 fun SubTopBar(
     title: String,
     showSaveButton: Boolean,
+    isSaving: Boolean = false,
     onSaveClicked: () -> Unit,
     showMoreMenu: Boolean,
     moreMenuItems: @Composable ColumnScope.() -> Unit,
@@ -192,8 +195,18 @@ fun SubTopBar(
         },
         actions = {
             if (showSaveButton) {
-                TextButton(onClick = onSaveClicked) {
-                    Text("Lưu")
+                TextButton(
+                    onClick = onSaveClicked,
+                    enabled = !isSaving
+                ) {
+                    if (isSaving) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("Lưu")
+                    }
                 }
             }
 

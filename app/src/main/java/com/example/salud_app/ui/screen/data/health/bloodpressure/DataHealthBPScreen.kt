@@ -72,6 +72,7 @@ fun DataHealthBPScreen(
         showMoreMenu = true,
         onBackClicked = onBackClicked,
         showSaveButton = true,
+        isSaving = uiState.isSaving,
         onSaveClicked = {
             // Lấy giá trị huyết áp từ picker
             val systolic = systolicState.selectedItem.toLongOrNull() ?: 120
@@ -81,16 +82,6 @@ fun DataHealthBPScreen(
             viewModel.saveBP(currentDate, systolic, diastolic)
         }
     ) { innerPadding ->
-
-        // Hiển thị loading indicator khi đang lưu
-        if (uiState.isSaving) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
 
         LazyColumn(
             modifier = Modifier

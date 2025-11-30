@@ -77,6 +77,7 @@ fun DataHealthWeightScreen(
         showMoreMenu = true,
         onBackClicked = onBackClicked,
         showSaveButton = true,
+        isSaving = uiState.isSaving,
         onSaveClicked = {
             // Lấy giá trị cân nặng từ picker
             val intPart = integerState.selectedItem.toIntOrNull() ?: 70
@@ -87,16 +88,6 @@ fun DataHealthWeightScreen(
             viewModel.saveWeight(currentDate, weight)
         }
     ) { innerPadding ->
-
-        // Hiển thị loading indicator khi đang lưu
-        if (uiState.isSaving) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
 
         LazyColumn(
             modifier = Modifier

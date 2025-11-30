@@ -76,6 +76,7 @@ fun DataHealthHeightScreen(
         showMoreMenu = true,
         onBackClicked = onBackClicked,
         showSaveButton = true,
+        isSaving = uiState.isSaving,
         onSaveClicked = {
             // Lấy giá trị chiều cao từ picker
             val intPart = integerState.selectedItem.toIntOrNull() ?: 170
@@ -86,16 +87,6 @@ fun DataHealthHeightScreen(
             viewModel.saveHeight(currentDate, height)
         }
     ) { innerPadding ->
-
-        // Hiển thị loading indicator khi đang lưu
-        if (uiState.isSaving) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
 
         LazyColumn(
             modifier = Modifier
