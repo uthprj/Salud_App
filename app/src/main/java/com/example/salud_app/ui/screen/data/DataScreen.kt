@@ -36,8 +36,8 @@ fun DataScreen(
     val exerciseIcon = Color(0xFF4CAF50)
     val sleepBg = Color(0xFFE3F2FD)
     val sleepIcon = Color(0xFF1E88E5)
-    val reportBg = Color(0xFFFFFDE7)
-    val reportIcon = Color(0xFFFBC02D)
+    val goalBg = Color(0xFFFFFDE7)
+    val goalIcon = Color(0xFFFBC02D)
 
     AppScaffold(
         navController = navController,
@@ -92,10 +92,10 @@ fun DataScreen(
 
             // 5. Báo cáo
             DataItemRow(
-                icon = painterResource(id = R.drawable.ic_finance),
-                iconTint = reportIcon,
-                backgroundColor = reportBg,
-                text = stringResource(R.string.report),
+                icon = painterResource(id = R.drawable.target_24px),
+                iconTint = goalIcon,
+                backgroundColor = goalBg,
+                text = stringResource(R.string.goal),
                 onClick = {  }
             )
         }
