@@ -1,4 +1,4 @@
-package com.example.salud_app.ui.screen.data.health.wieght
+package com.example.salud_app.ui.screen.data.health.weight
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -28,20 +28,23 @@ import com.example.salud_app.components.draw_chart.ChartDataPoint
 import com.example.salud_app.components.number_picker.NumberPicker
 import com.example.salud_app.components.number_picker.PickerState
 import com.example.salud_app.components.number_picker.rememberPickerState
+import com.example.salud_app.ui.screen.data.health.weight.*
 import com.example.salud_app.ui.theme.Salud_AppTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 
 @Composable
 fun DataHealthWeightScreen(
     navController: NavController,
     onBackClicked: () -> Unit,
-    viewModel: WeightViewModel = viewModel()
+    viewModel: com.example.salud_app.ui.screen.data.health.weight.WeightViewModel = viewModel()
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
     
-    var currentDate by remember { mutableStateOf(java.time.LocalDate.now()) }
+    var currentDate by remember { mutableStateOf(LocalDate.now()) }
 
     // Tạo danh sách giá trị cho picker
     val integerItems = remember { (0..200).map { it.toString() } }
@@ -327,10 +330,10 @@ fun StatisticsView(
                 val targetDate = today.minusDays(((9 - i) * 3).toLong())
                 // Tìm dữ liệu gần nhất trong khoảng +-1 ngày
                 weightData.filter { 
-                    val diff = kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                    val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
                     diff <= 1
-                }.minByOrNull { 
-                    kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                }.minByOrNull {
+                    abs(ChronoUnit.DAYS.between(it.date, targetDate))
                 }
             }
         }
@@ -340,10 +343,10 @@ fun StatisticsView(
                 val targetDate = today.minusDays(((11 - i) * 30).toLong())
                 // Tìm dữ liệu gần nhất trong khoảng +-15 ngày
                 weightData.filter { 
-                    val diff = kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                    val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
                     diff <= 15
-                }.minByOrNull { 
-                    kotlin.math.abs(java.time.temporal.ChronoUnit.DAYS.between(it.date, targetDate))
+                }.minByOrNull {
+                    abs(ChronoUnit.DAYS.between(it.date, targetDate))
                 }
             }
         }
@@ -353,7 +356,7 @@ fun StatisticsView(
     val dateFormat = when (selectedTabIndex) {
         0 -> DateTimeFormatter.ofPattern("dd/MM")  // Tuần: dd/MM
         1 -> DateTimeFormatter.ofPattern("dd/MM")  // Tháng: dd/MM
-        else -> DateTimeFormatter.ofPattern("dd/MM")
+        else -> DateTimeFormatter.ofPattern("'T'.MM")
     }
 
     Column {

@@ -9,7 +9,7 @@ import com.example.salud_app.ui.screen.SplashScreen
 import com.example.salud_app.ui.screen.ScreenTest
 import com.example.salud_app.ui.screen.data.*
 import com.example.salud_app.ui.screen.data.health.DataHealthScreen
-import com.example.salud_app.ui.screen.data.health.wieght.DataHealthWeightScreen
+import com.example.salud_app.ui.screen.data.health.weight.DataHealthWeightScreen
 import com.example.salud_app.ui.screen.data.nutrition.DataNutritionScreen
 import com.example.salud_app.ui.screen.diary.DiaryScreen
 import com.example.salud_app.ui.screen.home.HomeScreen

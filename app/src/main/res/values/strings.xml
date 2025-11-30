@@ -10,4 +10,8 @@
     <string name="weight">Cân nặng</string>
     <string name="save">Lưu</string>
     <string name="default_web_client_id">718456115746-j6lg9s4klp4m80vm2bc6d26prsg9ngfv.apps.googleusercontent.com</string>
+    <string name="heart_rate">Nhịp tim</string>
+    <string name="blood_pressure">Huyết áp</string>
+    <string name="bmi">BMI</string>
+    <string name="height">Chiều cao</string>
 </resources>

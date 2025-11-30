@@ -1,0 +1,496 @@
+package com.example.salud_app.ui.screen.data.health.height
+import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.salud_app.R
+import com.example.salud_app.components.AppScaffold
+import com.example.salud_app.components.ScreenLevel
+import com.example.salud_app.components.date_picker.AppDatePicker
+import com.example.salud_app.components.draw_chart.AppLineChart
+import com.example.salud_app.components.draw_chart.ChartDataPoint
+import com.example.salud_app.components.number_picker.NumberPicker
+import com.example.salud_app.components.number_picker.PickerState
+import com.example.salud_app.components.number_picker.rememberPickerState
+import com.example.salud_app.ui.theme.Salud_AppTheme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import kotlin.math.abs
+
+@Composable
+fun DataHealthHeightScreen(
+    navController: NavController,
+    onBackClicked: () -> Unit,
+    viewModel: HeightViewModel = viewModel()
+) {
+    val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsState()
+
+    var currentDate by remember { mutableStateOf(LocalDate.now()) }
+
+    // Tạo danh sách giá trị cho picker
+    val integerItems = remember { (50..250).map { it.toString() } }
+    val fractionalItems = remember { (0..9).map { it.toString() } }
+
+    // Trạng thái picker
+    val integerState = rememberPickerState("170")
+    val fractionalState = rememberPickerState("0")
+
+    // Hiển thị Toast khi lưu thành công
+    LaunchedEffect(uiState.saveSuccess) {
+        if (uiState.saveSuccess) {
+            Toast.makeText(context, "Đã lưu chiều cao thành công!", Toast.LENGTH_SHORT).show()
+            viewModel.clearSaveSuccess()
+        }
+    }
+
+    // Hiển thị Toast khi có lỗi
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { error ->
+            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+            viewModel.clearError()
+        }
+    }
+
+    AppScaffold(
+        navController = navController,
+        title = stringResource(R.string.height),
+        screenLevel = ScreenLevel.SUB,
+        showMoreMenu = true,
+        onBackClicked = onBackClicked,
+        showSaveButton = true,
+        onSaveClicked = {
+            // Lấy giá trị chiều cao từ picker
+            val intPart = integerState.selectedItem.toIntOrNull() ?: 170
+            val fracPart = fractionalState.selectedItem.toIntOrNull() ?: 0
+            val height = intPart + fracPart / 10.0
+
+            // Lưu lên Firebase
+            viewModel.saveHeight(currentDate, height)
+        }
+    ) { innerPadding ->
+
+        // Hiển thị loading indicator khi đang lưu
+        if (uiState.isSaving) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(bottom = 16.dp)
+        ) {
+            // --- PHẦN: THÊM DỮ LIỆU ---
+            item {
+                Column(Modifier.fillMaxWidth()) {
+                    SectionHeader(text = "Thêm dữ liệu")
+                    AppDatePicker(
+                        currentDate = currentDate,
+                        onDateChange = { newDate -> currentDate = newDate },
+                        label = "Ngày"
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    HeightInputRow(
+                        integerState = integerState,
+                        fractionalState = fractionalState,
+                        integerItems = integerItems,
+                        fractionalItems = fractionalItems
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+
+            // Đường phân cách
+            item { HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant) }
+
+            // --- PHẦN: THỐNG KÊ ---
+            item {
+                Column(Modifier.padding(horizontal = 16.dp)) {
+                    SectionHeader(text = "Thống kê")
+                }
+            }
+            item {
+                // Sử dụng dữ liệu từ Firebase nếu có, nếu không thì dùng sample data
+                val chartData = if (uiState.heightRecords.isNotEmpty()) {
+                    viewModel.getChartDataPoints()
+                } else {
+                    sampleHeightData
+                }
+                StatisticsView(heightData = chartData)
+            }
+
+            // --- PHẦN: DANH SÁCH LỊCH SỬ ---
+
+            item { HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant) }
+            item {
+                Column(Modifier.fillMaxWidth()) {
+                    SectionHeader(text = "Lịch sử")
+
+                    if (uiState.isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    } else if (uiState.heightRecords.isEmpty()) {
+                        Text(
+                            text = "Chưa có dữ liệu",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    } else {
+                        // Hiển thị 10 record gần nhất
+                        uiState.heightRecords.take(10).forEach { record ->
+                            HeightHistoryItem(
+                                time = record.date,
+                                height = "${record.height} cm"
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Tiêu đề cho mỗi phần
+ */
+@Composable
+fun SectionHeader(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleLarge,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 16.dp, bottom = 8.dp)
+    )
+}
+
+/**
+ * Hàng hiển thị Thời gian (Ngày & Giờ)
+ */
+//@Composable
+//fun TimePickerRow(
+//    date: String,
+//    time: String,
+//    onDateClick: () -> Unit,
+//    onTimeClick: () -> Unit
+//) {
+//    Row(
+//        modifier = Modifier.fillMaxWidth(),
+//        verticalAlignment = Alignment.CenterVertically,
+//        horizontalArrangement = Arrangement.SpaceBetween
+//    ) {
+//        Text(
+//            text = "Thời gian",
+//            style = MaterialTheme.typography.bodyLarge
+//        )
+//        Row(horizontalArrangement = Arrangement.spacedBy(1.dp)) {
+//            Text(
+//                text = date,
+//                style = MaterialTheme.typography.bodyLarge,
+//                color = MaterialTheme.colorScheme.primary,
+//                modifier = Modifier
+//                    .clickable(onClick = onDateClick)
+//                    .padding(vertical = 4.dp)
+//            )
+//            Text(
+//                text = time,
+//                style = MaterialTheme.typography.bodyLarge,
+//                color = MaterialTheme.colorScheme.primary,
+//                modifier = Modifier
+//                    .clickable(onClick = onTimeClick)
+//                    .padding(vertical = 4.dp)
+//            )
+//        }
+//    }
+//}
+
+/**
+ * Hàng nhập Chiều cao (với Number Picker)
+ */
+@Composable
+fun HeightInputRow(
+    integerState: PickerState,
+    fractionalState: PickerState,
+    integerItems: List<String>,
+    fractionalItems: List<String>
+) {
+    Column {
+        // --- Hàng tiêu đề và đơn vị ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Chiều cao (cm)",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // --- Hàng chứa các Number Picker ---
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            val textStyle = MaterialTheme.typography.headlineLarge
+            val itemHeight = 65.dp
+
+            // Picker cho phần nguyên
+            NumberPicker(
+                state = integerState,
+                items = integerItems,
+                startIndex = integerItems.indexOf("170"),
+                textStyle = textStyle,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(itemHeight * 3)
+            )
+
+            // Dấu chấm ngăn cách
+            Text(
+                text = ".",
+                style = textStyle,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+
+            // Picker cho phần thập phân
+            NumberPicker(
+                state = fractionalState,
+                items = fractionalItems,
+                startIndex = fractionalItems.indexOf("0"),
+                textStyle = textStyle,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(itemHeight * 3)
+            )
+        }
+    }
+}
+
+
+/**
+ * Composable cho phần Thống kê (Tab và Biểu đồ)
+ */
+@Composable
+fun StatisticsView(
+    heightData: List<ChartDataPoint> = sampleHeightData
+) {
+    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    val tabs = listOf("Tuần", "Tháng", "Năm")
+
+    val today = LocalDate.now()
+
+    // Tạo danh sách các điểm hiển thị dựa vào tab
+    val displayPoints: List<ChartDataPoint> = when (selectedTabIndex) {
+        0 -> {
+            // Tuần: 7 điểm, mỗi điểm là 1 ngày
+            (0..6).mapNotNull { i ->
+                val date = today.minusDays((6 - i).toLong())
+                heightData.find { it.date == date }
+            }
+        }
+        1 -> {
+            // Tháng: 10 điểm, cách nhau 3 ngày (27 ngày)
+            (0..9).mapNotNull { i ->
+                val targetDate = today.minusDays(((9 - i) * 3).toLong())
+                // Tìm dữ liệu gần nhất trong khoảng +-1 ngày
+                heightData.filter {
+                    val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                    diff <= 1
+                }.minByOrNull {
+                    abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                }
+            }
+        }
+        else -> {
+            // Năm: 12 điểm, cách nhau 30 ngày (330 ngày ~ 11 tháng)
+            (0..11).mapNotNull { i ->
+                val targetDate = today.minusDays(((11 - i) * 30).toLong())
+                // Tìm dữ liệu gần nhất trong khoảng +-15 ngày
+                heightData.filter {
+                    val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                    diff <= 15
+                }.minByOrNull {
+                    abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                }
+            }
+        }
+    }
+
+    // Format ngày theo tab
+    val dateFormat = when (selectedTabIndex) {
+        0 -> DateTimeFormatter.ofPattern("dd/MM")  // Tuần: dd/MM
+        1 -> DateTimeFormatter.ofPattern("dd/MM")  // Tháng: dd/MM
+        else -> DateTimeFormatter.ofPattern("dd/MM")
+    }
+
+    Column {
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            containerColor = Color.Transparent
+        ) {
+            tabs.forEachIndexed { index, title ->
+                Tab(
+                    selected = selectedTabIndex == index,
+                    onClick = { selectedTabIndex = index },
+                    text = { Text(text = title) }
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 0.dp)
+                .background(
+                    color = Color(0),
+                    RoundedCornerShape(12.dp)
+
+                )
+                .padding(start = 8.dp, end = 10.dp, top = 10.dp, bottom = 20.dp)
+        ) {
+            if (displayPoints.isNotEmpty()) {
+                AppLineChart(
+                    dataPoints = displayPoints,
+                    lineColor = Color(0xFF6AB9F5),
+                    chartHeight = 220.dp,
+                    unit = "kg",
+                    showGrid = true,
+                    showLabels = true,
+                    dateFormat = dateFormat
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Chưa có dữ liệu",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+// Dữ liệu mẫu cho biểu đồ chiều cao
+val sampleHeightData: List<ChartDataPoint> = run {
+    val today = LocalDate.now()
+    listOf(
+        // Dữ liệu tuần (7 ngày gần nhất)
+        ChartDataPoint(today.minusDays(6), 170.5f),
+        ChartDataPoint(today.minusDays(5), 170.3f),
+        ChartDataPoint(today.minusDays(4), 170.8f),
+        ChartDataPoint(today.minusDays(3), 170.0f),
+        ChartDataPoint(today.minusDays(2), 170.6f),
+        ChartDataPoint(today.minusDays(1), 170.4f),
+        ChartDataPoint(today, 170.2f),
+        // Dữ liệu tháng (cách nhau ~3 ngày)
+        ChartDataPoint(today.minusDays(9), 170.1f),
+        ChartDataPoint(today.minusDays(12), 170.3f),
+        ChartDataPoint(today.minusDays(15), 170.5f),
+        ChartDataPoint(today.minusDays(18), 169.8f),
+        ChartDataPoint(today.minusDays(21), 169.0f),
+        ChartDataPoint(today.minusDays(24), 168.2f),
+        ChartDataPoint(today.minusDays(27), 168.5f),
+        // Dữ liệu năm (cách nhau ~30 ngày)
+        ChartDataPoint(today.minusDays(60), 167.0f),
+        ChartDataPoint(today.minusDays(90), 166.5f),
+        ChartDataPoint(today.minusDays(120), 166.0f),
+        ChartDataPoint(today.minusDays(150), 165.5f),
+        ChartDataPoint(today.minusDays(180), 165.0f),
+        ChartDataPoint(today.minusDays(210), 164.5f),
+        ChartDataPoint(today.minusDays(240), 164.0f),
+        ChartDataPoint(today.minusDays(270), 163.5f),
+        ChartDataPoint(today.minusDays(300), 163.0f),
+        ChartDataPoint(today.minusDays(330), 162.5f),
+    )
+}
+
+/**
+ * Một hàng trong danh sách lịch sử chiều cao
+ */
+@Composable
+fun HeightHistoryItem(time: String, height: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = time,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = height,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+@Composable
+fun HistoryView(){
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+    ){
+        Column(){
+
+        }
+    }
+
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DataHealthHeightScreenPreview() {
+    val navController = rememberNavController()
+
+    Salud_AppTheme {
+        DataHealthHeightScreen(navController = navController, onBackClicked = {})
+    }
+}
+

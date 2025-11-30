@@ -1,4 +1,4 @@
-package com.example.salud_app.ui.screen.data.health.wieght
+package com.example.salud_app.ui.screen.data.health.bloodpressure
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -15,17 +15,17 @@ import kotlinx.coroutines.tasks.await
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-data class WeightUiState(
-    val weightRecords: List<HealthRecord> = emptyList(),
+data class BPUiState(
+    val bpRecords: List<HealthRecord> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
     val saveSuccess: Boolean = false
 )
 
-class WeightViewModel : ViewModel() {
-    private val _uiState = MutableStateFlow(WeightUiState())
-    val uiState: StateFlow<WeightUiState> = _uiState.asStateFlow()
+class BPViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow(BPUiState())
+    val uiState: StateFlow<BPUiState> = _uiState.asStateFlow()
 
     private val firestore = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
@@ -33,17 +33,17 @@ class WeightViewModel : ViewModel() {
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     init {
-        loadWeightRecords()
+        loadBPRecords()
     }
 
     /**
-     * Tải danh sách cân nặng từ Firebase
+     * Tải danh sách huyết áp từ Firebase
      */
-    fun loadWeightRecords() {
+    fun loadBPRecords() {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                
+
                 val currentUser = auth.currentUser
                 if (currentUser == null) {
                     _uiState.value = _uiState.value.copy(
@@ -63,17 +63,17 @@ class WeightViewModel : ViewModel() {
                     .mapNotNull { doc ->
                         doc.toObject(HealthRecord::class.java)?.copy(id = doc.id)
                     }
-                    .filter { it.weight > 0 } // Chỉ lấy các record có cân nặng
-                    .sortedByDescending { it.timestamp } // Sắp xếp ở client
+                    .filter { it.systolic > 0 && it.diastolic > 0 } // Chỉ lấy các record có huyết áp
+                    .sortedByDescending { it.timestamp }
 
                 _uiState.value = _uiState.value.copy(
-                    weightRecords = records,
+                    bpRecords = records,
                     isLoading = false
                 )
-                
-                Log.d("WeightViewModel", "Loaded ${records.size} weight records")
+
+                Log.d("BPViewModel", "Loaded ${records.size} BP records")
             } catch (e: Exception) {
-                Log.e("WeightViewModel", "Error loading weight records", e)
+                Log.e("BPViewModel", "Error loading BP records", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message ?: "Lỗi tải dữ liệu"
@@ -83,13 +83,13 @@ class WeightViewModel : ViewModel() {
     }
 
     /**
-     * Lưu cân nặng lên Firebase
+     * Lưu huyết áp lên Firebase
      */
-    fun saveWeight(date: LocalDate, weight: Double) {
+    fun saveBP(date: LocalDate, systolic: Long, diastolic: Long) {
         viewModelScope.launch {
             try {
                 _uiState.value = _uiState.value.copy(isSaving = true, error = null, saveSuccess = false)
-                
+
                 val currentUser = auth.currentUser
                 if (currentUser == null) {
                     _uiState.value = _uiState.value.copy(
@@ -103,7 +103,7 @@ class WeightViewModel : ViewModel() {
                 val userHealthRef = firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
-                
+
                 // Kiểm tra xem đã có record cho ngày này chưa
                 val existingRecords = userHealthRef
                     .whereEqualTo("date", dateString)
@@ -116,34 +116,36 @@ class WeightViewModel : ViewModel() {
                     userHealthRef.document(docId)
                         .update(
                             mapOf(
-                                "weight" to weight,
+                                "systolic" to systolic,
+                                "diastolic" to diastolic,
                                 "timestamp" to System.currentTimeMillis()
                             )
                         )
                         .await()
-                    Log.d("WeightViewModel", "Updated weight record: $docId")
+                    Log.d("BPViewModel", "Updated BP record: $docId")
                 } else {
                     // Tạo record mới
                     val record = HealthRecord(
                         userId = currentUser.uid,
                         date = dateString,
                         timestamp = System.currentTimeMillis(),
-                        weight = weight
+                        systolic = systolic,
+                        diastolic = diastolic
                     )
                     userHealthRef.add(record).await()
-                    Log.d("WeightViewModel", "Created new weight record for $dateString")
+                    Log.d("BPViewModel", "Created new BP record for $dateString")
                 }
 
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     saveSuccess = true
                 )
-                
+
                 // Tải lại dữ liệu sau khi lưu
-                loadWeightRecords()
-                
+                loadBPRecords()
+
             } catch (e: Exception) {
-                Log.e("WeightViewModel", "Error saving weight", e)
+                Log.e("BPViewModel", "Error saving BP", e)
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     error = e.message ?: "Lỗi lưu dữ liệu"
@@ -153,24 +155,24 @@ class WeightViewModel : ViewModel() {
     }
 
     /**
-     * Xóa một record cân nặng
+     * Xóa một record huyết áp
      */
-    fun deleteWeight(recordId: String) {
+    fun deleteBP(recordId: String) {
         viewModelScope.launch {
             try {
                 val currentUser = auth.currentUser ?: return@launch
-                
+
                 firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
                     .document(recordId)
                     .delete()
                     .await()
-                
-                Log.d("WeightViewModel", "Deleted weight record: $recordId")
-                loadWeightRecords()
+
+                Log.d("BPViewModel", "Deleted BP record: $recordId")
+                loadBPRecords()
             } catch (e: Exception) {
-                Log.e("WeightViewModel", "Error deleting weight", e)
+                Log.e("BPViewModel", "Error deleting BP", e)
                 _uiState.value = _uiState.value.copy(
                     error = e.message ?: "Lỗi xóa dữ liệu"
                 )
@@ -179,17 +181,59 @@ class WeightViewModel : ViewModel() {
     }
 
     /**
-     * Chuyển đổi HealthRecord thành ChartDataPoint để vẽ biểu đồ
+     * Chuyển đổi HealthRecord thành ChartDataPoint để vẽ biểu đồ (Systolic)
      */
-    fun getChartDataPoints(): List<ChartDataPoint> {
-        return _uiState.value.weightRecords.mapNotNull { record ->
+    fun getSystolicChartDataPoints(): List<ChartDataPoint> {
+        return _uiState.value.bpRecords.mapNotNull { record ->
             try {
                 val date = LocalDate.parse(record.date, dateFormatter)
-                ChartDataPoint(date, record.weight.toFloat())
+                ChartDataPoint(date, record.systolic.toFloat())
             } catch (e: Exception) {
                 null
             }
         }.sortedBy { it.date }
+    }
+
+    /**
+     * Chuyển đổi HealthRecord thành ChartDataPoint để vẽ biểu đồ (Diastolic)
+     */
+    fun getDiastolicChartDataPoints(): List<ChartDataPoint> {
+        return _uiState.value.bpRecords.mapNotNull { record ->
+            try {
+                val date = LocalDate.parse(record.date, dateFormatter)
+                ChartDataPoint(date, record.diastolic.toFloat())
+            } catch (e: Exception) {
+                null
+            }
+        }.sortedBy { it.date }
+    }
+
+    /**
+     * Phân loại huyết áp
+     */
+    fun getBPCategory(systolic: Long, diastolic: Long): String {
+        return when {
+            systolic < 90 || diastolic < 60 -> "Huyết áp thấp"
+            systolic < 120 && diastolic < 80 -> "Bình thường"
+            systolic in 120..129 && diastolic < 80 -> "Tăng cao"
+            systolic in 130..139 || diastolic in 80..89 -> "Cao độ 1"
+            systolic >= 140 || diastolic >= 90 -> "Cao độ 2"
+            else -> "Không xác định"
+        }
+    }
+
+    /**
+     * Lấy màu theo huyết áp
+     */
+    fun getBPColor(systolic: Long, diastolic: Long): androidx.compose.ui.graphics.Color {
+        return when {
+            systolic < 90 || diastolic < 60 -> androidx.compose.ui.graphics.Color(0xFF5DADE2) // Xanh dương - Thấp
+            systolic < 120 && diastolic < 80 -> androidx.compose.ui.graphics.Color(0xFF2ECC71) // Xanh lá - Bình thường
+            systolic in 120..129 && diastolic < 80 -> androidx.compose.ui.graphics.Color(0xFFF39C12) // Cam - Tăng cao
+            systolic in 130..139 || diastolic in 80..89 -> androidx.compose.ui.graphics.Color(0xFFE74C3C) // Đỏ nhạt - Cao độ 1
+            systolic >= 140 || diastolic >= 90 -> androidx.compose.ui.graphics.Color(0xFFC0392B) // Đỏ đậm - Cao độ 2
+            else -> androidx.compose.ui.graphics.Color.Gray
+        }
     }
 
     /**

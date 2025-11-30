@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -24,26 +25,71 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.salud_app.R
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
-import com.example.salud_app.ui.screen.data.health.wieght.WeightViewModel
+import com.example.salud_app.ui.screen.data.health.weight.WeightViewModel
+import com.example.salud_app.ui.screen.data.health.height.HeightViewModel
+import com.example.salud_app.ui.screen.data.health.bloodpressure.BPViewModel
+import com.example.salud_app.ui.screen.data.health.heartrate.HeartRateViewModel
 import com.example.salud_app.ui.theme.Salud_AppTheme
 
 @Composable
 fun DataHealthScreen(
     navController: NavController,
     onBackClicked: () -> Unit,
-    weightViewModel: WeightViewModel = viewModel()
+    weightViewModel: WeightViewModel = viewModel(),
+    heightViewModel: HeightViewModel = viewModel(),
+    bpViewModel: BPViewModel = viewModel(),
+    hrViewModel: HeartRateViewModel = viewModel()
 ) {
-    val weightState by weightViewModel.uiState.collectAsState()
+    // Theo dõi khi navigate back về màn hình này
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
     
-    // Lấy record mới nhất
+    // Reload dữ liệu khi back về màn hình này
+    LaunchedEffect(currentBackStackEntry) {
+        weightViewModel.loadWeightRecords()
+        heightViewModel.loadHeightRecords()
+        bpViewModel.loadBPRecords()
+        hrViewModel.loadHRRecords()
+    }
+
+    val weightState by weightViewModel.uiState.collectAsState()
     val latestWeight = weightState.weightRecords.firstOrNull()
     val weightValue = latestWeight?.weight?.toString() ?: "--"
     val weightLastUpdated = latestWeight?.date?.let { "Cập nhật lần cuối $it" } ?: "Chưa có dữ liệu"
 
+    val heightState by heightViewModel.uiState.collectAsState()
+    val latestHeight = heightState.heightRecords.firstOrNull()
+    val heightValue = latestHeight?.height?.toString() ?: "--"
+    val heightLastUpdated = latestHeight?.date?.let { "Cập nhật lần cuối $it" } ?: "Chưa có dữ liệu"
+
+    // Tính BMI từ weight và height
+    val weight = latestWeight?.weight ?: 0.0
+    val height = latestHeight?.height ?: 0.0
+    val bmiValue = if (weight > 0 && height > 0) {
+        val heightInMeters = height / 100.0
+        String.format("%.1f", weight / (heightInMeters * heightInMeters))
+    } else "--"
+    val bmiLastUpdated = if (weight > 0 && height > 0) {
+        val latestDate = maxOf(latestWeight?.date ?: "", latestHeight?.date ?: "")
+        "Cập nhật lần cuối $latestDate"
+    } else "Chưa có dữ liệu"
+
+    // Lấy dữ liệu huyết áp
+    val bpState by bpViewModel.uiState.collectAsState()
+    val latestBP = bpState.bpRecords.firstOrNull()
+    val bpValue = if (latestBP != null) "${latestBP.systolic}/${latestBP.diastolic}" else "--"
+    val bpLastUpdated = latestBP?.date?.let { "Cập nhật lần cuối $it" } ?: "Chưa có dữ liệu"
+
+    // Lấy dữ liệu nhịp tim
+    val hrState by hrViewModel.uiState.collectAsState()
+    val latestHR = hrState.hrRecords.firstOrNull()
+    val hrValue = latestHR?.heartRate?.toString() ?: "--"
+    val hrLastUpdated = latestHR?.date?.let { "Cập nhật lần cuối $it" } ?: "Chưa có dữ liệu"
+    
     AppScaffold(
         navController = navController,
         title = stringResource(R.string.health),
@@ -76,20 +122,20 @@ fun DataHealthScreen(
             item {
                 HealthMetricCard(
                     title = "Chiều cao",
-                    value = "160",
+                    value = heightValue,
                     unit = "cm",
-                    lastUpdated = "Cập nhật lần cuối 01/09/2025",
-                    onClick = { /* TODO: Điều hướng đến màn hình Chiều cao */ }
+                    lastUpdated = heightLastUpdated,
+                    onClick = { navController.navigate("data-health-height") }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
             item {
                 HealthMetricCard(
                     title = "BMI",
-                    value = "19",
-                    unit = "kg/m2",
-                    lastUpdated = "Cập nhật lần cuối 01/09/2025",
-                    onClick = { /* TODO: Điều hướng đến màn hình BMI */ }
+                    value = bmiValue,
+                    unit = "kg/m²",
+                    lastUpdated = bmiLastUpdated,
+                    onClick = { navController.navigate("data-health-bmi") }
                 )
             }
 
@@ -100,30 +146,21 @@ fun DataHealthScreen(
             item {
                 HealthMetricCard(
                     title = "Huyết áp",
-                    value = "120/80",
+                    value = bpValue,
                     unit = "mmHg",
-                    lastUpdated = "Cập nhật lần cuối 01/09/2025",
-                    onClick = { /* TODO: Điều hướng đến màn hình Huyết áp */ }
+                    lastUpdated = bpLastUpdated,
+                    onClick = { navController.navigate("data-health-bp") }
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
             item {
                 HealthMetricCard(
                     title = "Nhịp tim",
-                    value = "72",
+                    value = hrValue,
                     unit = "bpm",
-                    lastUpdated = "Cập nhật lần cuối 01/09/2025",
-                    onClick = { /* TODO: Điều hướng đến màn hình Nhịp tim */ }
+                    lastUpdated = hrLastUpdated,
+                    onClick = { navController.navigate("data-health-hr") }
                 )
-            }
-
-            // --- PHẦN: GHI CHÚ ---
-            item {
-                SectionHeader(text = "Ghi chú")
-            }
-            item {
-                NotesCard(text = "Không có ghi chú...")
-                Spacer(modifier = Modifier.height(16.dp)) // Padding ở cuối
             }
         }
     }
@@ -243,7 +280,6 @@ fun NotesCard(text: String) {
 @Composable
 fun DataHealthScreenPreview() {
     val navController = rememberNavController()
-
     Salud_AppTheme {
         DataHealthScreen(navController = navController, onBackClicked = {})
     }

@@ -38,7 +38,7 @@ import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
 import com.example.salud_app.components.date_picker.CompactDatePicker
 import com.example.salud_app.model.NutritionSummary
-import com.example.salud_app.ui.screen.data.health.wieght.WeightViewModel
+import com.example.salud_app.ui.screen.data.health.weight.WeightViewModel
 import com.example.salud_app.ui.theme.Salud_AppTheme
 import java.util.Calendar
 
