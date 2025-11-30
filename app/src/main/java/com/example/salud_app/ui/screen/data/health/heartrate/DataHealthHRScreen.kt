@@ -121,7 +121,7 @@ fun DataHealthHRScreen(
                 }
             }
             item {
-                HRStatisticsView(hrData = viewModel.getChartDataPoints())
+                HRStatisticsView(hrData = uiState.chartDataPoints)
             }
 
             // --- PHẦN: DANH SÁCH LỊCH SỬ ---
@@ -229,33 +229,35 @@ fun HRStatisticsView(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Tuần", "Tháng", "Năm")
 
-    val today = LocalDate.now()
+    val today = remember { LocalDate.now() }
 
-    val displayPoints: List<ChartDataPoint> = when (selectedTabIndex) {
-        0 -> {
-            (0..6).mapNotNull { i ->
-                val date = today.minusDays((6 - i).toLong())
-                hrData.find { it.date == date }
-            }
-        }
-        1 -> {
-            (0..9).mapNotNull { i ->
-                val targetDate = today.minusDays(((9 - i) * 3).toLong())
-                hrData.filter {
-                    val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
-                    diff <= 1
-                }.minByOrNull {
-                    abs(ChronoUnit.DAYS.between(it.date, targetDate))
+    val displayPoints = remember(hrData, selectedTabIndex) {
+        when (selectedTabIndex) {
+            0 -> {
+                (0..6).mapNotNull { i ->
+                    val date = today.minusDays((6 - i).toLong())
+                    hrData.find { it.date == date }
                 }
             }
-        }
-        else -> {
-            (0..11).mapNotNull { i ->
-                val targetMonth = today.minusMonths(i.toLong())
-                hrData.filter {
-                    it.date.year == targetMonth.year && it.date.monthValue == targetMonth.monthValue
-                }.maxByOrNull { it.date }
-            }.reversed()
+            1 -> {
+                (0..9).mapNotNull { i ->
+                    val targetDate = today.minusDays(((9 - i) * 3).toLong())
+                    hrData.filter {
+                        val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                        diff <= 1
+                    }.minByOrNull {
+                        abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                    }
+                }
+            }
+            else -> {
+                (0..11).mapNotNull { i ->
+                    val targetMonth = today.minusMonths(i.toLong())
+                    hrData.filter {
+                        it.date.year == targetMonth.year && it.date.monthValue == targetMonth.monthValue
+                    }.maxByOrNull { it.date }
+                }.reversed()
+            }
         }
     }
 

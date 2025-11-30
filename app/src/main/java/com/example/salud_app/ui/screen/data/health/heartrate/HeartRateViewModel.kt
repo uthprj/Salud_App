@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter
 
 data class HRUiState(
     val hrRecords: List<HealthRecord> = emptyList(),
+    val chartDataPoints: List<ChartDataPoint> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
@@ -57,6 +58,8 @@ class HeartRateViewModel : ViewModel() {
                 val records = firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
+                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(100)
                     .get()
                     .await()
                     .documents
@@ -64,10 +67,20 @@ class HeartRateViewModel : ViewModel() {
                         doc.toObject(HealthRecord::class.java)?.copy(id = doc.id)
                     }
                     .filter { it.heartRate > 0 }
-                    .sortedByDescending { it.timestamp }
+
+                // Tính sẵn chart data points
+                val chartPoints = records.mapNotNull { record ->
+                    try {
+                        val date = LocalDate.parse(record.date, dateFormatter)
+                        ChartDataPoint(date, record.heartRate.toFloat())
+                    } catch (e: Exception) {
+                        null
+                    }
+                }.sortedBy { it.date }
 
                 _uiState.value = _uiState.value.copy(
                     hrRecords = records,
+                    chartDataPoints = chartPoints,
                     isLoading = false
                 )
 
@@ -181,14 +194,7 @@ class HeartRateViewModel : ViewModel() {
      * Chuyển đổi thành ChartDataPoint để vẽ biểu đồ
      */
     fun getChartDataPoints(): List<ChartDataPoint> {
-        return _uiState.value.hrRecords.mapNotNull { record ->
-            try {
-                val date = LocalDate.parse(record.date, dateFormatter)
-                ChartDataPoint(date, record.heartRate.toFloat())
-            } catch (e: Exception) {
-                null
-            }
-        }.sortedBy { it.date }
+        return _uiState.value.chartDataPoints
     }
 
     /**

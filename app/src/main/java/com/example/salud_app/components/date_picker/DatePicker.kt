@@ -151,14 +151,19 @@ fun DateSelector(
             )
 
             if (showNavigationArrows) {
-                // Next day button
+                // Next day button - disabled if current date is today
+                val isToday = currentDate >= LocalDate.now()
                 Image(
                     painter = painterResource(R.drawable.arrow_forward_ios_24px),
                     contentDescription = "Ngày tiếp theo",
                     modifier = Modifier
                         .padding(start = 5.dp)
                         .size(iconSize)
-                        .clickable { onDateChange(currentDate.plusDays(1)) }
+                        .then(
+                            if (!isToday) Modifier.clickable { onDateChange(currentDate.plusDays(1)) }
+                            else Modifier
+                        ),
+                    alpha = if (isToday) 0.3f else 1f
                 )
             }
         }

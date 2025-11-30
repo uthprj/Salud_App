@@ -128,11 +128,9 @@ fun DataHealthBPScreen(
                 }
             }
             item {
-                val systolicData = viewModel.getSystolicChartDataPoints()
-                val diastolicData = viewModel.getDiastolicChartDataPoints()
                 BPStatisticsView(
-                    systolicData = systolicData,
-                    diastolicData = diastolicData
+                    systolicData = uiState.systolicChartPoints,
+                    diastolicData = uiState.diastolicChartPoints
                 )
             }
 
@@ -284,23 +282,21 @@ fun BPStatisticsView(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Tuần", "Tháng", "Năm")
 
-    val today = LocalDate.now()
+    val today = remember { LocalDate.now() }
 
-    // Lọc dữ liệu theo tab
-    fun filterData(data: List<ChartDataPoint>): List<ChartDataPoint> {
-        return when (selectedTabIndex) {
+    // Dùng remember để cache filtered data
+    val filteredSystolic = remember(systolicData, selectedTabIndex) {
+        when (selectedTabIndex) {
             0 -> {
-                // Tuần: 7 ngày gần nhất
                 (0..6).mapNotNull { i ->
                     val date = today.minusDays((6 - i).toLong())
-                    data.find { it.date == date }
+                    systolicData.find { it.date == date }
                 }
             }
             1 -> {
-                // Tháng: 10 điểm, cách nhau 3 ngày
                 (0..9).mapNotNull { i ->
                     val targetDate = today.minusDays(((9 - i) * 3).toLong())
-                    data.filter {
+                    systolicData.filter {
                         val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
                         diff <= 1
                     }.minByOrNull {
@@ -309,10 +305,9 @@ fun BPStatisticsView(
                 }
             }
             else -> {
-                // Năm: 12 tháng
                 (0..11).mapNotNull { i ->
                     val targetMonth = today.minusMonths(i.toLong())
-                    data.filter {
+                    systolicData.filter {
                         it.date.year == targetMonth.year && it.date.monthValue == targetMonth.monthValue
                     }.maxByOrNull { it.date }
                 }.reversed()
@@ -320,8 +315,35 @@ fun BPStatisticsView(
         }
     }
 
-    val filteredSystolic = filterData(systolicData)
-    val filteredDiastolic = filterData(diastolicData)
+    val filteredDiastolic = remember(diastolicData, selectedTabIndex) {
+        when (selectedTabIndex) {
+            0 -> {
+                (0..6).mapNotNull { i ->
+                    val date = today.minusDays((6 - i).toLong())
+                    diastolicData.find { it.date == date }
+                }
+            }
+            1 -> {
+                (0..9).mapNotNull { i ->
+                    val targetDate = today.minusDays(((9 - i) * 3).toLong())
+                    diastolicData.filter {
+                        val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                        diff <= 1
+                    }.minByOrNull {
+                        abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                    }
+                }
+            }
+            else -> {
+                (0..11).mapNotNull { i ->
+                    val targetMonth = today.minusMonths(i.toLong())
+                    diastolicData.filter {
+                        it.date.year == targetMonth.year && it.date.monthValue == targetMonth.monthValue
+                    }.maxByOrNull { it.date }
+                }.reversed()
+            }
+        }
+    }
 
     // Format ngày theo tab
     val dateFormat = when (selectedTabIndex) {

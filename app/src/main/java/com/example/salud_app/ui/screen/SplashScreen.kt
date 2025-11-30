@@ -1,8 +1,11 @@
 package com.example.salud_app.ui.screen
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,6 +15,9 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,9 +40,11 @@ fun SplashScreen(
     onAnimationComplete: () -> Unit
 ) {
     val context = LocalContext.current
+    val activity = context as? Activity
 
     var hasLocationPermission by remember { mutableStateOf(false) }
     var hasNotificationPermission by remember { mutableStateOf(false) }
+    var showNoInternetDialog by remember { mutableStateOf(false) }
 
     // Launcher xin quyền Location
     val locationLauncher = rememberLauncherForActivityResult(
@@ -69,6 +77,24 @@ fun SplashScreen(
                 .alpha(logoAlpha.value)
                 .scale(logoScale.value)
                 .offset(y = logoOffsetY.value.dp)
+        )
+    }
+
+    // Dialog không có internet
+    if (showNoInternetDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text("Không có kết nối") },
+            text = { Text("Vui lòng kết nối internet và quay lại sau.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        activity?.finishAffinity()
+                    }
+                ) {
+                    Text("Đồng ý")
+                }
+            }
         )
     }
 
@@ -113,6 +139,12 @@ fun SplashScreen(
 
         delay(350)
 
+        // Kiểm tra kết nối internet
+        if (!isInternetAvailable(context)) {
+            showNoInternetDialog = true
+            return@LaunchedEffect
+        }
+
          // Nếu đã đăng nhập (Firebase user tồn tại) -> vào thẳng Home
          val currentUser = FirebaseAuth.getInstance().currentUser
          if (currentUser != null) {
@@ -139,6 +171,14 @@ fun checkLocationPermission(context: Context): Boolean {
     ) == PackageManager.PERMISSION_GRANTED
 
     return fine || coarse
+}
+
+fun isInternetAvailable(context: Context): Boolean {
+    val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    val network = connectivityManager.activeNetwork ?: return false
+    val capabilities = connectivityManager.getNetworkCapabilities(network) ?: return false
+    return capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
 }
 
 fun checkNotificationPermission(context: Context): Boolean {

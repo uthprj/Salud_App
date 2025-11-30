@@ -59,6 +59,8 @@ class BMIViewModel : ViewModel() {
                 val records = firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
+                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(100)
                     .get()
                     .await()
                     .documents
@@ -66,12 +68,13 @@ class BMIViewModel : ViewModel() {
                         doc.toObject(HealthRecord::class.java)?.copy(id = doc.id)
                     }
                     .filter { it.weight > 0 && it.height > 0 } // Chỉ lấy record có cả weight và height
-                    .sortedByDescending { it.timestamp }
 
                 // Lấy weight và height mới nhất (có thể từ các record khác nhau)
                 val allRecords = firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
+                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(50)
                     .get()
                     .await()
                     .documents
@@ -80,13 +83,11 @@ class BMIViewModel : ViewModel() {
                     }
 
                 val latestWeight = allRecords
-                    .filter { it.weight > 0 }
-                    .maxByOrNull { it.timestamp }
+                    .firstOrNull { it.weight > 0 }
                     ?.weight ?: 0.0
 
                 val latestHeight = allRecords
-                    .filter { it.height > 0 }
-                    .maxByOrNull { it.timestamp }
+                    .firstOrNull { it.height > 0 }
                     ?.height ?: 0.0
 
                 // Tính BMI hiện tại

@@ -118,7 +118,7 @@ class NutritionViewModel : ViewModel() {
                 Log.e("GeminiAPI", "Error analyzing meal", e)
                 _uiState.value = _uiState.value.copy(
                     isAnalyzing = false,
-                    analysisError = "Không thể phân tích: ${e.message}"
+                    analysisError = "Không thể phân tích món ăn"
                 )
             }
         }

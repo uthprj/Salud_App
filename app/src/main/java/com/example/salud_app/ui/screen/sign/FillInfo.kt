@@ -44,7 +44,18 @@ fun FillInfo(navController: NavController) {
     var phone by remember { mutableStateOf("") }
 
     var showDatePicker by remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = System.currentTimeMillis())
+    val today = remember { System.currentTimeMillis() }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = today,
+        selectableDates = object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                return utcTimeMillis <= today
+            }
+            override fun isSelectableYear(year: Int): Boolean {
+                return year <= java.time.LocalDate.now().year
+            }
+        }
+    )
 
     // Dropdown state for gender
     var expandedGender by remember { mutableStateOf(false) }

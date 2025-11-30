@@ -134,13 +134,8 @@ fun DataHealthWeightScreen(
                 }
             }
             item {
-                // Sử dụng dữ liệu từ Firebase nếu có, nếu không thì dùng sample data
-                val chartData = if (uiState.weightRecords.isNotEmpty()) {
-                    viewModel.getChartDataPoints()
-                } else {
-                    sampleWeightData
-                }
-                StatisticsView(weightData = chartData)
+                // Sử dụng dữ liệu đã cache từ ViewModel
+                StatisticsView(weightData = uiState.chartDataPoints)
             }
 
             // --- PHẦN: DANH SÁCH LỊCH SỬ ---
@@ -308,45 +303,47 @@ fun WeightInputRow(
  */
 @Composable
 fun StatisticsView(
-    weightData: List<ChartDataPoint> = sampleWeightData
+    weightData: List<ChartDataPoint> = emptyList()
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Tuần", "Tháng", "Năm")
 
-    val today = LocalDate.now()
+    val today = remember { LocalDate.now() }
     
-    // Tạo danh sách các điểm hiển thị dựa vào tab
-    val displayPoints: List<ChartDataPoint> = when (selectedTabIndex) {
-        0 -> {
-            // Tuần: 7 điểm, mỗi điểm là 1 ngày
-            (0..6).mapNotNull { i ->
-                val date = today.minusDays((6 - i).toLong())
-                weightData.find { it.date == date }
-            }
-        }
-        1 -> {
-            // Tháng: 10 điểm, cách nhau 3 ngày (27 ngày)
-            (0..9).mapNotNull { i ->
-                val targetDate = today.minusDays(((9 - i) * 3).toLong())
-                // Tìm dữ liệu gần nhất trong khoảng +-1 ngày
-                weightData.filter { 
-                    val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
-                    diff <= 1
-                }.minByOrNull {
-                    abs(ChronoUnit.DAYS.between(it.date, targetDate))
+    // Tạo danh sách các điểm hiển thị dựa vào tab - dùng remember để cache
+    val displayPoints = remember(weightData, selectedTabIndex) {
+        when (selectedTabIndex) {
+            0 -> {
+                // Tuần: 7 điểm, mỗi điểm là 1 ngày
+                (0..6).mapNotNull { i ->
+                    val date = today.minusDays((6 - i).toLong())
+                    weightData.find { it.date == date }
                 }
             }
-        }
-        else -> {
-            // Năm: 12 điểm, cách nhau 30 ngày (330 ngày ~ 11 tháng)
-            (0..11).mapNotNull { i ->
-                val targetDate = today.minusDays(((11 - i) * 30).toLong())
-                // Tìm dữ liệu gần nhất trong khoảng +-15 ngày
-                weightData.filter { 
-                    val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
-                    diff <= 15
-                }.minByOrNull {
-                    abs(ChronoUnit.DAYS.between(it.date, targetDate))
+            1 -> {
+                // Tháng: 10 điểm, cách nhau 3 ngày (27 ngày)
+                (0..9).mapNotNull { i ->
+                    val targetDate = today.minusDays(((9 - i) * 3).toLong())
+                    // Tìm dữ liệu gần nhất trong khoảng +-1 ngày
+                    weightData.filter { 
+                        val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                        diff <= 1
+                    }.minByOrNull {
+                        abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                    }
+                }
+            }
+            else -> {
+                // Năm: 12 điểm, cách nhau 30 ngày (330 ngày ~ 11 tháng)
+                (0..11).mapNotNull { i ->
+                    val targetDate = today.minusDays(((11 - i) * 30).toLong())
+                    // Tìm dữ liệu gần nhất trong khoảng +-15 ngày
+                    weightData.filter { 
+                        val diff = abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                        diff <= 15
+                    }.minByOrNull {
+                        abs(ChronoUnit.DAYS.between(it.date, targetDate))
+                    }
                 }
             }
         }
@@ -412,39 +409,7 @@ fun StatisticsView(
     }
 }
 
-// Dữ liệu mẫu cho biểu đồ cân nặng
-val sampleWeightData: List<ChartDataPoint> = run {
-    val today = LocalDate.now()
-    listOf(
-        // Dữ liệu tuần (7 ngày gần nhất)
-        ChartDataPoint(today.minusDays(6), 72.5f),
-        ChartDataPoint(today.minusDays(5), 72.3f),
-        ChartDataPoint(today.minusDays(4), 72.8f),
-        ChartDataPoint(today.minusDays(3), 73.0f),
-        ChartDataPoint(today.minusDays(2), 72.6f),
-        ChartDataPoint(today.minusDays(1), 72.4f),
-        ChartDataPoint(today, 72.2f),
-        // Dữ liệu tháng (cách nhau ~3 ngày)
-        ChartDataPoint(today.minusDays(9), 73.1f),
-        ChartDataPoint(today.minusDays(12), 73.3f),
-        ChartDataPoint(today.minusDays(15), 73.5f),
-        ChartDataPoint(today.minusDays(18), 73.8f),
-        ChartDataPoint(today.minusDays(21), 74.0f),
-        ChartDataPoint(today.minusDays(24), 74.2f),
-        ChartDataPoint(today.minusDays(27), 74.5f),
-        // Dữ liệu năm (cách nhau ~30 ngày)
-        ChartDataPoint(today.minusDays(60), 75.0f),
-        ChartDataPoint(today.minusDays(90), 75.5f),
-        ChartDataPoint(today.minusDays(120), 76.0f),
-        ChartDataPoint(today.minusDays(150), 76.5f),
-        ChartDataPoint(today.minusDays(180), 77.0f),
-        ChartDataPoint(today.minusDays(210), 77.5f),
-        ChartDataPoint(today.minusDays(240), 78.0f),
-        ChartDataPoint(today.minusDays(270), 78.5f),
-        ChartDataPoint(today.minusDays(300), 79.0f),
-        ChartDataPoint(today.minusDays(330), 79.5f),
-    )
-}
+
 
 /**
  * Một hàng trong danh sách lịch sử cân nặng

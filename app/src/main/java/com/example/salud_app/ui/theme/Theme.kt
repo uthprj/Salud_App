@@ -40,20 +40,13 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun Salud_AppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false, // Luôn dùng Light Mode
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    // Luôn dùng LightColorScheme
+    val colorScheme = LightColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

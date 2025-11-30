@@ -35,10 +35,19 @@ class ProfileViewModel : ViewModel() {
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
                 val currentUser = auth.currentUser
                 if (currentUser != null) {
-                    val userDoc = firestore.collection("User")
-                        .document(currentUser.uid)
-                        .get()
-                        .await()
+                    val docRef = firestore.collection("User").document(currentUser.uid)
+                    
+                    // Thử đọc từ cache trước để load nhanh hơn
+                    var userDoc = try {
+                        docRef.get(com.google.firebase.firestore.Source.CACHE).await()
+                    } catch (e: Exception) {
+                        null
+                    }
+                    
+                    // Nếu cache không có, đọc từ server
+                    if (userDoc == null || !userDoc.exists()) {
+                        userDoc = docRef.get().await()
+                    }
 
                     val user = userDoc.toObject(User::class.java) ?: User()
                     _uiState.value = ProfileUiState(user = user, isLoading = false)

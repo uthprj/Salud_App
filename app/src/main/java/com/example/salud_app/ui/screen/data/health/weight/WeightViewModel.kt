@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter
 
 data class WeightUiState(
     val weightRecords: List<HealthRecord> = emptyList(),
+    val chartDataPoints: List<ChartDataPoint> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
@@ -57,6 +58,8 @@ class WeightViewModel : ViewModel() {
                 val records = firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
+                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(100)
                     .get()
                     .await()
                     .documents
@@ -64,10 +67,20 @@ class WeightViewModel : ViewModel() {
                         doc.toObject(HealthRecord::class.java)?.copy(id = doc.id)
                     }
                     .filter { it.weight > 0 } // Chỉ lấy các record có cân nặng
-                    .sortedByDescending { it.timestamp } // Sắp xếp ở client
+
+                // Tính sẵn chart data points
+                val chartPoints = records.mapNotNull { record ->
+                    try {
+                        val date = LocalDate.parse(record.date, dateFormatter)
+                        ChartDataPoint(date, record.weight.toFloat())
+                    } catch (e: Exception) {
+                        null
+                    }
+                }.sortedBy { it.date }
 
                 _uiState.value = _uiState.value.copy(
                     weightRecords = records,
+                    chartDataPoints = chartPoints,
                     isLoading = false
                 )
                 
@@ -182,14 +195,7 @@ class WeightViewModel : ViewModel() {
      * Chuyển đổi HealthRecord thành ChartDataPoint để vẽ biểu đồ
      */
     fun getChartDataPoints(): List<ChartDataPoint> {
-        return _uiState.value.weightRecords.mapNotNull { record ->
-            try {
-                val date = LocalDate.parse(record.date, dateFormatter)
-                ChartDataPoint(date, record.weight.toFloat())
-            } catch (e: Exception) {
-                null
-            }
-        }.sortedBy { it.date }
+        return _uiState.value.chartDataPoints
     }
 
     /**

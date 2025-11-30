@@ -17,6 +17,8 @@ import java.time.format.DateTimeFormatter
 
 data class BPUiState(
     val bpRecords: List<HealthRecord> = emptyList(),
+    val systolicChartPoints: List<ChartDataPoint> = emptyList(),
+    val diastolicChartPoints: List<ChartDataPoint> = emptyList(),
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
@@ -57,6 +59,8 @@ class BPViewModel : ViewModel() {
                 val records = firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
+                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .limit(100)
                     .get()
                     .await()
                     .documents
@@ -64,10 +68,30 @@ class BPViewModel : ViewModel() {
                         doc.toObject(HealthRecord::class.java)?.copy(id = doc.id)
                     }
                     .filter { it.systolic > 0 && it.diastolic > 0 } // Chỉ lấy các record có huyết áp
-                    .sortedByDescending { it.timestamp }
+
+                // Tính sẵn chart data points
+                val systolicPoints = records.mapNotNull { record ->
+                    try {
+                        val date = LocalDate.parse(record.date, dateFormatter)
+                        ChartDataPoint(date, record.systolic.toFloat())
+                    } catch (e: Exception) {
+                        null
+                    }
+                }.sortedBy { it.date }
+
+                val diastolicPoints = records.mapNotNull { record ->
+                    try {
+                        val date = LocalDate.parse(record.date, dateFormatter)
+                        ChartDataPoint(date, record.diastolic.toFloat())
+                    } catch (e: Exception) {
+                        null
+                    }
+                }.sortedBy { it.date }
 
                 _uiState.value = _uiState.value.copy(
                     bpRecords = records,
+                    systolicChartPoints = systolicPoints,
+                    diastolicChartPoints = diastolicPoints,
                     isLoading = false
                 )
 
@@ -184,28 +208,14 @@ class BPViewModel : ViewModel() {
      * Chuyển đổi HealthRecord thành ChartDataPoint để vẽ biểu đồ (Systolic)
      */
     fun getSystolicChartDataPoints(): List<ChartDataPoint> {
-        return _uiState.value.bpRecords.mapNotNull { record ->
-            try {
-                val date = LocalDate.parse(record.date, dateFormatter)
-                ChartDataPoint(date, record.systolic.toFloat())
-            } catch (e: Exception) {
-                null
-            }
-        }.sortedBy { it.date }
+        return _uiState.value.systolicChartPoints
     }
 
     /**
      * Chuyển đổi HealthRecord thành ChartDataPoint để vẽ biểu đồ (Diastolic)
      */
     fun getDiastolicChartDataPoints(): List<ChartDataPoint> {
-        return _uiState.value.bpRecords.mapNotNull { record ->
-            try {
-                val date = LocalDate.parse(record.date, dateFormatter)
-                ChartDataPoint(date, record.diastolic.toFloat())
-            } catch (e: Exception) {
-                null
-            }
-        }.sortedBy { it.date }
+        return _uiState.value.diastolicChartPoints
     }
 
     /**
