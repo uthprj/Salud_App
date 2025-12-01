@@ -216,7 +216,7 @@ fun InfoItem(iconRes: Int, text: String, color: Color) {
         )
     }
 }
-//
+
 //@Preview
 //@Composable
 //fun HomeScreenPreview() {

@@ -27,6 +27,7 @@ class SignInViewModel : ViewModel() {
 
     // Initialize FirebaseAuth lazily to avoid initialization-order issues
     private val auth by lazy { FirebaseAuth.getInstance() }
+    private val db by lazy { FirebaseFirestore.getInstance() }
 
     // Sign in with Email/Password
     fun signInWithEmail(
@@ -40,7 +41,7 @@ class SignInViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnSuccessListener { authResult ->
@@ -51,16 +52,24 @@ class SignInViewModel : ViewModel() {
                                 photoUrl = firebaseUser.photoUrl?.toString() ?: "",
                                 fullName = firebaseUser.displayName ?: ""
                             )
-                            onSuccess(user)
+                            viewModelScope.launch(Dispatchers.Main) {
+                                onSuccess(user)
+                            }
                         } else {
-                            onFailure("Không lấy được thông tin người dùng")
+                            viewModelScope.launch(Dispatchers.Main) {
+                                onFailure("Không lấy được thông tin người dùng")
+                            }
                         }
                     }
                     .addOnFailureListener { e ->
-                        onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
+                        viewModelScope.launch(Dispatchers.Main) {
+                            onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
+                        }
                     }
             } catch (e: Exception) {
-                onFailure("Lỗi: ${e.localizedMessage}")
+                viewModelScope.launch(Dispatchers.Main) {
+                    onFailure("Lỗi: ${e.localizedMessage}")
+                }
             }
         }
     }
@@ -83,7 +92,7 @@ class SignInViewModel : ViewModel() {
             return
         }
 
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener { authResult ->
@@ -96,43 +105,47 @@ class SignInViewModel : ViewModel() {
                             )
 
                             // Save user to Firestore
-                            try {
-                                val db = FirebaseFirestore.getInstance()
-                                val uid = firebaseUser.uid
-                                val userData = hashMapOf<String, Any>(
-                                    "userId" to uid,
-                                    "fullName" to fullName,
-                                    "birthDate" to "",
-                                    "gender" to "",
-                                    "numPhone" to "",
-                                    "email" to email,
-                                    "photoUrl" to ""
-                                )
+                            val uid = firebaseUser.uid
+                            val userData = hashMapOf<String, Any>(
+                                "userId" to uid,
+                                "fullName" to fullName,
+                                "birthDate" to "",
+                                "gender" to "",
+                                "numPhone" to "",
+                                "email" to email,
+                                "photoUrl" to ""
+                            )
 
-                                db.collection("User")
-                                    .document(uid)
-                                    .set(userData)
-                                    .addOnSuccessListener {
-                                        Log.d("AuthViewModel", "User saved to Firestore: $uid")
+                            db.collection("User")
+                                .document(uid)
+                                .set(userData)
+                                .addOnSuccessListener {
+                                    Log.d("AuthViewModel", "User saved to Firestore: $uid")
+                                    viewModelScope.launch(Dispatchers.Main) {
                                         onSuccess(user)
                                     }
-                                    .addOnFailureListener { e ->
-                                        Log.e("AuthViewModel", "Failed saving user to Firestore", e)
+                                }
+                                .addOnFailureListener { e ->
+                                    Log.e("AuthViewModel", "Failed saving user to Firestore", e)
+                                    viewModelScope.launch(Dispatchers.Main) {
                                         onFailure("Lỗi lưu thông tin người dùng")
                                     }
-                            } catch (e: Exception) {
-                                Log.e("AuthViewModel", "Error writing to Firestore", e)
-                                onFailure("Lỗi: ${e.localizedMessage}")
-                            }
+                                }
                         } else {
-                            onFailure("Không lấy được thông tin người dùng")
+                            viewModelScope.launch(Dispatchers.Main) {
+                                onFailure("Không lấy được thông tin người dùng")
+                            }
                         }
                     }
                     .addOnFailureListener { e ->
-                        onFailure("Đăng ký thất bại: ${e.localizedMessage}")
+                        viewModelScope.launch(Dispatchers.Main) {
+                            onFailure("Đăng ký thất bại: ${e.localizedMessage}")
+                        }
                     }
             } catch (e: Exception) {
-                onFailure("Lỗi: ${e.localizedMessage}")
+                viewModelScope.launch(Dispatchers.Main) {
+                    onFailure("Lỗi: ${e.localizedMessage}")
+                }
             }
         }
     }

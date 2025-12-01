@@ -2,6 +2,7 @@ package com.example.salud_app
 
 import android.app.Application
 import com.google.firebase.FirebaseApp
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.PersistentCacheSettings
@@ -10,6 +11,9 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
+        
+        // Khởi tạo FirebaseAuth sớm để giảm delay khi đăng nhập
+        FirebaseAuth.getInstance()
         
         // Bật Firestore offline cache để load nhanh hơn
         val settings = FirebaseFirestoreSettings.Builder()

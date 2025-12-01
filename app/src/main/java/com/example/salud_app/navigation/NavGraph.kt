@@ -16,6 +16,8 @@ import com.example.salud_app.ui.screen.data.health.height.DataHealthHeightScreen
 import com.example.salud_app.ui.screen.data.health.weight.DataHealthWeightScreen
 import com.example.salud_app.ui.screen.data.nutrition.DataNutritionScreen
 import com.example.salud_app.ui.screen.data.exercise.DataExerciseScreen
+import com.example.salud_app.ui.screen.data.sleep.DataSleepScreen
+import com.example.salud_app.ui.screen.data.goal.DataGoalScreen
 import com.example.salud_app.ui.screen.diary.DiaryScreen
 import com.example.salud_app.ui.screen.home.HomeScreen
 import com.example.salud_app.ui.screen.profile.ProfileScreen
@@ -38,6 +40,8 @@ fun NavGraph(navController: NavHostController) {
         composable("data-health-HR") { DataHealthHRScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-nutrition") { DataNutritionScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("data-exercise") { DataExerciseScreen(navController, onBackClicked = { navController.popBackStack()}) }
+        composable("data-sleep") { DataSleepScreen(navController, onBackClicked = { navController.popBackStack()}) }
+        composable("data-goal") { DataGoalScreen(navController, onBackClicked = { navController.popBackStack()}) }
         composable("sign-in") {
             val signInViewModel: SignInViewModel = viewModel() // Lấy ViewModel mặc định
             LoginScreen(navController = navController, viewModel = signInViewModel)

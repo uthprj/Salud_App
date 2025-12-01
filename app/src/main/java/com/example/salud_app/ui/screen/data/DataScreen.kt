@@ -87,16 +87,16 @@ fun DataScreen(
                 iconTint = sleepIcon,
                 backgroundColor = sleepBg,
                 text = stringResource(R.string.sleep),
-                onClick = {  }
+                onClick = { navController.navigate("data-sleep") }
             )
 
-            // 5. Báo cáo
+            // 5. Mục tiêu
             DataItemRow(
                 icon = painterResource(id = R.drawable.target_24px),
                 iconTint = goalIcon,
                 backgroundColor = goalBg,
                 text = stringResource(R.string.goal),
-                onClick = {  }
+                onClick = { navController.navigate("data-goal") }
             )
         }
     }
