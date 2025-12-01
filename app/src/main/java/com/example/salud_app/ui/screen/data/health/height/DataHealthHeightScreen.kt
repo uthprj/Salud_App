@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -23,6 +25,7 @@ import com.example.salud_app.R
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
+import com.example.salud_app.components.dialog.DeleteConfirmDialog
 import com.example.salud_app.components.draw_chart.AppLineChart
 import com.example.salud_app.components.draw_chart.ChartDataPoint
 import com.example.salud_app.components.number_picker.NumberPicker
@@ -44,6 +47,8 @@ fun DataHealthHeightScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var recordToDelete by remember { mutableStateOf<Pair<String, String>?>(null) } // Pair(id, date)
 
     // Tạo danh sách giá trị cho picker
     val integerItems = remember { (50..250).map { it.toString() } }
@@ -101,7 +106,7 @@ fun DataHealthHeightScreen(
                     AppDatePicker(
                         currentDate = currentDate,
                         onDateChange = { newDate -> currentDate = newDate },
-                        label = "Ngày"
+                        maxDate = LocalDate.now()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     HeightInputRow(
@@ -156,7 +161,11 @@ fun DataHealthHeightScreen(
                         uiState.heightRecords.take(10).forEach { record ->
                             HeightHistoryItem(
                                 time = record.date,
-                                height = "${record.height} cm"
+                                height = "${record.height} cm",
+                                onDeleteClick = {
+                                    recordToDelete = Pair(record.id, record.date)
+                                    showDeleteDialog = true
+                                }
                             )
                         }
                     }
@@ -165,6 +174,23 @@ fun DataHealthHeightScreen(
                 }
             }
         }
+        
+        // Delete Confirmation Dialog
+        DeleteConfirmDialog(
+            showDialog = showDeleteDialog,
+            itemName = "dữ liệu chiều cao ngày ${recordToDelete?.second ?: ""}",
+            onConfirm = {
+                recordToDelete?.first?.let { id ->
+                    viewModel.deleteHeight(id)
+                }
+                showDeleteDialog = false
+                recordToDelete = null
+            },
+            onDismiss = {
+                showDeleteDialog = false
+                recordToDelete = null
+            }
+        )
     }
 }
 
@@ -405,7 +431,11 @@ fun StatisticsView(
  * Một hàng trong danh sách lịch sử chiều cao
  */
 @Composable
-fun HeightHistoryItem(time: String, height: String) {
+fun HeightHistoryItem(
+    time: String,
+    height: String,
+    onDeleteClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -416,13 +446,26 @@ fun HeightHistoryItem(time: String, height: String) {
         Text(
             text = time,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
         )
         Text(
             text = height,
             style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.weight(1f)
         )
+        IconButton(
+            onClick = onDeleteClick,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Xóa",
+                tint = Color.Gray,
+
+            )
+        }
     }
 }
 

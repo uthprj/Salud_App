@@ -464,6 +464,7 @@ fun InputFormSection(
                 CompactDatePicker(
                     currentDate = currentDate,
                     onDateChange = { newDate -> onDateChange(newDate) },
+                    maxDate = java.time.LocalDate.now(),
                 )
 
                 // Text hiển thị giờ, có thể nhấn để mở Time Picker
@@ -477,6 +478,7 @@ fun InputFormSection(
             }
         }
 
+        // --- NHẬP MÓN ĂN (KHÔNG ĐỔI) ---
         // --- NHẬP MÓN ĂN (KHÔNG ĐỔI) ---
         Row(
             modifier = Modifier.fillMaxWidth(),

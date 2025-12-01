@@ -4,6 +4,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
@@ -23,12 +25,12 @@ import com.example.salud_app.R
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
+import com.example.salud_app.components.dialog.DeleteConfirmDialog
 import com.example.salud_app.components.draw_chart.AppLineChart
 import com.example.salud_app.components.draw_chart.ChartDataPoint
 import com.example.salud_app.components.number_picker.NumberPicker
 import com.example.salud_app.components.number_picker.PickerState
 import com.example.salud_app.components.number_picker.rememberPickerState
-import com.example.salud_app.ui.screen.data.health.weight.*
 import com.example.salud_app.ui.theme.Salud_AppTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -45,6 +47,8 @@ fun DataHealthWeightScreen(
     val uiState by viewModel.uiState.collectAsState()
     
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    var recordToDelete by remember { mutableStateOf<Pair<String, String>?>(null) } // Pair(id, date)
 
     // Tạo danh sách giá trị cho picker
     val integerItems = remember { (0..200).map { it.toString() } }
@@ -102,7 +106,8 @@ fun DataHealthWeightScreen(
                     AppDatePicker(
                         currentDate = currentDate,
                         onDateChange = { newDate -> currentDate = newDate },
-                        label = "Ngày"
+                        label = "Ngày",
+                        maxDate = LocalDate.now()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     WeightInputRow(
@@ -157,7 +162,11 @@ fun DataHealthWeightScreen(
                         uiState.weightRecords.take(10).forEach { record ->
                             WeightHistoryItem(
                                 time = record.date,
-                                weight = "${record.weight} kg"
+                                weight = "${record.weight} kg",
+                                onDeleteClick = {
+                                    recordToDelete = Pair(record.id, record.date)
+                                    showDeleteDialog = true
+                                }
                             )
                         }
                     }
@@ -166,6 +175,23 @@ fun DataHealthWeightScreen(
                 }
             }
         }
+        
+        // Delete Confirmation Dialog
+        DeleteConfirmDialog(
+            showDialog = showDeleteDialog,
+            itemName = "dữ liệu cân nặng ngày ${recordToDelete?.second ?: ""}",
+            onConfirm = {
+                recordToDelete?.first?.let { id ->
+                    viewModel.deleteWeight(id)
+                }
+                showDeleteDialog = false
+                recordToDelete = null
+            },
+            onDismiss = {
+                showDeleteDialog = false
+                recordToDelete = null
+            }
+        )
     }
 }
 
@@ -406,7 +432,11 @@ fun StatisticsView(
  * Một hàng trong danh sách lịch sử cân nặng
  */
 @Composable
-fun WeightHistoryItem(time: String, weight: String) {
+fun WeightHistoryItem(
+    time: String,
+    weight: String,
+    onDeleteClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -417,13 +447,25 @@ fun WeightHistoryItem(time: String, weight: String) {
         Text(
             text = time,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f)
         )
         Text(
             text = weight,
             style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.weight(1f)
         )
+        IconButton(
+            onClick = onDeleteClick,
+            modifier = Modifier.size(40.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = "Xóa",
+                tint = Color.Gray,
+            )
+        }
     }
 }
 
