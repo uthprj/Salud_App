@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SpeakerNotesOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -65,6 +66,7 @@ fun DiaryScreen(
                     onDateChange = { newDate -> currentDate = newDate },
                     label = "Nhật ký "
                 )
+
 
                 Spacer(Modifier.height(12.dp))
 
@@ -140,6 +142,7 @@ fun DiaryEntryList(
         item {
             Spacer(Modifier.height(16.dp))
         }
+
     }
 }
 

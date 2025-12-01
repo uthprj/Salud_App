@@ -39,6 +39,8 @@ fun DataScreen(
     val sleepIcon = Color(0xFF1E88E5)
     val goalBg = Color(0xFFFFFDE7)
     val goalIcon = Color(0xFFFBC02D)
+    val hintBg = Color(0xFFF8EAFF)
+    val hintIcon = Color(0xFF923AAA)
 
     AppScaffold(
         navController = navController,
@@ -98,6 +100,13 @@ fun DataScreen(
                 backgroundColor = goalBg,
                 text = stringResource(R.string.goal),
                 onClick = { navController.navigate("data-goal") }
+            )
+            DataItemRow(
+                icon = painterResource(id = R.drawable.lightbulb_24px),
+                iconTint = hintIcon,
+                backgroundColor = hintBg,
+                text = stringResource(R.string.hint),
+                onClick = { navController.navigate("data-hint") }
             )
         }
     }
