@@ -1,9 +1,13 @@
 package com.example.salud_app.ui.screen.home
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.salud_app.R
@@ -26,6 +30,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 
 data class RingData(
@@ -71,8 +77,16 @@ fun MultiRingProgress(
 
 @Composable
 fun HomeScreen(
-    navController: NavController
+    navController: NavController,
+    homeViewModel: HomeViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val uiState by homeViewModel.uiState.collectAsState()
+    
+    LaunchedEffect(Unit) {
+        homeViewModel.initialize(context)
+    }
+    
     Salud_AppTheme {
         AppScaffold(
             navController = navController,
@@ -80,64 +94,202 @@ fun HomeScreen(
             screenLevel = ScreenLevel.MAIN,
 
             ) { paddingValues ->
-            Box(
-                modifier = Modifier.padding(0.dp)
-                    .fillMaxSize()
-            ) {
-                val rings = listOf(
-                    RingData(0.75f, Color(0xFFA837CD), 10.dp),   // nước
-                    RingData(0.40f, Color(0xFFFF9B00), 10.dp),   // bước chân
-                    RingData(0.20f, Color(0xFFDE3D3D), 10.dp),   // calories
-                    RingData(0.60f, Color(0xFF4B89F5), 10.dp),   // nhịp tim
-                    RingData(0.50f, Color(0xFF67E33A), 10.dp),
-                )
 
-                Column(
+                // Lấy progress từ uiState
+                val rings = listOf(
+                    RingData(uiState.steps.progress, Color(0xFFA837CD), 10.dp),         // bước chân
+                    RingData(uiState.caloriesIn.progress, Color(0xFFFF9B00), 10.dp),    // calo nạp
+                    RingData(uiState.caloriesOut.progress, Color(0xFFDE3D3D), 10.dp),   // calo đốt
+                    RingData(uiState.sleepMinutes.progress, Color(0xFF4B89F5), 10.dp),  // ngủ nghỉ
+                    RingData(uiState.exerciseMinutes.progress, Color(0xFF67E33A), 10.dp), // luyện tập
+                )
+                
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(20.dp),
+                        .padding(horizontal = 20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    item {
+                        Spacer(modifier = Modifier.height(20.dp))
+                        
+                        MultiRingProgress(rings = rings, size = 260.dp)
+                        
+                        Spacer(modifier = Modifier.height(20.dp))
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            text = "Chỉ số",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    MultiRingProgress(rings = rings, size = 260.dp)
+                        Spacer(modifier = Modifier.height(15.dp))
 
-                    Spacer(modifier = Modifier.height(20.dp))
-                    
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                color = Color(0xBCE0ECFF),
-                                shape = RoundedCornerShape(16.dp)
+                        
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = Color(0xBCE0FCFF),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                                .padding(all = 15.dp),
+                        ) {
+                            InfoItemWithProgress(
+                                iconRes = R.drawable.barefoot_24px,
+                                title = "Bước chân",
+                                color = Color(0xFF710A92),
+                                indicator = uiState.steps
                             )
-                            .padding(all = 15.dp),
-                    ) {
-                        InfoItem(R.drawable.barefoot_24px, "Bước chân", Color(0xFF710A92))
-                        InfoItem(R.drawable.bolt_24px, "Calo nạp", Color(0xFFD58913))
-                        InfoItem(R.drawable.mode_heat_24px, "Calo đốt", Color(0xFF930B0B))
-                        InfoItem(R.drawable.bedtime_24px, "Ngủ nghỉ", Color(0xFF1351B8))
-                        InfoItem(R.drawable.exercise_24px, "Luyện Tập", Color(0xFF2F9909))
-                    }
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color(0xFFF2F8FF))
-                            .padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        item {
-                            GoalCard(index = 1)
+                            InfoItemWithProgress(
+                                iconRes = R.drawable.bolt_24px,
+                                title = "Calo nạp",
+                                color = Color(0xFFD58913),
+                                indicator = uiState.caloriesIn
+                            )
+                            InfoItemWithProgress(
+                                iconRes = R.drawable.mode_heat_24px,
+                                title = "Calo đốt",
+                                color = Color(0xFF930B0B),
+                                indicator = uiState.caloriesOut
+                            )
+                            InfoItemWithProgress(
+                                iconRes = R.drawable.bedtime_24px,
+                                title = "Ngủ nghỉ",
+                                color = Color(0xFF1351B8),
+                                indicator = uiState.sleepMinutes
+                            )
+                            InfoItemWithProgress(
+                                iconRes = R.drawable.exercise_24px,
+                                title = "Luyện tập",
+                                color = Color(0xFF2F9909),
+                                indicator = uiState.exerciseMinutes
+                            )
                         }
-                        item {
-                            GoalCard(index = 1)
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Text(
+                            text = "Cảnh báo",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        // Hiển thị các cảnh báo
+                        if (uiState.warnings.isEmpty()) {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.check_circle_24px),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(32.dp),
+                                        colorFilter = ColorFilter.tint(Color(0xFF4CAF50))
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = "Tất cả chỉ số đều bình thường!",
+                                        fontSize = 14.sp,
+                                        color = Color(0xFF2E7D32)
+                                    )
+                                }
+                            }
+                        } else {
+                            uiState.warnings.forEach { warning ->
+                                WarningCard(warning = warning)
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
                         }
-                        item {
-                            GoalCard(index = 1)
-                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
                     }
                 }
+        }
+    }
+}
+
+@Composable
+fun WarningCard(warning: HealthWarning) {
+    val (backgroundColor, borderColor, iconColor) = when (warning.type) {
+        WarningType.INFO -> Triple(
+            Color(0xFFE3F2FD),
+            Color(0xFF2196F3),
+            Color(0xFF1976D2)
+        )
+        WarningType.WARNING -> Triple(
+            Color(0xFFFFF3E0),
+            Color(0xFFFF9800),
+            Color(0xFFF57C00)
+        )
+        WarningType.DANGER -> Triple(
+            Color(0xFFFFEBEE),
+            Color(0xFFF44336),
+            Color(0xFFD32F2F)
+        )
+    }
+    
+    val iconRes = when (warning.type) {
+        WarningType.INFO -> R.drawable.info_24px
+        WarningType.WARNING -> R.drawable.warning_24px
+        WarningType.DANGER -> R.drawable.error_24px
+    }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        border = BorderStroke(1.dp, borderColor.copy(alpha = 0.5f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.Top
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(28.dp),
+                colorFilter = ColorFilter.tint(iconColor)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = warning.title,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = iconColor
+                    )
+                    if (warning.value.isNotEmpty()) {
+                        Text(
+                            text = warning.value,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = iconColor.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = warning.message,
+                    fontSize = 13.sp,
+                    color = Color.DarkGray
+                )
             }
         }
     }
@@ -196,6 +348,87 @@ fun InfoItem(iconRes: Int, text: String, color: Color) {
                 color = Color.Black
             )
         )
+    }
+}
+
+@Composable
+fun InfoItemWithProgress(
+    iconRes: Int,
+    title: String,
+    color: Color,
+    indicator: HomeIndicator
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .padding(end = 8.dp),
+                    colorFilter = ColorFilter.tint(color)
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
+                )
+            }
+            Text(
+                text = "${indicator.displayCurrent}/${indicator.displayTarget} ${indicator.unit}",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 12.sp,
+                    color = Color.DarkGray
+                )
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Progress bar
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(8.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f), RoundedCornerShape(4.dp))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth(indicator.progress)
+                        .background(color, RoundedCornerShape(4.dp))
+                )
+            }
+            
+            Spacer(modifier = Modifier.width(8.dp))
+            
+            // Percentage
+            Text(
+                text = "${indicator.percentage}%",
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = color
+                ),
+                modifier = Modifier.width(40.dp)
+            )
+        }
     }
 }
 
