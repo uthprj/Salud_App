@@ -108,8 +108,8 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
 
-        // --- Animation ---
-        logoAlpha.animateTo(1f, tween(300))
+        // --- Animation - giảm thời gian animation ---
+        logoAlpha.animateTo(1f, tween(200))
         logoOffsetY.animateTo(
             targetValue = 0f,
             animationSpec = spring(
@@ -117,7 +117,7 @@ fun SplashScreen(
                 stiffness = Spring.StiffnessLow
             )
         )
-        logoScale.animateTo(1.15f, tween(100))
+        logoScale.animateTo(1.15f, tween(80))
         logoScale.animateTo(
             1f,
             animationSpec = spring(
@@ -126,32 +126,35 @@ fun SplashScreen(
             )
         )
 
-        delay(400)
+        delay(200) // Giảm từ 400ms xuống 200ms
 
-        // --- Check và xin quyền ---
+        // --- Check và xin quyền - XIN TẤT CẢ CÙNG LÚC ---
         val locationGranted = checkLocationPermission(context)
         val notifGranted = checkNotificationPermission(context)
         val activityRecognitionGranted = checkActivityRecognitionPermission(context)
 
+        // Tạo danh sách permissions cần xin
+        val permissionsToRequest = mutableListOf<String>()
+        
         if (!locationGranted) {
-            locationLauncher.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
+            permissionsToRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionsToRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
         }
-
+        
         if (!notifGranted && Build.VERSION.SDK_INT >= 33) {
-            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
         }
-
-        // Xin quyền đếm bước chân (Android 10+)
+        
         if (!activityRecognitionGranted && Build.VERSION.SDK_INT >= 29) {
-            activityRecognitionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+            permissionsToRequest.add(Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+        
+        // Xin tất cả permissions cùng một lúc
+        if (permissionsToRequest.isNotEmpty()) {
+            locationLauncher.launch(permissionsToRequest.toTypedArray())
         }
 
-        delay(350)
+        delay(300) // Đợi user xử lý permissions
 
         // Kiểm tra kết nối internet
         if (!isInternetAvailable(context)) {

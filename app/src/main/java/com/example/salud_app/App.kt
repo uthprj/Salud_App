@@ -6,23 +6,42 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.PersistentCacheSettings
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 class App : Application() {
+    
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
         
-        // Khởi tạo FirebaseAuth sớm để giảm delay khi đăng nhập
+        // Khởi tạo Firebase Auth NGAY trên main thread để sẵn sàng
         FirebaseAuth.getInstance()
         
-        // Bật Firestore offline cache để load nhanh hơn
+        // Cấu hình Firestore với cache tối ưu
         val settings = FirebaseFirestoreSettings.Builder()
             .setLocalCacheSettings(
                 PersistentCacheSettings.newBuilder()
-                    .setSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+                    .setSizeBytes(50L * 1024L * 1024L) // 50MB cache
                     .build()
             )
             .build()
-        FirebaseFirestore.getInstance().firestoreSettings = settings
+        
+        val firestore = FirebaseFirestore.getInstance()
+        firestore.firestoreSettings = settings
+        
+        // Pre-warm Firestore connection trên background thread
+        applicationScope.launch {
+            try {
+                // Query nhẹ để thiết lập connection sớm
+                firestore.collection("User").limit(1).get()
+            } catch (e: Exception) {
+                // Ignore - chỉ để warm up connection
+            }
+        }
     }
 }

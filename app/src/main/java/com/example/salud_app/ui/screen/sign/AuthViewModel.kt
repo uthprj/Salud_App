@@ -21,15 +21,24 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class SignInViewModel : ViewModel() {
 
-    // Initialize FirebaseAuth lazily to avoid initialization-order issues
-    private val auth by lazy { FirebaseAuth.getInstance() }
-    private val db by lazy { FirebaseFirestore.getInstance() }
+    // Khởi tạo ngay lập tức thay vì lazy để tránh delay lần đầu
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+    
+    // Loading state để UI hiển thị progress
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // Sign in with Email/Password
+    // Sign in with Email/Password - Tối ưu với await() để nhanh hơn
     fun signInWithEmail(
         email: String,
         password: String,
@@ -41,40 +50,39 @@ class SignInViewModel : ViewModel() {
             return
         }
 
+        _isLoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnSuccessListener { authResult ->
-                        val firebaseUser = authResult.user
-                        if (firebaseUser != null) {
-                            val user = User(
-                                email = firebaseUser.email ?: "",
-                                photoUrl = firebaseUser.photoUrl?.toString() ?: "",
-                                fullName = firebaseUser.displayName ?: ""
-                            )
-                            viewModelScope.launch(Dispatchers.Main) {
-                                onSuccess(user)
-                            }
-                        } else {
-                            viewModelScope.launch(Dispatchers.Main) {
-                                onFailure("Không lấy được thông tin người dùng")
-                            }
-                        }
+                // Sử dụng await() - không cần timeout vì Firebase tự handle
+                val authResult = auth.signInWithEmailAndPassword(email, password).await()
+                
+                val firebaseUser = authResult.user
+                if (firebaseUser != null) {
+                    val user = User(
+                        email = firebaseUser.email ?: "",
+                        photoUrl = firebaseUser.photoUrl?.toString() ?: "",
+                        fullName = firebaseUser.displayName ?: ""
+                    )
+                    withContext(Dispatchers.Main) {
+                        _isLoading.value = false
+                        onSuccess(user)
                     }
-                    .addOnFailureListener { e ->
-                        viewModelScope.launch(Dispatchers.Main) {
-                            onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
-                        }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        _isLoading.value = false
+                        onFailure("Không lấy được thông tin người dùng")
                     }
+                }
             } catch (e: Exception) {
-                viewModelScope.launch(Dispatchers.Main) {
-                    onFailure("Lỗi: ${e.localizedMessage}")
+                withContext(Dispatchers.Main) {
+                    _isLoading.value = false
+                    onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
                 }
             }
         }
     }
 
-    // Sign up with Email/Password
+    // Sign up with Email/Password - Tối ưu: gọi onSuccess ngay, lưu Firestore async
     fun signUpWithEmail(
         email: String,
         password: String,
@@ -92,59 +100,58 @@ class SignInViewModel : ViewModel() {
             return
         }
 
+        _isLoading.value = true
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnSuccessListener { authResult ->
-                        val firebaseUser = authResult.user
-                        if (firebaseUser != null) {
-                            val user = User(
-                                email = firebaseUser.email ?: "",
-                                photoUrl = firebaseUser.photoUrl?.toString() ?: "",
-                                fullName = fullName
-                            )
+                // Sử dụng await() - không timeout
+                val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+                
+                val firebaseUser = authResult.user
+                if (firebaseUser != null) {
+                    val user = User(
+                        email = firebaseUser.email ?: "",
+                        photoUrl = firebaseUser.photoUrl?.toString() ?: "",
+                        fullName = fullName
+                    )
 
-                            // Save user to Firestore
-                            val uid = firebaseUser.uid
-                            val userData = hashMapOf<String, Any>(
-                                "userId" to uid,
-                                "fullName" to fullName,
-                                "birthDate" to "",
-                                "gender" to "",
-                                "numPhone" to "",
-                                "email" to email,
-                                "photoUrl" to ""
-                            )
+                    // GỌI onSuccess NGAY LẬP TỨC - không đợi Firestore
+                    withContext(Dispatchers.Main) {
+                        _isLoading.value = false
+                        onSuccess(user)
+                    }
 
-                            db.collection("User")
-                                .document(uid)
-                                .set(userData)
-                                .addOnSuccessListener {
-                                    Log.d("AuthViewModel", "User saved to Firestore: $uid")
-                                    viewModelScope.launch(Dispatchers.Main) {
-                                        onSuccess(user)
-                                    }
-                                }
-                                .addOnFailureListener { e ->
-                                    Log.e("AuthViewModel", "Failed saving user to Firestore", e)
-                                    viewModelScope.launch(Dispatchers.Main) {
-                                        onFailure("Lỗi lưu thông tin người dùng")
-                                    }
-                                }
-                        } else {
-                            viewModelScope.launch(Dispatchers.Main) {
-                                onFailure("Không lấy được thông tin người dùng")
-                            }
+                    // Lưu user vào Firestore ASYNC (không block UI)
+                    val uid = firebaseUser.uid
+                    val userData = hashMapOf<String, Any>(
+                        "userId" to uid,
+                        "fullName" to fullName,
+                        "birthDate" to "",
+                        "gender" to "",
+                        "numPhone" to "",
+                        "email" to email,
+                        "photoUrl" to ""
+                    )
+
+                    // Fire and forget - không đợi kết quả
+                    db.collection("User")
+                        .document(uid)
+                        .set(userData)
+                        .addOnSuccessListener {
+                            Log.d("AuthViewModel", "User saved to Firestore: $uid")
                         }
-                    }
-                    .addOnFailureListener { e ->
-                        viewModelScope.launch(Dispatchers.Main) {
-                            onFailure("Đăng ký thất bại: ${e.localizedMessage}")
+                        .addOnFailureListener { e ->
+                            Log.e("AuthViewModel", "Failed saving user to Firestore", e)
                         }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        _isLoading.value = false
+                        onFailure("Không lấy được thông tin người dùng")
                     }
+                }
             } catch (e: Exception) {
-                viewModelScope.launch(Dispatchers.Main) {
-                    onFailure("Lỗi: ${e.localizedMessage}")
+                withContext(Dispatchers.Main) {
+                    _isLoading.value = false
+                    onFailure("Đăng ký thất bại: ${e.localizedMessage}")
                 }
             }
         }
@@ -205,7 +212,8 @@ class SignInViewModel : ViewModel() {
             .addCredentialOption(googleIdOption)
             .build()
 
-        viewModelScope.launch(Dispatchers.Main) { // chạy trên Main thread
+        _isLoading.value = true
+        viewModelScope.launch(Dispatchers.Main) {
             try {
                 val result = credentialManager.getCredential(context, request)
                 if (result.credential is CustomCredential) {
@@ -215,23 +223,25 @@ class SignInViewModel : ViewModel() {
                         val token = googleIdTokenCredential.idToken
 
                         val credential = GoogleAuthProvider.getCredential(token, null)
-                        auth.signInWithCredential(credential)
-                            .addOnSuccessListener { authResult ->
-                                val firebaseUser = authResult.user
-                                if (firebaseUser != null) {
-                                    // Build User object to pass to UI
-                                    val user = User(
-                                        email = firebaseUser.email ?: "",
-                                        photoUrl = firebaseUser.photoUrl?.toString() ?: "",
-                                        fullName = firebaseUser.displayName ?: ""
-                                    )
+                        
+                        try {
+                            val authResult = auth.signInWithCredential(credential).await()
+                            
+                            val firebaseUser = authResult.user
+                            if (firebaseUser != null) {
+                                val user = User(
+                                    email = firebaseUser.email ?: "",
+                                    photoUrl = firebaseUser.photoUrl?.toString() ?: "",
+                                    fullName = firebaseUser.displayName ?: ""
+                                )
 
-                                    // Notify UI immediately
-                                    onSuccess(user)
+                                _isLoading.value = false
+                                // Notify UI immediately - không đợi Firestore
+                                onSuccess(user)
 
-                                    // Asynchronously write user data to Firestore (collection: "User", doc id = uid)
+                                // Lưu Firestore async (fire and forget)
+                                viewModelScope.launch(Dispatchers.IO) {
                                     try {
-                                        val db = FirebaseFirestore.getInstance()
                                         val uid = firebaseUser.uid
                                         val userData = hashMapOf<String, Any>(
                                             "userId" to uid,
@@ -242,32 +252,27 @@ class SignInViewModel : ViewModel() {
                                             "email" to (user.email),
                                             "photoUrl" to (user.photoUrl)
                                         )
-
-                                        db.collection("User")
-                                            .document(uid)
-                                            .set(userData)
-                                            .addOnSuccessListener {
-                                                Log.d("AuthViewModel", "User saved to Firestore: $uid")
-                                            }
-                                            .addOnFailureListener { e ->
-                                                Log.e("AuthViewModel", "Failed saving user to Firestore", e)
-                                            }
+                                        db.collection("User").document(uid).set(userData).await()
+                                        Log.d("AuthViewModel", "User saved to Firestore: $uid")
                                     } catch (e: Exception) {
-                                        Log.e("AuthViewModel", "Error writing to Firestore", e)
+                                        Log.e("AuthViewModel", "Failed saving user to Firestore", e)
                                     }
-                                } else {
-                                    onFailure("Không lấy được thông tin người dùng")
                                 }
+                            } else {
+                                _isLoading.value = false
+                                onFailure("Không lấy được thông tin người dùng")
                             }
-                            .addOnFailureListener { e ->
-                                onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
-                            }
+                        } catch (e: Exception) {
+                            _isLoading.value = false
+                            onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
+                        }
                     }
                 }
             } catch (e: NoCredentialException) {
-                // mở màn hình thêm account
+                _isLoading.value = false
                 launcher?.launch(getIntentToAddAccount())
             } catch (e: GetCredentialException) {
+                _isLoading.value = false
                 e.printStackTrace()
                 onFailure("Lỗi: ${e.localizedMessage}")
             }

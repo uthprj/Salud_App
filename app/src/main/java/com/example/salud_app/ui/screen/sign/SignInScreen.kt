@@ -6,7 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -47,25 +49,46 @@ fun LoginScreen(
     var fullName by remember { mutableStateOf("") }
     var showForgotPasswordDialog by remember { mutableStateOf(false) }
     var resetEmail by remember { mutableStateOf("") }
+    
+    // Observe loading state từ ViewModel
+    val isLoading by viewModel.isLoading.collectAsState()
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF6F8FB))
     ) {
+        // Loading overlay
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = Color(0xFF3B82F6),
+                    strokeWidth = 4.dp
+                )
+            }
+        }
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .imePadding() // Đẩy content lên khi bàn phím hiện
         ) {
-            Spacer(modifier = Modifier.height(80.dp))
+            Spacer(modifier = Modifier.height(40.dp))
             // IMAGE OUTSIDE CARD
             Image(
                 painter = painterResource(id = R.drawable.salud_logo),
                 contentDescription = "Logo",
                 modifier = Modifier
-                    .width(250.dp)
-                    .height(150.dp),
+                    .width(200.dp)
+                    .height(120.dp),
                 contentScale = ContentScale.Crop
             )
 
@@ -181,7 +204,7 @@ fun LoginScreen(
                             fontSize = 14.sp,
                             modifier = Modifier
                                 .align(Alignment.End)
-                                .clickable { showForgotPasswordDialog = true },
+                                .clickable(enabled = !isLoading) { showForgotPasswordDialog = true },
                             fontWeight = FontWeight.Medium
                         )
                     }
@@ -231,17 +254,29 @@ fun LoginScreen(
                                 )
                             }
                         },
+                        enabled = !isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3B82F6))
-                    ) {
-                        Text(
-                            text = if (isSignUpMode) "Đăng ký" else "Đăng nhập",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF3B82F6),
+                            disabledContainerColor = Color(0xFF3B82F6).copy(alpha = 0.5f)
                         )
+                    ) {
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color.White,
+                                strokeWidth = 2.dp
+                            )
+                        } else {
+                            Text(
+                                text = if (isSignUpMode) "Đăng ký" else "Đăng nhập",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -250,9 +285,9 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Divider(modifier = Modifier.weight(1f), color = Color(0xFFE6E9EE))
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE6E9EE))
                         Text(text = "  Hoặc  ", color = Color.Gray, fontSize = 12.sp)
-                        Divider(modifier = Modifier.weight(1f), color = Color(0xFFE6E9EE))
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color(0xFFE6E9EE))
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -273,6 +308,7 @@ fun LoginScreen(
                                 }
                             )
                         },
+                        enabled = !isLoading,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
