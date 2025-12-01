@@ -302,8 +302,7 @@ private fun ProfileContent(
                 Button(
                     onClick = onLogout,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
+                        .fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFEF5350)
                     ),

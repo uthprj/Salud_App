@@ -25,6 +25,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.navigation.NavController
 
 data class RingData(
@@ -55,7 +56,7 @@ fun MultiRingProgress(
                     startAngle = -90f,
                     sweepAngle = 360f * ring.progress,
                     useCenter = false,
-                    style = Stroke(width = strokePx),
+                    style = Stroke(width = strokePx, cap = StrokeCap.Round),
                     topLeft = Offset(strokePx + inset, strokePx + inset),
                     size = Size(
                         size.toPx() - (strokePx * 2) - inset * 2,
@@ -84,11 +85,11 @@ fun HomeScreen(
                     .fillMaxSize()
             ) {
                 val rings = listOf(
-                    RingData(0.75f, Color(0xFF4CAF50), 10.dp),   // nước
-                    RingData(0.40f, Color(0xFF3F51B5), 10.dp),   // bước chân
-                    RingData(0.20f, Color(0xFF9C27B0), 10.dp),   // calories
-                    RingData(0.60f, Color(0xFF2196F3), 10.dp),   // nhịp tim
-                    RingData(0.50f, Color(0xFFFF9800), 10.dp)    // Sleep
+                    RingData(0.75f, Color(0xFFA837CD), 10.dp),   // nước
+                    RingData(0.40f, Color(0xFFFF9B00), 10.dp),   // bước chân
+                    RingData(0.20f, Color(0xFFDE3D3D), 10.dp),   // calories
+                    RingData(0.60f, Color(0xFF4B89F5), 10.dp),   // nhịp tim
+                    RingData(0.50f, Color(0xFF67E33A), 10.dp),
                 )
 
                 Column(
@@ -106,37 +107,18 @@ fun HomeScreen(
                     
                     Column(
                         modifier = Modifier
+                            .fillMaxWidth()
                             .background(
-                                color = Color(0x9CE7E7E7),
+                                color = Color(0xBCE0ECFF),
                                 shape = RoundedCornerShape(16.dp)
                             )
-                            .padding(vertical = 7.dp),
+                            .padding(all = 15.dp),
                     ) {
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(start = 10.dp, end = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            InfoItem(R.drawable.barefoot_24px, "1400 mét", Color(0xFF4CAF50))
-                            InfoItem(R.drawable.cardiology_24px, "72 pbm", Color(0xFF2196F3))
-                            InfoItem(
-                                R.drawable.water_drop_24px,
-                                "1,5/2 lít nước",
-                                Color(0xFF64B5F6)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(start = 35.dp, end = 35.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            InfoItem(R.drawable.bolt_24px, "400/2000 calo", Color(0xFFFFEB3B))
-                            InfoItem(R.drawable.snooze_24px, "8/8h ngủ", Color(0xFF7E57C2))
-                        }
+                        InfoItem(R.drawable.barefoot_24px, "Bước chân", Color(0xFF710A92))
+                        InfoItem(R.drawable.bolt_24px, "Calo nạp", Color(0xFFD58913))
+                        InfoItem(R.drawable.mode_heat_24px, "Calo đốt", Color(0xFF930B0B))
+                        InfoItem(R.drawable.bedtime_24px, "Ngủ nghỉ", Color(0xFF1351B8))
+                        InfoItem(R.drawable.exercise_24px, "Luyện Tập", Color(0xFF2F9909))
                     }
                     LazyColumn(
                         modifier = Modifier
@@ -203,8 +185,8 @@ fun InfoItem(iconRes: Int, text: String, color: Color) {
             painter = painterResource(id = iconRes),
             contentDescription = null,
             modifier = Modifier
-                .size(25.dp)
-                .padding(end = 4.dp),
+                .size(30.dp)
+                .padding(top = 4.dp, bottom = 4.dp),
             colorFilter = ColorFilter.tint(color)
         )
         Text(
@@ -217,8 +199,11 @@ fun InfoItem(iconRes: Int, text: String, color: Color) {
     }
 }
 
-//@Preview
-//@Composable
-//fun HomeScreenPreview() {
-//    HomeScreen()
-//}
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    val navController = rememberNavController()
+    HomeScreen(
+        navController = navController
+    )
+}

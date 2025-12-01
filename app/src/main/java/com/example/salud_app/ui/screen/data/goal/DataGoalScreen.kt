@@ -449,8 +449,8 @@ private fun DailyGoalProgressCard(
 ) {
     val progress = if (target > 0) (current / target).coerceIn(0.0, 1.0).toFloat() else 0f
     val progressColor = when {
-        progress >= 1f -> Color(0xFF4CAF50)
-        progress >= 0.5f -> Color(0xFFFFC107)
+        progress >= 1f -> Color(0xFF0B47A3)
+        progress >= 0.5f -> Color(0xFF129A0D)
         else -> iconTint
     }
 
