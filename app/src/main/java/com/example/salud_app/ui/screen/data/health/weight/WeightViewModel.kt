@@ -105,6 +105,7 @@ class WeightViewModel : ViewModel() {
                 
                 val currentUser = auth.currentUser
                 if (currentUser == null) {
+                    Log.e("WeightViewModel", "User not logged in")
                     _uiState.value = _uiState.value.copy(
                         isSaving = false,
                         error = "Chưa đăng nhập"
@@ -112,10 +113,14 @@ class WeightViewModel : ViewModel() {
                     return@launch
                 }
 
+                Log.d("WeightViewModel", "Starting save weight: $weight kg on $date for user: ${currentUser.uid}")
+
                 val dateString = date.format(dateFormatter)
                 val userHealthRef = firestore.collection("User")
                     .document(currentUser.uid)
                     .collection("HealthRecords")
+                
+                Log.d("WeightViewModel", "Checking existing records for date: $dateString")
                 
                 // Kiểm tra xem đã có record cho ngày này chưa
                 val existingRecords = userHealthRef
@@ -123,9 +128,12 @@ class WeightViewModel : ViewModel() {
                     .get()
                     .await()
 
+                Log.d("WeightViewModel", "Found ${existingRecords.documents.size} existing records")
+
                 if (existingRecords.documents.isNotEmpty()) {
                     // Cập nhật record cũ
                     val docId = existingRecords.documents.first().id
+                    Log.d("WeightViewModel", "Updating existing record: $docId")
                     userHealthRef.document(docId)
                         .update(
                             mapOf(
@@ -134,17 +142,24 @@ class WeightViewModel : ViewModel() {
                             )
                         )
                         .await()
-                    Log.d("WeightViewModel", "Updated weight record: $docId")
+                    Log.d("WeightViewModel", "Successfully updated weight record: $docId")
                 } else {
                     // Tạo record mới
-                    val record = HealthRecord(
-                        userId = currentUser.uid,
-                        date = dateString,
-                        timestamp = System.currentTimeMillis(),
-                        weight = weight
+                    val record = hashMapOf(
+                        "userId" to currentUser.uid,
+                        "date" to dateString,
+                        "timestamp" to System.currentTimeMillis(),
+                        "weight" to weight,
+                        "height" to 0.0,
+                        "systolic" to 0L,
+                        "diastolic" to 0L,
+                        "heartRate" to 0L,
+                        "bmi" to 0.0,
+                        "note" to ""
                     )
-                    userHealthRef.add(record).await()
-                    Log.d("WeightViewModel", "Created new weight record for $dateString")
+                    Log.d("WeightViewModel", "Creating new record: $record")
+                    val docRef = userHealthRef.add(record).await()
+                    Log.d("WeightViewModel", "Successfully created new weight record with ID: ${docRef.id}")
                 }
 
                 _uiState.value = _uiState.value.copy(
@@ -152,11 +167,13 @@ class WeightViewModel : ViewModel() {
                     saveSuccess = true
                 )
                 
+                Log.d("WeightViewModel", "Save successful, reloading data...")
                 // Tải lại dữ liệu sau khi lưu
                 loadWeightRecords()
                 
             } catch (e: Exception) {
-                Log.e("WeightViewModel", "Error saving weight", e)
+                Log.e("WeightViewModel", "Error saving weight: ${e.message}", e)
+                e.printStackTrace()
                 _uiState.value = _uiState.value.copy(
                     isSaving = false,
                     error = e.message ?: "Lỗi lưu dữ liệu"

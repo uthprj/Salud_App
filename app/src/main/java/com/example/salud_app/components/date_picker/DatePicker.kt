@@ -36,19 +36,39 @@ fun AppDatePicker(
     onDateChange: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     label: String = "Ngày",
-    dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, dd/MM/yyyy",
+    dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern(
+        "EEE, dd/MM/yyyy",
         Locale("vi", "VN")
     ),
     backgroundColor: Color = Color(0xFF9CD5FF),
     showNavigationArrows: Boolean = true,
     iconSize: Dp = 20.dp,
     confirmButtonText: String = "Xác nhận",
-    dismissButtonText: String = "Hủy"
+    dismissButtonText: String = "Hủy",
+    maxDate: LocalDate = LocalDate.now()
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
+    
+    // Tạo validator để giới hạn ngày
+    val selectableDates = remember(maxDate) {
+        object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val date = Instant.ofEpochMilli(utcTimeMillis)
+                    .atZone(ZoneId.of("UTC"))
+                    .toLocalDate()
+                return !date.isAfter(maxDate)
+            }
+            
+            override fun isSelectableYear(year: Int): Boolean {
+                return year <= maxDate.year
+            }
+        }
+    }
+    
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = currentDate.atStartOfDay(ZoneId.systemDefault())
-            .toInstant().toEpochMilli()
+            .toInstant().toEpochMilli(),
+        selectableDates = selectableDates
     )
 
     Column(modifier = modifier) {
@@ -60,7 +80,8 @@ fun AppDatePicker(
             dateFormat = dateFormat,
             backgroundColor = backgroundColor,
             showNavigationArrows = showNavigationArrows,
-            iconSize = iconSize
+            iconSize = iconSize,
+            maxDate = maxDate
         )
 
         if (showDatePicker) {
@@ -93,7 +114,8 @@ fun DateSelector(
     ),
     backgroundColor: Color = Color(0xFF6AB9F5),
     showNavigationArrows: Boolean = true,
-    iconSize: Dp = 20.dp
+    iconSize: Dp = 20.dp,
+    maxDate: LocalDate = LocalDate.now()
 ) {
     Row(
         modifier = modifier
@@ -151,8 +173,8 @@ fun DateSelector(
             )
 
             if (showNavigationArrows) {
-                // Next day button - disabled if current date is today
-                val isToday = currentDate >= LocalDate.now()
+                // Next day button - disabled if current date >= maxDate
+                val canGoNext = currentDate < maxDate
                 Image(
                     painter = painterResource(R.drawable.arrow_forward_ios_24px),
                     contentDescription = "Ngày tiếp theo",
@@ -160,10 +182,10 @@ fun DateSelector(
                         .padding(start = 5.dp)
                         .size(iconSize)
                         .then(
-                            if (!isToday) Modifier.clickable { onDateChange(currentDate.plusDays(1)) }
+                            if (canGoNext) Modifier.clickable { onDateChange(currentDate.plusDays(1)) }
                             else Modifier
                         ),
-                    alpha = if (isToday) 0.3f else 1f
+                    alpha = if (canGoNext) 1f else 0.3f
                 )
             }
         }
@@ -223,11 +245,30 @@ fun CompactDatePicker(
     dateFormat: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE, dd/MM/yyyy",
         Locale("vi", "VN")
     ),
+    maxDate: LocalDate = LocalDate.now()
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
+    
+    // Tạo validator để giới hạn ngày
+    val selectableDates = remember(maxDate) {
+        object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val date = Instant.ofEpochMilli(utcTimeMillis)
+                    .atZone(ZoneId.of("UTC"))
+                    .toLocalDate()
+                return !date.isAfter(maxDate)
+            }
+            
+            override fun isSelectableYear(year: Int): Boolean {
+                return year <= maxDate.year
+            }
+        }
+    }
+    
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = currentDate.atStartOfDay(ZoneId.systemDefault())
-            .toInstant().toEpochMilli()
+            .toInstant().toEpochMilli(),
+        selectableDates = selectableDates
     )
 
     Row(
@@ -275,7 +316,8 @@ fun PreviewAppDatePicker() {
         AppDatePicker(
             currentDate = date,
             onDateChange = { date = it },
-            label = "Nhật ký ngày"
+            label = "Nhật ký ngày",
+            maxDate = LocalDate.now()
         )
     }
 }

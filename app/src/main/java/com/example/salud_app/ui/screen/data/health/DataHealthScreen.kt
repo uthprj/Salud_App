@@ -139,6 +139,10 @@ fun DataHealthScreen(
                 )
             }
 
+            item {
+                Spacer(Modifier.height(12.dp))
+            }
+
             // --- PHẦN: CHỈ SỐ ---
             item {
                 SectionHeader(text = "Chỉ số")

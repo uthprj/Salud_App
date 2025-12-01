@@ -92,7 +92,7 @@ fun DataHealthHRScreen(
                     AppDatePicker(
                         currentDate = currentDate,
                         onDateChange = { newDate -> currentDate = newDate },
-                        label = "Ngày"
+                        maxDate = LocalDate.now()
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     HRInputRow(

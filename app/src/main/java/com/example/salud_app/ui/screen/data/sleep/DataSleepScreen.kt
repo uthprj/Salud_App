@@ -25,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.CompactDatePicker
+import com.example.salud_app.components.dialog.DeleteConfirmDialog
 import com.example.salud_app.components.draw_chart.AppLineChart
 import com.example.salud_app.components.draw_chart.ChartDataPoint
 import com.example.salud_app.model.Sleep
@@ -795,25 +796,18 @@ fun SleepHistoryItem(
     }
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Xác nhận xóa") },
-            text = { Text("Bạn có chắc muốn xóa giấc ngủ này?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete()
-                        showDeleteDialog = false
-                    }
-                ) {
-                    Text("Xóa", color = Color.Red)
-                }
+        DeleteConfirmDialog(
+            showDialog = true,
+            itemName = "giấc ngủ này",
+            onConfirm = {
+                onDelete()
+                showDeleteDialog = false
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Hủy")
-                }
+            onDismiss = {
+                showDeleteDialog = false
             }
         )
     }
+
+
 }
