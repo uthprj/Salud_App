@@ -44,6 +44,7 @@ fun SplashScreen(
 
     var hasLocationPermission by remember { mutableStateOf(false) }
     var hasNotificationPermission by remember { mutableStateOf(false) }
+    var hasActivityRecognitionPermission by remember { mutableStateOf(false) }
     var showNoInternetDialog by remember { mutableStateOf(false) }
 
     // Launcher xin quyền Location
@@ -60,6 +61,13 @@ fun SplashScreen(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
         hasNotificationPermission = granted
+    }
+
+    // Launcher xin quyền Activity Recognition (đếm bước chân)
+    val activityRecognitionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasActivityRecognitionPermission = granted
     }
 
     // Animations
@@ -123,6 +131,7 @@ fun SplashScreen(
         // --- Check và xin quyền ---
         val locationGranted = checkLocationPermission(context)
         val notifGranted = checkNotificationPermission(context)
+        val activityRecognitionGranted = checkActivityRecognitionPermission(context)
 
         if (!locationGranted) {
             locationLauncher.launch(
@@ -135,6 +144,11 @@ fun SplashScreen(
 
         if (!notifGranted && Build.VERSION.SDK_INT >= 33) {
             notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        // Xin quyền đếm bước chân (Android 10+)
+        if (!activityRecognitionGranted && Build.VERSION.SDK_INT >= 29) {
+            activityRecognitionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
         }
 
         delay(350)
@@ -189,6 +203,18 @@ fun checkNotificationPermission(context: Context): Boolean {
         ) == PackageManager.PERMISSION_GRANTED
     } else {
         NotificationManagerCompat.from(context).areNotificationsEnabled()
+    }
+}
+
+fun checkActivityRecognitionPermission(context: Context): Boolean {
+    return if (Build.VERSION.SDK_INT >= 29) {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACTIVITY_RECOGNITION
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        // Android < 10 không cần permission này
+        true
     }
 }
 

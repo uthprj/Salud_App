@@ -1,5 +1,6 @@
 package com.example.salud_app.ui.screen.data
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -114,13 +115,13 @@ fun DataItemRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
+            .background(color = backgroundColor,RoundedCornerShape(12.dp))
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(all = 15.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier.size(60.dp),
             shape = CircleShape,
             color = backgroundColor
         ) {

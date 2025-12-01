@@ -107,9 +107,11 @@ fun DataGoalScreen(
             val stepsTarget = stepsTargetInput.toIntOrNull() ?: 10000
             goalViewModel.saveDailyTargets(caloriesInTarget, caloriesOutTarget, sleepTarget, exerciseTarget, stepsTarget)
 
-            // Cập nhật bước chân
-            val steps = stepsInput.toIntOrNull() ?: 0
-            goalViewModel.updateSteps(steps)
+            // Chỉ cập nhật bước chân thủ công khi không có sensor
+            if (!uiState.hasStepSensor) {
+                val steps = stepsInput.toIntOrNull() ?: 0
+                goalViewModel.updateSteps(steps)
+            }
         }
     ) { innerPadding ->
 
@@ -214,7 +216,7 @@ fun DataGoalScreen(
                     )
                 }
 
-                // Bước chân (có thể nhập thủ công)
+                // Bước chân (có thể nhập thủ công hoặc đếm tự động)
                 item {
                     StepsGoalCard(
                         steps = uiState.goal.dailyGoal.steps,
@@ -222,7 +224,8 @@ fun DataGoalScreen(
                         stepsInput = stepsInput,
                         onStepsChange = { stepsInput = it },
                         stepsTargetInput = stepsTargetInput,
-                        onStepsTargetChange = { stepsTargetInput = it }
+                        onStepsTargetChange = { stepsTargetInput = it },
+                        hasStepSensor = uiState.hasStepSensor
                     )
                 }
 
@@ -266,77 +269,167 @@ private fun LongTermGoalCard(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Cân nặng
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MonitorWeight,
-                    contentDescription = null,
-                    tint = Color(0xFFE91E63),
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Cân nặng",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
+            val targetWeight = targetWeightInput.toDoubleOrNull() ?: 0.0
+            val weightProgress = if (targetWeight > 0 && currentWeight > 0) {
+                // Tính % tiến độ: nếu cần giảm cân hoặc tăng cân
+                val diff = kotlin.math.abs(targetWeight - currentWeight)
+                val initialDiff = if (currentWeight > targetWeight) currentWeight - targetWeight else targetWeight - currentWeight
+                if (initialDiff > 0) ((initialDiff - diff) / initialDiff).coerceIn(0.0, 1.0).toFloat() else 1f
+            } else 0f
+            val weightProgressColor = when {
+                weightProgress >= 1f -> Color(0xFF4CAF50)
+                weightProgress >= 0.5f -> Color(0xFFFFC107)
+                else -> Color(0xFFE91E63)
+            }
+
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MonitorWeight,
+                        contentDescription = null,
+                        tint = Color(0xFFE91E63),
+                        modifier = Modifier.size(32.dp)
                     )
-                    Text(
-                        text = "Hiện tại: ${if (currentWeight > 0) "%.1f kg".format(currentWeight) else "Chưa có dữ liệu"}",
-                        fontSize = 13.sp,
-                        color = Color.Gray
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Cân nặng",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = "Hiện tại: ${if (currentWeight > 0) "%.1f kg".format(currentWeight) else "Chưa có dữ liệu"}",
+                            fontSize = 13.sp,
+                            color = Color.Gray
+                        )
+                    }
+                    OutlinedTextField(
+                        value = targetWeightInput,
+                        onValueChange = { if (it.isEmpty() || it.toDoubleOrNull() != null) onTargetWeightChange(it) },
+                        modifier = Modifier.width(100.dp),
+                        placeholder = { Text("Mục tiêu") },
+                        suffix = { Text("kg") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        textStyle = LocalTextStyle.current.copy(fontSize = 14.sp)
                     )
                 }
-                OutlinedTextField(
-                    value = targetWeightInput,
-                    onValueChange = { if (it.isEmpty() || it.toDoubleOrNull() != null) onTargetWeightChange(it) },
-                    modifier = Modifier.width(100.dp),
-                    placeholder = { Text("Mục tiêu") },
-                    suffix = { Text("kg") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    textStyle = LocalTextStyle.current.copy(fontSize = 14.sp)
-                )
+                
+                // Progress bar cho cân nặng
+                if (targetWeight > 0 && currentWeight > 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        progress = { weightProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp)),
+                        color = weightProgressColor,
+                        trackColor = Color(0xFFE0E0E0)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = if (currentWeight > targetWeight) "Cần giảm: %.1f kg".format(currentWeight - targetWeight)
+                                   else if (currentWeight < targetWeight) "Cần tăng: %.1f kg".format(targetWeight - currentWeight)
+                                   else "Đã đạt mục tiêu!",
+                            fontSize = 11.sp,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "${(weightProgress * 100).toInt()}%",
+                            fontSize = 12.sp,
+                            color = weightProgressColor,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
 
             HorizontalDivider()
 
             // Chiều cao
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Height,
-                    contentDescription = null,
-                    tint = Color(0xFF1E88E5),
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Chiều cao",
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 16.sp
+            val targetHeight = targetHeightInput.toDoubleOrNull() ?: 0.0
+            val heightProgress = if (targetHeight > 0 && currentHeight > 0) {
+                (currentHeight / targetHeight).coerceIn(0.0, 1.0).toFloat()
+            } else 0f
+            val heightProgressColor = when {
+                heightProgress >= 1f -> Color(0xFF4CAF50)
+                heightProgress >= 0.9f -> Color(0xFFFFC107)
+                else -> Color(0xFF1E88E5)
+            }
+
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Height,
+                        contentDescription = null,
+                        tint = Color(0xFF1E88E5),
+                        modifier = Modifier.size(32.dp)
                     )
-                    Text(
-                        text = "Hiện tại: ${if (currentHeight > 0) "%.1f cm".format(currentHeight) else "Chưa có dữ liệu"}",
-                        fontSize = 13.sp,
-                        color = Color.Gray
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Chiều cao",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp
+                        )
+                        Text(
+                            text = "Hiện tại: ${if (currentHeight > 0) "%.1f cm".format(currentHeight) else "Chưa có dữ liệu"}",
+                            fontSize = 13.sp,
+                            color = Color.Gray
+                        )
+                    }
+                    OutlinedTextField(
+                        value = targetHeightInput,
+                        onValueChange = { if (it.isEmpty() || it.toDoubleOrNull() != null) onTargetHeightChange(it) },
+                        modifier = Modifier.width(100.dp),
+                        placeholder = { Text("Mục tiêu") },
+                        suffix = { Text("cm") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        singleLine = true,
+                        textStyle = LocalTextStyle.current.copy(fontSize = 14.sp)
                     )
                 }
-                OutlinedTextField(
-                    value = targetHeightInput,
-                    onValueChange = { if (it.isEmpty() || it.toDoubleOrNull() != null) onTargetHeightChange(it) },
-                    modifier = Modifier.width(100.dp),
-                    placeholder = { Text("Mục tiêu") },
-                    suffix = { Text("cm") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                    textStyle = LocalTextStyle.current.copy(fontSize = 14.sp)
-                )
+
+                // Progress bar cho chiều cao
+                if (targetHeight > 0 && currentHeight > 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LinearProgressIndicator(
+                        progress = { heightProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp)),
+                        color = heightProgressColor,
+                        trackColor = Color(0xFFE0E0E0)
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = if (currentHeight < targetHeight) "Còn thiếu: %.1f cm".format(targetHeight - currentHeight)
+                                   else "Đã đạt mục tiêu!",
+                            fontSize = 11.sp,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "${(heightProgress * 100).toInt()}%",
+                            fontSize = 12.sp,
+                            color = heightProgressColor,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
             }
         }
     }
@@ -443,7 +536,8 @@ private fun StepsGoalCard(
     stepsInput: String,
     onStepsChange: (String) -> Unit,
     stepsTargetInput: String,
-    onStepsTargetChange: (String) -> Unit
+    onStepsTargetChange: (String) -> Unit,
+    hasStepSensor: Boolean = false
 ) {
     val progress = if (stepsTarget > 0) (steps.toFloat() / stepsTarget).coerceIn(0f, 1f) else 0f
     val progressColor = when {
@@ -474,36 +568,76 @@ private fun StepsGoalCard(
                     modifier = Modifier.size(28.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Bước chân",
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 15.sp,
-                    modifier = Modifier.weight(1f)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Bước chân",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 15.sp
+                    )
+                    if (hasStepSensor) {
+                        Text(
+                            text = "Đang đếm tự động",
+                            fontSize = 11.sp,
+                            color = Color(0xFF4CAF50)
+                        )
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = stepsInput,
-                    onValueChange = { if (it.isEmpty() || it.toIntOrNull() != null) onStepsChange(it) },
-                    modifier = Modifier.weight(1f),
-                    label = { Text("Số bước hiện tại") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = stepsTargetInput,
-                    onValueChange = { if (it.isEmpty() || it.toIntOrNull() != null) onStepsTargetChange(it) },
-                    modifier = Modifier.weight(1f),
-                    label = { Text("Mục tiêu") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true
-                )
+            if (hasStepSensor) {
+                // Nếu có sensor, chỉ hiển thị số bước và mục tiêu
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "$steps",
+                            fontSize = 32.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF9C27B0)
+                        )
+                        Text(
+                            text = "bước hôm nay",
+                            fontSize = 13.sp,
+                            color = Color.Gray
+                        )
+                    }
+                    OutlinedTextField(
+                        value = stepsTargetInput,
+                        onValueChange = { if (it.isEmpty() || it.toIntOrNull() != null) onStepsTargetChange(it) },
+                        modifier = Modifier.width(120.dp),
+                        label = { Text("Mục tiêu") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                }
+            } else {
+                // Không có sensor, cho phép nhập thủ công
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    OutlinedTextField(
+                        value = stepsInput,
+                        onValueChange = { if (it.isEmpty() || it.toIntOrNull() != null) onStepsChange(it) },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("Số bước hiện tại") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                    OutlinedTextField(
+                        value = stepsTargetInput,
+                        onValueChange = { if (it.isEmpty() || it.toIntOrNull() != null) onStepsTargetChange(it) },
+                        modifier = Modifier.weight(1f),
+                        label = { Text("Mục tiêu") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))

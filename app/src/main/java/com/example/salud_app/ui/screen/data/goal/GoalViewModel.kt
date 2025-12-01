@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.salud_app.components.step_counter.StepCounterManager
 import com.example.salud_app.model.DailyGoal
 import com.example.salud_app.model.Goal
 import com.example.salud_app.model.LongTermGoal
@@ -21,6 +22,7 @@ data class GoalUiState(
     val goal: Goal = Goal(),
     val currentWeight: Double = 0.0,
     val currentHeight: Double = 0.0,
+    val hasStepSensor: Boolean = false,
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
     val error: String? = null,
@@ -37,11 +39,35 @@ class GoalViewModel : ViewModel() {
     private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
     private var sharedPreferences: SharedPreferences? = null
+    private var stepCounterManager: StepCounterManager? = null
 
     fun initialize(context: Context) {
         sharedPreferences = context.getSharedPreferences("goal_prefs", Context.MODE_PRIVATE)
+        
+        // Khởi tạo StepCounterManager
+        stepCounterManager = StepCounterManager.getInstance(context)
+        _uiState.value = _uiState.value.copy(
+            hasStepSensor = stepCounterManager?.isStepCounterAvailable() == true
+        )
+        
+        // Bắt đầu đếm bước chân
+        stepCounterManager?.startCounting()
+        
+        // Load goals trước
         loadGoals()
         loadCurrentHealthData()
+        
+        // Sau đó theo dõi số bước từ sensor và cập nhật
+        viewModelScope.launch {
+            stepCounterManager?.dailySteps?.collect { steps ->
+                val currentGoal = _uiState.value.goal
+                _uiState.value = _uiState.value.copy(
+                    goal = currentGoal.copy(
+                        dailyGoal = currentGoal.dailyGoal.copy(steps = steps)
+                    )
+                )
+            }
+        }
     }
 
     /**
@@ -64,6 +90,9 @@ class GoalViewModel : ViewModel() {
                 )
 
                 // Lấy mục tiêu hàng ngày - reset nếu ngày mới
+                // Lấy steps từ StepCounterManager (không phải từ goal_prefs)
+                val currentSteps = stepCounterManager?.getCurrentSteps() ?: 0
+                
                 val dailyGoal = if (savedDate == today) {
                     DailyGoal(
                         date = today,
@@ -75,7 +104,7 @@ class GoalViewModel : ViewModel() {
                         sleepTarget = prefs.getInt("sleep_target", 480),
                         exerciseMinutes = prefs.getInt("exercise_minutes", 0),
                         exerciseTarget = prefs.getInt("exercise_target", 30),
-                        steps = prefs.getInt("steps", 0),
+                        steps = currentSteps,
                         stepsTarget = prefs.getInt("steps_target", 10000)
                     )
                 } else {
@@ -90,7 +119,7 @@ class GoalViewModel : ViewModel() {
                         sleepTarget = prefs.getInt("sleep_target", 480),
                         exerciseMinutes = 0,
                         exerciseTarget = prefs.getInt("exercise_target", 30),
-                        steps = 0,
+                        steps = currentSteps,
                         stepsTarget = prefs.getInt("steps_target", 10000)
                     )
                     // Save new date
@@ -123,31 +152,31 @@ class GoalViewModel : ViewModel() {
             try {
                 val currentUser = auth.currentUser ?: return@launch
 
-                // Lấy cân nặng mới nhất
-                val weightDoc = firestore.collection("User")
+                // Lấy tất cả HealthRecords và tìm cân nặng/chiều cao mới nhất
+                val healthRecords = firestore.collection("User")
                     .document(currentUser.uid)
-                    .collection("weight")
+                    .collection("HealthRecords")
                     .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-                    .limit(1)
+                    .limit(100)
                     .get()
                     .await()
 
-                val currentWeight = if (!weightDoc.isEmpty) {
-                    weightDoc.documents.first().getDouble("value") ?: 0.0
-                } else 0.0
+                var currentWeight = 0.0
+                var currentHeight = 0.0
 
-                // Lấy chiều cao mới nhất
-                val heightDoc = firestore.collection("User")
-                    .document(currentUser.uid)
-                    .collection("height")
-                    .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
-                    .limit(1)
-                    .get()
-                    .await()
-
-                val currentHeight = if (!heightDoc.isEmpty) {
-                    heightDoc.documents.first().getDouble("value") ?: 0.0
-                } else 0.0
+                // Tìm record có weight mới nhất
+                for (doc in healthRecords.documents) {
+                    val weight = doc.getDouble("weight") ?: 0.0
+                    if (weight > 0 && currentWeight == 0.0) {
+                        currentWeight = weight
+                    }
+                    val height = doc.getDouble("height") ?: 0.0
+                    if (height > 0 && currentHeight == 0.0) {
+                        currentHeight = height
+                    }
+                    // Nếu đã tìm thấy cả 2 thì dừng
+                    if (currentWeight > 0 && currentHeight > 0) break
+                }
 
                 _uiState.value = _uiState.value.copy(
                     currentWeight = currentWeight,
@@ -193,7 +222,7 @@ class GoalViewModel : ViewModel() {
                     .await()
 
                 for (doc in exerciseDocs) {
-                    totalCaloriesOut += doc.getDouble("calories") ?: 0.0
+                    totalCaloriesOut += doc.getDouble("caloriesBurned") ?: 0.0
                     totalExerciseMinutes += (doc.getLong("duration")?.toInt() ?: 0)
                 }
 
@@ -327,12 +356,14 @@ class GoalViewModel : ViewModel() {
     }
 
     /**
-     * Cập nhật bước chân (thủ công)
+     * Cập nhật bước chân (thủ công - khi không có sensor)
      */
     fun updateSteps(steps: Int) {
         viewModelScope.launch {
-            sharedPreferences?.edit()?.putInt("steps", steps)?.apply()
+            // Cập nhật vào StepCounterManager nếu có
+            stepCounterManager?.setManualSteps(steps)
             
+            // Cập nhật UI state
             val currentGoal = _uiState.value.goal
             _uiState.value = _uiState.value.copy(
                 goal = currentGoal.copy(
@@ -353,5 +384,11 @@ class GoalViewModel : ViewModel() {
     fun refresh() {
         loadGoals()
         loadCurrentHealthData()
+    }
+    
+    override fun onCleared() {
+        super.onCleared()
+        // Không dừng step counter khi ViewModel bị clear
+        // vì muốn tiếp tục đếm bước ở background
     }
 }
