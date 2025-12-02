@@ -169,6 +169,12 @@ class HintViewModel : ViewModel() {
                 icon = "📊",
                 type = SuggestionType.GENERAL_HEALTH,
                 prompt = "Phân tích tình trạng sức khỏe hiện tại của tôi"
+            ),
+            QuickSuggestion(
+                title = "Tips & Tricks hằng ngày",
+                icon = "💡",
+                type = SuggestionType.DAILY_TIPS,
+                prompt = "Cho tôi tips và tricks hằng ngày về lối sống lành mạnh"
             )
         )
     }
@@ -210,6 +216,13 @@ class HintViewModel : ViewModel() {
                                      userMessage.contains("workout", ignoreCase = true) ||
                                      userMessage.contains("gym", ignoreCase = true) ||
                                      userMessage.contains("cardio", ignoreCase = true)
+                
+                val isDailyTips = userMessage.contains("tips", ignoreCase = true) ||
+                                  userMessage.contains("tricks", ignoreCase = true) ||
+                                  userMessage.contains("mẹo", ignoreCase = true) ||
+                                  userMessage.contains("lối sống", ignoreCase = true) ||
+                                  userMessage.contains("thói quen", ignoreCase = true) ||
+                                  userMessage.contains("hằng ngày", ignoreCase = true)
                 
                 val fullPrompt = when {
                     isMealPlan -> """
@@ -316,13 +329,59 @@ class HintViewModel : ViewModel() {
                         TRẢ LỜI NGẮN GỌN, CHI TIẾT, ĐÚNG ĐỊNH DẠNG TRÊN. KHÔNG NÓI NGOÀI LỀ.
                     """.trimIndent()
                     
+                    isDailyTips -> """
+                        BẠN LÀ CHUYÊN GIA VỀ LỐI SỐNG LÀNH MẠNH
+                        
+                        $context
+                        
+                        $chatHistory
+                        
+                        Yêu cầu của người dùng: $userMessage
+                        
+                        Hãy đưa ra TIPS & TRICKS HẰNG NGÀY về lối sống lành mạnh với định dạng sau:
+                        
+                        💡 TIPS & TRICKS HẰNG NGÀY VỀ LỐI SỐNG LÀNH MẠNH
+                        
+                        🌅 BUỔI SÁNG:
+                        1. [Tip 1]: [Mô tả chi tiết và lợi ích]
+                        2. [Tip 2]: [Mô tả chi tiết và lợi ích]
+                        3. [Tip 3]: [Mô tả chi tiết và lợi ích]
+                        
+                        🌞 BUỔI TRƯA:
+                        1. [Tip 1]: [Mô tả chi tiết và lợi ích]
+                        2. [Tip 2]: [Mô tả chi tiết và lợi ích]
+                        3. [Tip 3]: [Mô tả chi tiết và lợi ích]
+                        
+                        🌙 BUỔI TỐI:
+                        1. [Tip 1]: [Mô tả chi tiết và lợi ích]
+                        2. [Tip 2]: [Mô tả chi tiết và lợi ích]
+                        3. [Tip 3]: [Mô tả chi tiết và lợi ích]
+                        
+                        💪 THÓI QUEN TỐT CẦN DUY TRÌ:
+                        • [Thói quen 1]: [Tại sao quan trọng]
+                        • [Thói quen 2]: [Tại sao quan trọng]
+                        • [Thói quen 3]: [Tại sao quan trọng]
+                        • [Thói quen 4]: [Tại sao quan trọng]
+                        
+                        ⚠️ NHỮNG ĐIỀU NÊN TRÁNH:
+                        • [Điều nên tránh 1]: [Lý do]
+                        • [Điều nên tránh 2]: [Lý do]
+                        • [Điều nên tránh 3]: [Lý do]
+                        
+                        🎯 ĐẶC BIỆT CHO MỤC TIÊU CỦA BẠN:
+                        [Gợi ý đặc biệt dựa trên mục tiêu tăng/giảm cân của người dùng]
+                        
+                        TRẢ LỜI NGẮN GỌN, THỰC TẾ, DỄ ÁP DỤNG. KHÔNG NÓI NGOÀI LỀ.
+                    """.trimIndent()
+                    
                     else -> """
-                        BẠN LÀ TRỢ LÝ SỨC KHỊE AI CHUYÊN NGHIỆP
+                        BẠN LÀ TRỢ LÝ SỨC KHỎE AI CHUYÊN NGHIỆP
                         
                         QUY TẮC QUAN TRỌNG:
-                        - CHỈ TRẢ LỜI CÂU HỦI LIÊN QUAN ĐẾ0 SỨC KHỊE, THỂ DỤC, DINH DƯỢNG, BMI, CÂN NẶNG, CHIỀU CAO
-                        - NẾU CÂU HỦI KHÔNG LIÊN QUAN SỨC KHỊE: TRẢ LỜI "Xin lỗi, tôi chỉ có thể trả lời các câu hỏi liên quan đến sức khỏe, dinh dưỡng và thể dục."
-                        - TRẢ LỜI CHI TIẾT, KHÔNG NÓI NGOÀI LỀ
+                        - CHỈ TRẢ LỜI CÂU HỎI LIÊN QUAN ĐẾN SỨC KHỎE, THỂ DỤC, DINH DƯỠNG, BMI, CÂN NẶNG, CHIỀU CAO, LỐI SỐNG LÀNH MẠNH
+                        - NẾU CÂU HỎI KHÔNG LIÊN QUAN SỨC KHỎE: TRẢ LỜI "Xin lỗi, tôi chỉ có thể trả lời các câu hỏi liên quan đến sức khỏe, dinh dưỡng và thể dục."
+                        - TRẢ LỜI TỰ NHIÊN, CHI TIẾT, DỰA VÀO THÔNG TIN NGƯỜI DÙNG ĐỂ TƯ VẤN CHÍNH XÁC
+                        - LƯU Ý: Người dùng đang tự hỏi (không chọn gợi ý), hãy trả lời linh hoạt và phù hợp với câu hỏi
                         
                         $context
                         
@@ -330,22 +389,23 @@ class HintViewModel : ViewModel() {
                         
                         Câu hỏi của người dùng: $userMessage
                         
-                        Hãy phân tích CHI TIẾT với định dạng:
+                        Hãy trả lời câu hỏi một cách TỰ NHIÊN, CHI TIẾT dựa trên:
+                        - Thông tin sức khỏe của người dùng (cân nặng, chiều cao, BMI, mục tiêu)
+                        - Ngữ cảnh câu hỏi và lịch sử hội thoại
+                        - Kiến thức chuyên môn về sức khỏe
                         
-                        📊Chỉ số hiện tại:
-                        - [Chỉ số 1 với giá trị cụ thể]
-                        - [Chỉ số 2 với giá trị cụ thể]
+                        Cấu trúc câu trả lời (linh hoạt theo câu hỏi):
                         
-                        ✅Đánh giá chuyên sâu:
-                        - [Nhận xét chi tiết về tình trạng]
-                        - [Đánh giá theo tiêu chuẩn y khoa]
+                        💡 Trả lời câu hỏi:
+                        [Trả lời chi tiết, tự nhiên câu hỏi của người dùng]
                         
-                        🎯Gợi ý cụ thể:
-                        - [Gợi ý 1 chi tiết]
-                        - [Gợi ý 2 chi tiết]
-                        - [Gợi ý 3 chi tiết]
+                        📊 Phân tích dựa trên thông tin của bạn:
+                        [Phân tích cụ thể dựa vào BMI, cân nặng, mục tiêu của người dùng]
                         
-                        TRẢ LỜI NGẮN GỌN NHƯ0NG CHI TIẾT, KHÔNG NÓI NGOÀI LỀ.
+                        🎯 Gợi ý cho bạn:
+                        [Gợi ý cụ thể phù hợp với tình trạng và mục tiêu]
+                        
+                        TRẢ LỜI TỰ NHIÊN NHƯ CHUYÊN GIA TƯ VẤN, DỰA VÀO THÔNG TIN CỤ THỂ CỦA NGƯỜI DÙNG.
                     """.trimIndent()
                 }
 

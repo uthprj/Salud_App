@@ -243,6 +243,9 @@ fun ChatMessageBubble(message: ChatMessage) {
 fun SuggestionButtons(
     onSuggestionClick: (String) -> Unit
 ) {
+    val hintViewModel: HintViewModel = viewModel()
+    val suggestions = remember { hintViewModel.getQuickSuggestions() }
+    
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -255,99 +258,36 @@ fun SuggestionButtons(
             modifier = Modifier.padding(bottom = 4.dp)
         )
         
-        // Button 1: Meal suggestion
-        OutlinedButton(
-            onClick = { onSuggestionClick("Gợi ý bữa ăn phù hợp cho tôi") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.White,
-                contentColor = Color(0xFF6AB9F5)
-            ),
-            border = ButtonDefaults.outlinedButtonBorder.copy(
-                width = 1.dp,
-                brush = androidx.compose.ui.graphics.SolidColor(Color(0xFF6AB9F5))
-            )
-        ) {
-            Row(
+        suggestions.forEach { suggestion ->
+            OutlinedButton(
+                onClick = { onSuggestionClick(suggestion.prompt) },
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(0xFF6AB9F5)
+                ),
+                border = ButtonDefaults.outlinedButtonBorder.copy(
+                    width = 1.dp,
+                    brush = androidx.compose.ui.graphics.SolidColor(Color(0xFF6AB9F5))
+                )
             ) {
-                Text(
-                    text = "🍎",
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = "Gợi ý bữa ăn phù hợp",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-        
-        // Button 2: Exercise plan
-        OutlinedButton(
-            onClick = { onSuggestionClick("Gợi ý bài tập tập luyện") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.White,
-                contentColor = Color(0xFF6AB9F5)
-            ),
-            border = ButtonDefaults.outlinedButtonBorder.copy(
-                width = 1.dp,
-                brush = androidx.compose.ui.graphics.SolidColor(Color(0xFF6AB9F5))
-            )
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "💪",
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = "Gợi ý bài tập tập luyện",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
-        
-        // Button 3: Health analysis
-        OutlinedButton(
-            onClick = { onSuggestionClick("Phân tích chỉ số sức khỏe của tôi") },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.White,
-                contentColor = Color(0xFF6AB9F5)
-            ),
-            border = ButtonDefaults.outlinedButtonBorder.copy(
-                width = 1.dp,
-                brush = androidx.compose.ui.graphics.SolidColor(Color(0xFF6AB9F5))
-            )
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "📊",
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(end = 8.dp)
-                )
-                Text(
-                    text = "Phân tích chỉ số sức khỏe",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = suggestion.icon,
+                        fontSize = 20.sp,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        text = suggestion.title,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }
@@ -502,36 +442,21 @@ fun SaveChatDialog(
     
     AlertDialog(
         onDismissRequest = { if (!isSaving) onDismiss() },
-        title = { 
-            Text(
-                text = "Lưu đoạn chat",
-                fontWeight = FontWeight.SemiBold
-            ) 
-        },
+        title = { Text("Lưu đoạn chat") },
         text = {
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
+            Column {
                 Text(
-                    text = "Nhập tên để lưu đoạn chat này, bạn có thể xem lại sau.",
+                    text = "Nhập tên cho đoạn chat này:",
                     fontSize = 14.sp,
-                    color = Color.Gray,
-                    lineHeight = 20.sp,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
-                
                 OutlinedTextField(
                     value = chatName,
                     onValueChange = { chatName = it },
-                    label = { Text("Tên đoạn chat") },
                     placeholder = { Text("Ví dụ: Kế hoạch tập gym") },
                     singleLine = true,
                     enabled = !isSaving,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF6AB9F5),
-                        focusedLabelColor = Color(0xFF6AB9F5)
-                    )
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },

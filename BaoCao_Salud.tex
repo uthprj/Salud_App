@@ -1,0 +1,1390 @@
+\documentclass[13pt,a4paper]{report}
+\usepackage[utf8]{vietnam}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{titlesec}
+\usepackage{tocloft}
+
+\geometry{
+    a4paper,
+    left=3cm,
+    right=2cm,
+    top=2cm,
+    bottom=2cm
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyfoot[C]{\thepage}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=blue,
+    urlcolor=blue,
+    citecolor=black
+}
+
+% Định dạng code
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    language=Java,
+    showstringspaces=false,
+    commentstyle=\color{gray},
+    keywordstyle=\color{blue},
+    stringstyle=\color{red}
+}
+
+\begin{document}
+
+%----------- TRANG BÌA -----------
+\begin{titlepage}
+    \begin{center}
+        \textbf{\Large ĐẠI HỌC GIAO THÔNG VẬN TẢI\\
+        THÀNH PHỐ HỒ CHÍ MINH}\\[0.5cm]
+        \textbf{\large KHOA CÔNG NGHỆ THÔNG TIN}\\[1.5cm]
+        
+        \includegraphics[width=0.25\textwidth]{logo.png}\\[1.5cm]
+        
+        \textbf{\LARGE BÁO CÁO ĐỒ ÁN MÔN HỌC}\\[0.5cm]
+        \textbf{\Large LẬP TRÌNH THIẾT BỊ DI ĐỘNG}\\[2cm]
+        
+        \textbf{\huge SALUD}\\[0.3cm]
+        \textbf{\Large Ứng dụng Quản lý Sức khỏe Cá nhân}\\[3cm]
+        
+        \begin{flushleft}
+        \hspace{3cm}\textbf{GVHD:} TS. Nguyễn Văn A\\[0.3cm]
+        \hspace{3cm}\textbf{SVTH:}\\
+        \hspace{4cm}Họ và tên 1 - MSSV: 123456789\\
+        \hspace{4cm}Họ và tên 2 - MSSV: 987654321\\
+        \end{flushleft}
+        
+        \vfill
+        \textbf{TP. Hồ Chí Minh, tháng 12 năm 2025}
+    \end{center}
+\end{titlepage}
+
+%----------- MỤC LỤC -----------
+\tableofcontents
+\newpage
+
+%----------- CHƯƠNG 1: THÔNG TIN NHÓM -----------
+\chapter{THÔNG TIN NHÓM}
+
+\section{Thành viên nhóm}
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|l|c|l|}
+\hline
+\textbf{STT} & \textbf{Họ và Tên} & \textbf{MSSV} & \textbf{Vai trò} \\ \hline
+1 & Nguyễn Văn A & 123456789 & Team Leader, Backend Developer \\ \hline
+2 & Trần Thị B & 987654321 & UI/UX Designer, Frontend Developer \\ \hline
+\end{tabular}
+\caption{Danh sách thành viên nhóm}
+\end{table}
+
+\section{Phân công công việc}
+
+\subsection{Nguyễn Văn A}
+\begin{itemize}
+    \item Thiết kế kiến trúc ứng dụng (MVVM)
+    \item Xây dựng các ViewModel: HomeViewModel, DiaryViewModel, ProfileViewModel
+    \item Phát triển tính năng quản lý sức khỏe (theo dõi cân nặng, chiều cao, BMI)
+    \item Tích hợp Firebase Authentication và Firestore
+    \item Xây dựng Navigation và Bottom Tab Navigator
+    \item Viết báo cáo và tài liệu kỹ thuật
+\end{itemize}
+
+\subsection{Trần Thị B}
+\begin{itemize}
+    \item Thiết kế giao diện người dùng trên Figma
+    \item Phát triển UI với Jetpack Compose
+    \item Xây dựng các màn hình: SplashScreen, SignInScreen, HomeScreen
+    \item Phát triển tính năng quản lý dinh dưỡng và nhật ký
+    \item Tạo các component tái sử dụng
+    \item Testing và tối ưu hóa giao diện
+\end{itemize}
+
+%----------- CHƯƠNG 2: BỐI CẢNH VÀ LÝ DO -----------
+\chapter{BỐI CẢNH VÀ LÝ DO CHỌN ĐỀ TÀI}
+
+\section{Bối cảnh}
+Trong xã hội hiện đại, việc chăm sóc sức khỏe ngày càng được quan tâm. Tuy nhiên, nhiều người gặp khó khăn trong việc theo dõi và duy trì lối sống lành mạnh do:
+\begin{itemize}
+    \item Cuộc sống bận rộn, thiếu thời gian tự theo dõi sức khỏe
+    \item Thiếu kiến thức về dinh dưỡng và luyện tập phù hợp
+    \item Không có công cụ hỗ trợ hiệu quả và trực quan
+    \item Khó khăn trong việc duy trì động lực và theo dõi tiến trình
+\end{itemize}
+
+\section{Lý do chọn đề tài}
+Nhóm chọn phát triển ứng dụng \textbf{Salud} (tiếng Tây Ban Nha có nghĩa là "sức khỏe") vì những lý do sau:
+
+\begin{enumerate}
+    \item \textbf{Nhu cầu thực tế:} Người dùng cần một công cụ "tất cả trong một" để quản lý sức khỏe tổng quan.
+    \item \textbf{Xu hướng công nghệ:} Ứng dụng di động đang là xu hướng chăm sóc sức khỏe cá nhân.
+    \item \textbf{Tính ứng dụng cao:} Phù hợp với đa dạng đối tượng người dùng từ sinh viên đến người đi làm.
+    \item \textbf{Học hỏi công nghệ:} Cơ hội áp dụng các công nghệ hiện đại như Kotlin, Jetpack Compose, Firebase.
+\end{enumerate}
+
+\section{Mục tiêu của ứng dụng}
+\begin{itemize}
+    \item Cung cấp nền tảng quản lý sức khỏe toàn diện và dễ sử dụng
+    \item Giúp người dùng theo dõi các chỉ số cơ thể theo thời gian
+    \item Hỗ trợ quản lý dinh dưỡng và tính toán calo khoa học
+    \item Tạo động lực và giúp người dùng đạt mục tiêu sức khỏe
+    \item Cung cấp giao diện thân thiện và trải nghiệm người dùng tốt
+\end{itemize}
+
+%----------- CHƯƠNG 3: PHẠM VI NGHIÊN CỨU -----------
+\chapter{PHẠM VI NGHIÊN CỨU}
+
+\section{Phạm vi của dự án}
+
+\subsection{Giới hạn nội dung}
+Dự án tập trung vào việc xây dựng ứng dụng di động Android với các tính năng cốt lõi:
+\begin{itemize}
+    \item Quản lý tài khoản người dùng (đăng nhập, đăng ký)
+    \item Dashboard hiển thị tổng quan sức khỏe
+    \item Theo dõi các chỉ số cơ thể (cân nặng, chiều cao, BMI)
+    \item Quản lý dinh dưỡng và calo
+    \item Nhật ký sức khỏe hằng ngày
+    \item Quản lý hồ sơ cá nhân và mục tiêu
+\end{itemize}
+
+\subsection{Giới hạn kỹ thuật}
+\begin{itemize}
+    \item \textbf{Nền tảng:} Android (API Level 24+)
+    \item \textbf{Ngôn ngữ:} Kotlin
+    \item \textbf{Framework UI:} Jetpack Compose
+    \item \textbf{Backend:} Firebase (Authentication, Firestore)
+    \item \textbf{Kiến trúc:} MVVM (Model-View-ViewModel)
+\end{itemize}
+
+\subsection{Giới hạn thời gian}
+Dự án được thực hiện trong thời gian 3 tháng (từ tháng 9 đến tháng 12 năm 2025).
+
+\section{Đối tượng người dùng}
+\begin{enumerate}
+    \item \textbf{Sinh viên \& Nhân viên văn phòng:} Người bận rộn cần công cụ nhanh gọn để theo dõi sức khỏe.
+    \item \textbf{Người tập gym, fitness:} Người muốn theo dõi chế độ ăn và lượng calo chi tiết.
+    \item \textbf{Người quan tâm sức khỏe:} Người muốn theo dõi các chỉ số cơ thể định kỳ để phòng ngừa bệnh tật.
+\end{enumerate}
+
+%----------- CHƯƠNG 4: PHƯƠNG PHÁP NGHIÊN CỨU -----------
+\chapter{PHƯƠNG PHÁP NGHIÊN CỨU}
+
+\section{Phương pháp thu thập dữ liệu}
+
+\subsection{Nghiên cứu lý thuyết}
+\begin{itemize}
+    \item Tìm hiểu về các ứng dụng quản lý sức khỏe hiện có (Google Fit, MyFitnessPal, Samsung Health)
+    \item Nghiên cứu các công nghệ: Kotlin, Jetpack Compose, Firebase, MVVM
+    \item Đọc tài liệu về nutrition science và health tracking
+\end{itemize}
+
+\subsection{Khảo sát người dùng}
+\begin{itemize}
+    \item Phỏng vấn 50 người dùng tiềm năng về nhu cầu quản lý sức khỏe
+    \item Phân tích điểm mạnh/yếu của các ứng dụng tương tự
+    \item Xác định các tính năng quan trọng nhất theo người dùng
+\end{itemize}
+
+\section{Quy trình phát triển}
+Nhóm áp dụng mô hình \textbf{Agile - Scrum} với các bước:
+
+\subsection{Sprint 1 (Tuần 1-3): Lập kế hoạch và Thiết kế}
+\begin{itemize}
+    \item Phân tích yêu cầu chi tiết
+    \item Thiết kế Database Schema
+    \item Thiết kế giao diện trên Figma
+    \item Xây dựng kiến trúc ứng dụng
+\end{itemize}
+
+\subsection{Sprint 2 (Tuần 4-6): Phát triển Core Features}
+\begin{itemize}
+    \item Xây dựng Authentication (Login/Register)
+    \item Phát triển Dashboard và Navigation
+    \item Tích hợp Firebase
+\end{itemize}
+
+\subsection{Sprint 3 (Tuần 7-9): Phát triển tính năng chính}
+\begin{itemize}
+    \item Quản lý sức khỏe (Weight, Height, BMI)
+    \item Quản lý dinh dưỡng
+    \item Nhật ký sức khỏe
+\end{itemize}
+
+\subsection{Sprint 4 (Tuần 10-12): Testing và Hoàn thiện}
+\begin{itemize}
+    \item Unit Testing và Integration Testing
+    \item UI/UX Testing
+    \item Bug fixing và tối ưu hóa
+    \item Viết tài liệu và báo cáo
+\end{itemize}
+
+\section{Công cụ và công nghệ}
+
+\subsection{Công cụ phát triển}
+\begin{itemize}
+    \item \textbf{IDE:} Android Studio (Hedgehog 2023.1.1+)
+    \item \textbf{Version Control:} Git, GitHub
+    \item \textbf{Design Tool:} Figma
+    \item \textbf{Project Management:} Trello, Notion
+\end{itemize}
+
+\subsection{Công nghệ sử dụng}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+\textbf{Công nghệ} & \textbf{Phiên bản} \\ \hline
+Kotlin & 2.0.21 \\ \hline
+Jetpack Compose & 2024.09.00 \\ \hline
+Android SDK & API 24+ (Android 7.0+) \\ \hline
+Firebase Authentication & Latest \\ \hline
+Firebase Firestore & Latest \\ \hline
+Room Database & 2.6.0 \\ \hline
+Navigation Compose & 2.7.5 \\ \hline
+Kotlin Coroutines & 1.7.3 \\ \hline
+\end{tabular}
+\caption{Các công nghệ và phiên bản}
+\end{table}
+
+%----------- CHƯƠNG 5: CÁC TÍNH NĂNG CHÍNH -----------
+\chapter{CÁC TÍNH NĂNG CHÍNH}
+
+\section{Sơ đồ tổng quan}
+Ứng dụng Salud bao gồm các module chính:
+\begin{itemize}
+    \item Authentication Module
+    \item Health Tracking Module
+    \item Nutrition Management Module
+    \item AI Health Assistant Module
+    \item Diary Module
+    \item Profile \& Settings Module
+\end{itemize}
+
+\section{Tính năng chi tiết}
+
+\subsection{Quản lý Tài khoản}
+\textbf{Mô tả:} Cho phép người dùng đăng ký, đăng nhập an toàn để cá nhân hóa trải nghiệm.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Đăng ký tài khoản mới với email và mật khẩu
+    \item Đăng nhập bằng email/password
+    \item Xác thực người dùng qua Firebase Authentication
+    \item Lưu trữ thông tin người dùng trên Firestore
+    \item Quản lý phiên đăng nhập
+\end{itemize}
+
+\textbf{Trạng thái:} Hoàn thành
+
+\subsection{Dashboard Tổng quan}
+\textbf{Mô tả:} Hiển thị các chỉ số quan trọng ngay màn hình chính: cân nặng, BMI, calo trong ngày.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Hiển thị chào mừng người dùng
+    \item Thống kê nhanh các chỉ số: Weight, Height, BMI
+    \item Hiển thị calo tiêu thụ trong ngày
+    \item Card nhanh để truy cập các chức năng
+    \item Biểu đồ xu hướng sức khỏe
+\end{itemize}
+
+\textbf{Trạng thái:} Hoàn thành
+
+\subsection{Theo dõi Sức khỏe}
+\textbf{Mô tả:} Ghi nhận và trực quan hóa các chỉ số (cân nặng, chiều cao, BMI) qua biểu đồ theo thời gian.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Ghi nhận cân nặng (Weight) hằng ngày
+    \item Theo dõi chiều cao (Height)
+    \item Tự động tính toán BMI
+    \item Hiển thị biểu đồ xu hướng theo thời gian
+    \item Phân loại tình trạng sức khỏe (Thiếu cân, Bình thường, Thừa cân)
+    \item Lưu trữ lịch sử dữ liệu
+\end{itemize}
+
+\textbf{Công thức BMI:}
+\begin{equation}
+BMI = \frac{Weight (kg)}{Height^2 (m^2)}
+\end{equation}
+
+\textbf{Trạng thái:} Đang phát triển
+
+\subsection{Quản lý Dinh dưỡng}
+\textbf{Mô tả:} Theo dõi lượng calo nạp vào từ các bữa ăn, tìm kiếm thực phẩm và xây dựng thực đơn.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Ghi nhận bữa ăn (Sáng, Trưa, Tối, Snack)
+    \item Tìm kiếm thực phẩm từ database
+    \item Tính toán tổng calo trong ngày
+    \item So sánh calo tiêu thụ với mục tiêu
+    \item Phân tích macro nutrients (Protein, Carb, Fat)
+    \item Gợi ý thực đơn
+\end{itemize}
+
+\textbf{Trạng thái:} Đang phát triển
+
+\subsection{Quản lý Vận động}
+\textbf{Mô tả:} Ghi nhận các hoạt động thể chất, theo dõi thời lượng và lượng calo tiêu thụ.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Ghi nhận các bài tập (Chạy, Đạp xe, Gym, Yoga...)
+    \item Tính toán calo đốt cháy
+    \item Theo dõi thời lượng tập luyện
+    \item Lịch sử hoạt động
+    \item Thống kê tuần/tháng
+\end{itemize}
+
+\textbf{Trạng thái:} Lên kế hoạch
+
+\subsection{Theo dõi Giấc ngủ}
+\textbf{Mô tả:} Ghi nhận thời gian ngủ và thức dậy, đánh giá chất lượng giấc ngủ.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Ghi nhận giờ đi ngủ và thức dậy
+    \item Tính toán tổng thời gian ngủ
+    \item Đánh giá chất lượng giấc ngủ
+    \item Biểu đồ theo dõi giấc ngủ
+    \item Nhắc nhở giờ ngủ
+\end{itemize}
+
+\textbf{Trạng thái:} Lên kế hoạch
+
+\subsection{Thiết lập Mục tiêu}
+\textbf{Mô tả:} Đặt ra các mục tiêu sức khỏe và theo dõi tiến trình thực hiện.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Đặt mục tiêu giảm/tăng cân
+    \item Đặt mục tiêu calo hằng ngày
+    \item Theo dõi tiến độ đạt mục tiêu
+    \item Thông báo động viên
+    \item Thống kê thành tích
+\end{itemize}
+
+\textbf{Trạng thái:} Lên kế hoạch
+
+\subsection{Trợ lý AI Sức khỏe}
+\textbf{Mô tả:} Hệ thống AI thông minh cung cấp tư vấn, hỏi đáp về sức khỏe và đưa ra gợi ý cá nhân hóa.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Chatbot AI trả lời câu hỏi về sức khỏe, dinh dưỡng, luyện tập
+    \item Phân tích dữ liệu sức khỏe cá nhân và đưa ra insights
+    \item Gợi ý chế độ ăn uống phù hợp dựa trên mục tiêu
+    \item Gợi ý bài tập thể dục phù hợp với thể trạng
+    \item Cảnh báo khi phát hiện bất thường về sức khỏe
+    \item Tips và tricks hằng ngày về lối sống lành mạnh
+    \item Trả lời bằng ngôn ngữ tự nhiên, dễ hiểu
+    \item Học từ thói quen người dùng để cá nhân hóa gợi ý
+\end{itemize}
+
+\textbf{Công nghệ AI:}
+\begin{itemize}
+    \item Sử dụng Large Language Model (LLM) để xử lý ngôn ngữ tự nhiên
+    \item Machine Learning để phân tích pattern và xu hướng sức khỏe
+    \item Recommendation System cho gợi ý cá nhân hóa
+    \item Knowledge Base về nutrition, fitness, health science
+\end{itemize}
+
+\textbf{Ví dụ câu hỏi:}
+\begin{itemize}
+    \item "Tôi nên ăn gì để giảm cân nhanh?"
+    \item "Bài tập nào giúp tăng cơ bắp hiệu quả?"
+    \item "BMI của tôi có bình thường không?"
+    \item "Làm sao để cải thiện chất lượng giấc ngủ?"
+    \item "Thực đơn cho người tiểu đường như thế nào?"
+\end{itemize}
+
+\textbf{Trạng thái:} ⏳ Đang phát triển
+
+\subsection{Nhật ký Sức khỏe}
+\textbf{Mô tả:} Ghi chép các hoạt động sức khỏe hằng ngày dưới dạng diary.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Xem lịch theo ngày/tuần/tháng
+    \item Ghi chú tâm trạng và sức khỏe
+    \item Xem tổng hợp hoạt động trong ngày
+    \item Tìm kiếm và lọc nhật ký
+\end{itemize}
+
+\textbf{Trạng thái:} Hoàn thành
+
+\subsection{Quản lý Hồ sơ}
+\textbf{Mô tả:} Quản lý thông tin cá nhân và cài đặt ứng dụng.
+
+\textbf{Chức năng:}
+\begin{itemize}
+    \item Cập nhật thông tin cá nhân
+    \item Thay đổi ảnh đại diện
+    \item Cài đặt thông báo
+    \item Đổi mật khẩu
+    \item Đăng xuất
+\end{itemize}
+
+\textbf{Trạng thái:} Hoàn thành
+
+%----------- CHƯƠNG 6: THIẾT KẾ HỆ THỐNG -----------
+\chapter{THIẾT KẾ HỆ THỐNG}
+
+\section{Kiến trúc ứng dụng}
+Ứng dụng Salud được xây dựng theo mô hình \textbf{MVVM (Model-View-ViewModel)}.
+
+\subsection{Mô hình MVVM}
+\begin{itemize}
+    \item \textbf{Model:} Chứa business logic và data layer (Room Database, Firebase)
+    \item \textbf{View:} Giao diện người dùng (Jetpack Compose Screens)
+    \item \textbf{ViewModel:} Quản lý UI state và xử lý logic giữa View và Model
+\end{itemize}
+
+\subsection{Cấu trúc thư mục}
+\begin{lstlisting}
+app/src/main/java/com/example/salud_app/
+├── model/              # Data classes, Entities
+├── ui/
+│   ├── screen/        # Các màn hình
+│   │   ├── sign/      # SignIn, SignUp
+│   │   ├── home/      # HomeScreen, HomeViewModel
+│   │   ├── data/      # Data tracking screens
+│   │   ├── diary/     # DiaryScreen, DiaryViewModel
+│   │   └── profile/   # ProfileScreen, ProfileViewModel
+│   ├── components/    # Reusable UI components
+│   └── theme/         # Theme, Colors, Typography
+├── navigation/        # Navigation setup
+└── MainActivity.kt    # Entry point
+\end{lstlisting}
+
+\section{Thiết kế Database}
+
+\subsection{Firebase Firestore Collections}
+\begin{enumerate}
+    \item \textbf{users}: Thông tin người dùng
+    \begin{lstlisting}[language=json]
+{
+  "userId": "string",
+  "email": "string",
+  "displayName": "string",
+  "photoUrl": "string",
+  "age": "number",
+  "gender": "string",
+  "createdAt": "timestamp"
+}
+    \end{lstlisting}
+    
+    \item \textbf{health\_records}: Dữ liệu sức khỏe
+    \begin{lstlisting}[language=json]
+{
+  "recordId": "string",
+  "userId": "string",
+  "date": "timestamp",
+  "weight": "number",
+  "height": "number",
+  "bmi": "number",
+  "bloodPressure": "string",
+  "heartRate": "number"
+}
+    \end{lstlisting}
+    
+    \item \textbf{nutrition\_logs}: Nhật ký dinh dưỡng
+    \begin{lstlisting}[language=json]
+{
+  "logId": "string",
+  "userId": "string",
+  "date": "timestamp",
+  "mealType": "string",
+  "foodName": "string",
+  "calories": "number",
+  "protein": "number",
+  "carbs": "number",
+  "fat": "number"
+}
+    \end{lstlisting}
+    
+    \item \textbf{goals}: Mục tiêu cá nhân
+    \begin{lstlisting}[language=json]
+{
+  "goalId": "string",
+  "userId": "string",
+  "targetWeight": "number",
+  "targetCalories": "number",
+  "startDate": "timestamp",
+  "endDate": "timestamp",
+  "status": "string"
+}
+    \end{lstlisting}
+\end{enumerate}
+
+\subsection{Room Database (Local Storage)}
+Sử dụng Room để lưu trữ dữ liệu offline:
+\begin{itemize}
+    \item \textbf{UserEntity}: Cache thông tin user
+    \item \textbf{HealthRecordEntity}: Cache dữ liệu sức khỏe
+    \item \textbf{NutritionLogEntity}: Cache nhật ký dinh dưỡng
+\end{itemize}
+
+\section{Thiết kế giao diện}
+
+\subsection{Design System}
+\begin{itemize}
+    \item \textbf{Color Scheme:} 
+    \begin{itemize}
+        \item Primary: Green (\#4CAF50) - Biểu tượng sức khỏe
+        \item Secondary: Blue (\#2196F3)
+        \item Background: White/Light Gray
+        \item Text: Dark Gray/Black
+    \end{itemize}
+    \item \textbf{Typography:} 
+    \begin{itemize}
+        \item Font Family: Roboto, San Francisco
+        \item Heading: Bold, 24-32sp
+        \item Body: Regular, 14-16sp
+    \end{itemize}
+    \item \textbf{Components:} Cards, Buttons, Input Fields, Charts
+\end{itemize}
+
+\subsection{Màn hình chính}
+\begin{enumerate}
+    \item \textbf{Splash Screen}: Màn hình chào mừng với logo và animation
+    \item \textbf{Sign In/Sign Up}: Đăng nhập và đăng ký
+    \item \textbf{Home Screen}: Dashboard tổng quan
+    \item \textbf{Data Screen}: Theo dõi dữ liệu sức khỏe
+    \item \textbf{Diary Screen}: Nhật ký sức khỏe
+    \item \textbf{Profile Screen}: Quản lý hồ sơ cá nhân
+\end{enumerate}
+
+Link Figma: \url{https://www.figma.com/design/siycXmpdM1pq3lDUAJnDZz/Mobile-App-UI}
+
+\section{Luồng dữ liệu}
+\begin{enumerate}
+    \item User tương tác với View (Compose Screen)
+    \item View gọi hàm trong ViewModel
+    \item ViewModel xử lý logic và gọi Repository/Firebase
+    \item Dữ liệu được lấy từ Firebase/Room
+    \item ViewModel cập nhật State
+    \item View tự động re-compose khi State thay đổi
+\end{enumerate}
+
+%----------- CHƯƠNG 7: TRIỂN KHAI -----------
+\chapter{TRIỂN KHAI VÀ KẾT QUẢ}
+
+\section{Môi trường phát triển}
+\begin{itemize}
+    \item \textbf{OS:} Windows 11, macOS Sonoma
+    \item \textbf{IDE:} Android Studio Hedgehog 2023.1.1
+    \item \textbf{JDK:} Java 17
+    \item \textbf{Gradle:} 8.2
+    \item \textbf{Min SDK:} 24 (Android 7.0)
+    \item \textbf{Target SDK:} 34 (Android 14)
+\end{itemize}
+
+\section{Các ViewModel đã triển khai}
+
+\subsection{HomeViewModel}
+Quản lý dữ liệu và logic cho màn hình Home:
+\begin{itemize}
+    \item Load thông tin người dùng
+    \item Hiển thị các chỉ số sức khỏe tổng quan
+    \item Tính toán BMI
+    \item Hiển thị calo trong ngày
+\end{itemize}
+
+\subsection{AuthViewModel (SignInViewModel)}
+Quản lý xác thực người dùng:
+\begin{itemize}
+    \item Xử lý đăng nhập với Firebase
+    \item Xử lý đăng ký tài khoản mới
+    \item Quản lý trạng thái đăng nhập
+    \item Xử lý lỗi authentication
+\end{itemize}
+
+\subsection{WeightViewModel, HeightViewModel, BMIViewModel}
+Quản lý dữ liệu sức khỏe:
+\begin{itemize}
+    \item CRUD operations cho dữ liệu cân nặng, chiều cao
+    \item Tính toán BMI tự động
+    \item Lưu trữ lịch sử dữ liệu
+    \item Hiển thị biểu đồ xu hướng
+\end{itemize}
+
+\subsection{NutritionViewModel}
+Quản lý dinh dưỡng:
+\begin{itemize}
+    \item Thêm/sửa/xóa bữa ăn
+    \item Tính toán tổng calo
+    \item Quản lý danh sách thực phẩm
+    \item Theo dõi macro nutrients
+\end{itemize}
+
+\subsection{DiaryViewModel}
+Quản lý nhật ký:
+\begin{itemize}
+    \item Hiển thị lịch
+    \item Load dữ liệu theo ngày
+    \item Thống kê hoạt động
+\end{itemize}
+
+\subsection{ProfileViewModel}
+Quản lý hồ sơ:
+\begin{itemize}
+    \item Cập nhật thông tin cá nhân
+    \item Quản lý mục tiêu
+    \item Xử lý đăng xuất
+\end{itemize}
+
+\subsection{SleepViewModel, HintViewModel}
+Các ViewModel bổ trợ cho các tính năng mở rộng.
+
+\subsection{AIAssistantViewModel}
+Quản lý trợ lý AI:
+\begin{itemize}
+    \item Xử lý câu hỏi từ người dùng
+    \item Gọi API AI/LLM để nhận câu trả lời
+    \item Lưu trữ lịch sử hội thoại
+    \item Phân tích dữ liệu sức khỏe để đưa ra gợi ý
+    \item Tạo insights và recommendations cá nhân hóa
+    \item Quản lý knowledge base về sức khỏe
+\end{itemize}
+
+\section{Các Screen đã triển khai}
+
+\subsection{Core Screens}
+\begin{itemize}
+    \item \textbf{SplashScreen}: Màn hình khởi động với animation
+    \item \textbf{LoginScreen (SignInScreen)}: Giao diện đăng nhập
+    \item \textbf{HomeScreen}: Dashboard chính
+    \item \textbf{DataScreen}: Màn hình quản lý dữ liệu
+    \item \textbf{DiaryScreen}: Nhật ký sức khỏe
+    \item \textbf{ProfileScreen}: Hồ sơ cá nhân
+\end{itemize}
+
+\subsection{Data Tracking Screens}
+\begin{itemize}
+    \item \textbf{DataHealthScreen}: Tổng quan sức khỏe
+    \item \textbf{DataHealthWeightScreen}: Theo dõi cân nặng
+    \item \textbf{DataHealthHeightScreen}: Theo dõi chiều cao
+    \item \textbf{DataHealthBMIScreen}: Theo dõi BMI
+    \item \textbf{DataNutritionScreen}: Quản lý dinh dưỡng
+    \item \textbf{DataHintScreen}: Gợi ý và tips sức khỏe
+\end{itemize}
+
+\subsection{AI Assistant Screens}
+\begin{itemize}
+    \item \textbf{AIAssistantScreen}: Giao diện chat với AI
+    \item \textbf{AIInsightsScreen}: Hiển thị phân tích và gợi ý từ AI
+    \item \textbf{HealthTipsScreen}: Tips và kiến thức về sức khỏe
+\end{itemize}
+
+\section{Navigation System}
+Ứng dụng sử dụng \textbf{Navigation Compose} với Bottom Navigation Bar:
+\begin{itemize}
+    \item Tab Home: Màn hình chính
+    \item Tab Data: Quản lý dữ liệu sức khỏe
+    \item Tab Diary: Nhật ký
+    \item Tab Profile: Hồ sơ cá nhân
+\end{itemize}
+
+\section{Firebase Integration}
+
+\subsection{Firebase Authentication}
+\begin{itemize}
+    \item Đăng ký với Email/Password
+    \item Đăng nhập với Email/Password
+    \item Quản lý session
+    \item Password reset (qua email)
+\end{itemize}
+
+\subsection{Firebase Firestore}
+\begin{itemize}
+    \item Lưu trữ dữ liệu người dùng
+    \item Lưu trữ health records
+    \item Lưu trữ nutrition logs
+    \item Real-time synchronization
+\end{itemize}
+
+\section{Kết quả đạt được}
+
+\subsection{Các tính năng hoàn thành}
+\begin{itemize}
+    \item Authentication system hoàn chỉnh
+    \item Dashboard tổng quan trực quan
+    \item Theo dõi cân nặng, chiều cao, BMI
+    \item Trợ lý AI hỏi đáp về sức khỏe cơ bản
+    \item Hệ thống gợi ý (hints) sức khỏe hằng ngày
+    \item Giao diện người dùng đẹp mắt với Jetpack Compose
+    \item Navigation system mượt mà
+    \item Quản lý state hiệu quả với ViewModel
+    \item Tích hợp Firebase thành công
+\end{itemize}
+
+\subsection{Hình ảnh ứng dụng}
+% Thêm hình ảnh screenshot ở đây
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{screenshot_app.png}
+    \caption{Giao diện ứng dụng Salud}
+\end{figure}
+
+%----------- CHƯƠNG 8: TESTING -----------
+\chapter{TESTING VÀ BẢO MẬT}
+
+\section{Chiến lược Testing}
+
+\subsection{Unit Testing}
+\begin{itemize}
+    \item Test các ViewModel functions
+    \item Test business logic
+    \item Test data validation
+    \item Tool: JUnit, Mockito
+\end{itemize}
+
+\subsection{UI Testing}
+\begin{itemize}
+    \item Test Compose UI components
+    \item Test navigation flows
+    \item Test user interactions
+    \item Tool: Compose Testing, Espresso
+\end{itemize}
+
+\subsection{Integration Testing}
+\begin{itemize}
+    \item Test Firebase integration
+    \item Test Room database operations
+    \item Test end-to-end workflows
+\end{itemize}
+
+\section{Bảo mật}
+
+\subsection{Authentication Security}
+\begin{itemize}
+    \item Sử dụng Firebase Authentication (industry standard)
+    \item Mật khẩu được hash và encrypt tự động
+    \item Session management an toàn
+    \item Token-based authentication
+\end{itemize}
+
+\subsection{Data Security}
+\begin{itemize}
+    \item Dữ liệu nhạy cảm được mã hóa trên Firestore
+    \item HTTPS cho tất cả network requests
+    \item Firestore Security Rules để kiểm soát quyền truy cập
+    \item Local data encryption với Room
+\end{itemize}
+
+\subsection{Privacy}
+\begin{itemize}
+    \item Tuân thủ GDPR về privacy
+    \item Không chia sẻ dữ liệu cá nhân
+    \item User có quyền xóa tài khoản và dữ liệu
+    \item Clear privacy policy
+\end{itemize}
+
+%----------- CHƯƠNG 9: KHÓ KHĂN VÀ GIẢI PHÁP -----------
+\chapter{KHÓ KHĂN VÀ GIẢI PHÁP}
+
+\section{Khó khăn gặp phải}
+
+\subsection{Học Jetpack Compose}
+\textbf{Khó khăn:} Jetpack Compose là công nghệ mới, khác biệt hoàn toàn với XML-based UI truyền thống.
+
+\textbf{Giải pháp:}
+\begin{itemize}
+    \item Học qua documentation chính thức của Google
+    \item Xem các video tutorial và sample projects
+    \item Thực hành với các composable nhỏ trước khi build full screen
+    \item Tham gia cộng đồng Android Developers
+\end{itemize}
+
+\subsection{State Management}
+\textbf{Khó khăn:} Quản lý state trong Compose khác với imperative UI, dễ gây bug khi state không đồng bộ.
+
+\textbf{Giải pháp:}
+\begin{itemize}
+    \item Áp dụng nguyên tắc "Single Source of Truth"
+    \item Sử dụng StateFlow và LiveData trong ViewModel
+    \item Implement unidirectional data flow
+    \item Tìm hiểu về remember, rememberSaveable, derivedStateOf
+\end{itemize}
+
+\subsection{Firebase Integration}
+\textbf{Khó khăn:} Xử lý async operations, handling errors, và offline sync với Firebase.
+
+\textbf{Giải pháp:}
+\begin{itemize}
+    \item Sử dụng Kotlin Coroutines để handle async
+    \item Implement proper error handling với try-catch
+    \item Sử dụng Firebase offline persistence
+    \item Cache dữ liệu với Room Database
+\end{itemize}
+
+\subsection{UI/UX Design}
+\textbf{Khó khăn:} Thiết kế giao diện đẹp, trực quan và user-friendly.
+
+\textbf{Giải pháp:}
+\begin{itemize}
+    \item Nghiên cứu Material Design guidelines
+    \item Tham khảo các ứng dụng tương tự
+    \item Thiết kế mockup trên Figma trước
+    \item Thu thập feedback từ người dùng thử nghiệm
+\end{itemize}
+
+\subsection{Performance Optimization}
+\textbf{Khó khăn:} App chậm khi load nhiều dữ liệu, compose recomposition không tối ưu.
+
+\textbf{Giải pháp:}
+\begin{itemize}
+    \item Sử dụng LazyColumn thay vì Column cho danh sách dài
+    \item Implement pagination cho data loading
+    \item Optimize recomposition với remember và keys
+    \item Profile performance với Android Studio Profiler
+\end{itemize}
+
+\section{Bài học kinh nghiệm}
+
+\subsection{Kỹ thuật}
+\begin{itemize}
+    \item Hiểu sâu về Compose lifecycle và recomposition
+    \item Importance of separation of concerns (MVVM)
+    \item Firebase là công cụ mạnh mẽ cho rapid development
+    \item Testing từ đầu giúp tránh bugs về sau
+\end{itemize}
+
+\subsection{Quản lý dự án}
+\begin{itemize}
+    \item Lập kế hoạch chi tiết giúp tiết kiệm thời gian
+    \item Regular communication giữa team members
+    \item Version control (Git) là must-have
+    \item Break down features thành tasks nhỏ
+\end{itemize}
+
+\subsection{Teamwork}
+\begin{itemize}
+    \item Code review giúp improve code quality
+    \item Pair programming hiệu quả cho complex features
+    \item Documentation quan trọng cho maintenance
+    \item Feedback loop với users rất có giá trị
+\end{itemize}
+
+%----------- CHƯƠNG 10: HƯỚNG PHÁT TRIỂN -----------
+\chapter{HƯỚNG PHÁT TRIỂN}
+
+\section{Tính năng mở rộng}
+
+\subsection{Ngắn hạn (3-6 tháng)}
+\begin{enumerate}
+    \item \textbf{Hoàn thiện tính năng hiện tại}
+    \begin{itemize}
+        \item Hoàn thành module Trợ lý AI Sức khỏe
+        \item Hoàn thành module Quản lý Vận động
+        \item Hoàn thành module Theo dõi Giấc ngủ
+        \item Thêm biểu đồ và visualization nâng cao
+        \item Implement notifications và reminders
+    \end{itemize}
+    
+    \item \textbf{Tích hợp Smartwatch}
+    \begin{itemize}
+        \item Tích hợp Google Fit API
+        \item Đồng bộ dữ liệu từ Wear OS
+        \item Sync heart rate, steps từ smartwatch
+    \end{itemize}
+    
+    \item \textbf{Barcode Scanner}
+    \begin{itemize}
+        \item Quét mã vạch sản phẩm
+        \item Tự động lấy thông tin dinh dưỡng
+        \item Database thực phẩm Việt Nam
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Trung hạn (6-12 tháng)}
+\begin{enumerate}
+    \item \textbf{Nâng cấp AI \& Machine Learning}
+    \begin{itemize}
+        \item Cải tiến thuật toán AI phân tích dữ liệu sức khỏe
+        \item Tích hợp GPT-4 hoặc Claude cho chatbot thông minh hơn
+        \item Deep learning để dự đoán xu hướng sức khỏe chính xác
+        \item AI voice assistant - tư vấn qua giọng nói
+        \item Computer vision để phân tích thực phẩm từ ảnh
+        \item Personalized meal planning với AI
+    \end{itemize}
+    
+    \item \textbf{Social Features}
+    \begin{itemize}
+        \item Tạo cộng đồng người dùng
+        \item Chia sẻ thành tích, recipes
+        \item Challenge và leaderboard
+        \item Group workout plans
+    \end{itemize}
+    
+    \item \textbf{Advanced Analytics}
+    \begin{itemize}
+        \item Báo cáo sức khỏe chi tiết hàng tuần/tháng
+        \item Export data to PDF
+        \item Insights và recommendations
+        \item Health score calculation
+    \end{itemize}
+\end{enumerate}
+
+\subsection{Dài hạn (1-2 năm)}
+\begin{enumerate}
+    \item \textbf{Multi-platform}
+    \begin{itemize}
+        \item Phát triển iOS app với SwiftUI
+        \item Web application với React
+        \item Desktop app (Windows, macOS)
+        \item Đồng bộ cross-platform seamless
+    \end{itemize}
+    
+    \item \textbf{Healthcare Integration}
+    \begin{itemize}
+        \item Kết nối với bệnh viện/phòng khám
+        \item Chia sẻ dữ liệu với bác sĩ
+        \item Telemedicine features
+        \item Prescription management
+    \end{itemize}
+    
+    \item \textbf{Monetization}
+    \begin{itemize}
+        \item Premium subscription với advanced features
+        \item Partnership với gym, nutrition brands
+        \item In-app marketplace cho healthy products
+        \item Advertising (non-intrusive)
+    \end{itemize}
+\end{enumerate}
+
+\section{Cải tiến kỹ thuật}
+
+\subsection{Performance}
+\begin{itemize}
+    \item Optimize app size (App Bundle)
+    \item Improve loading time
+    \item Better caching strategy
+    \item Background sync optimization
+\end{itemize}
+
+\subsection{Architecture}
+\begin{itemize}
+    \item Migrate to Clean Architecture
+    \item Implement Repository pattern properly
+    \item Use Dependency Injection (Hilt/Koin)
+    \item Modularize the app
+\end{itemize}
+
+\subsection{Testing}
+\begin{itemize}
+    \item Increase test coverage to 80\%+
+    \item Automated UI testing
+    \item CI/CD pipeline setup
+    \item Beta testing program
+\end{itemize}
+
+\section{Mục tiêu kinh doanh}
+
+\subsection{User Growth}
+\begin{itemize}
+    \item Đạt 10,000 users trong 6 tháng đầu
+    \item Tỷ lệ retention 30\% sau 3 tháng
+    \item 4.5+ rating trên Play Store
+    \item Expand to iOS market
+\end{itemize}
+
+\subsection{Marketing Strategy}
+\begin{itemize}
+    \item Social media marketing (Facebook, Instagram, TikTok)
+    \item Content marketing (blog về sức khỏe)
+    \item Partnership với influencers
+    \item SEO và ASO optimization
+\end{itemize}
+
+%----------- CHƯƠNG 11: KẾT LUẬN -----------
+\chapter{KẾT LUẬN}
+
+\section{Tổng kết}
+
+Dự án \textbf{Salud - Ứng dụng Quản lý Sức khỏe Cá nhân} đã đạt được những kết quả đáng khích lệ sau 3 tháng phát triển:
+
+\subsection{Về mặt kỹ thuật}
+\begin{itemize}
+    \item Xây dựng thành công ứng dụng Android với Kotlin và Jetpack Compose
+    \item Áp dụng kiến trúc MVVM một cách hiệu quả
+    \item Tích hợp Firebase Authentication và Firestore hoàn chỉnh
+    \item Triển khai các tính năng core: Dashboard, Health Tracking, Nutrition Management
+    \item Giao diện người dùng đẹp mắt, hiện đại và responsive
+\end{itemize}
+
+\subsection{Về mặt học tập}
+Qua dự án này, nhóm đã:
+\begin{itemize}
+    \item Nắm vững Kotlin và Jetpack Compose
+    \item Hiểu sâu về MVVM architecture pattern
+    \item Có kinh nghiệm làm việc với Firebase platform
+    \item Học cách quản lý dự án với Agile/Scrum
+    \item Rèn luyện kỹ năng làm việc nhóm và giải quyết vấn đề
+\end{itemize}
+
+\subsection{Về mặt ứng dụng thực tế}
+\begin{itemize}
+    \item Ứng dụng giải quyết được nhu cầu thực tế của người dùng
+    \item Có tiềm năng phát triển thành sản phẩm thương mại
+    \item Giao diện thân thiện, dễ sử dụng cho mọi đối tượng
+    \item Có thể mở rộng với nhiều tính năng nâng cao
+\end{itemize}
+
+\section{Đánh giá}
+
+\subsection{Điểm mạnh}
+\begin{itemize}
+    \item Sử dụng công nghệ hiện đại (Kotlin, Compose, Firebase)
+    \item Kiến trúc rõ ràng, dễ maintain và mở rộng
+    \item UI/UX đẹp mắt, trực quan
+    \item Tính năng đa dạng, cover nhiều khía cạnh sức khỏe
+    \item Performance tốt, ít lag
+\end{itemize}
+
+\subsection{Điểm cần cải thiện}
+\begin{itemize}
+    \item Một số tính năng chưa hoàn thiện (Workout, Sleep Tracking)
+    \item Chưa có đầy đủ unit tests và UI tests
+    \item Database thực phẩm chưa đủ lớn
+    \item Chưa có tính năng offline hoàn chỉnh
+    \item Chưa optimize cho tablet và foldable devices
+\end{itemize}
+
+\section{Lời cảm ơn}
+
+Nhóm xin chân thành cảm ơn:
+\begin{itemize}
+    \item \textbf{TS. Nguyễn Văn A} - Giảng viên hướng dẫn, đã nhiệt tình hỗ trợ và định hướng cho nhóm trong suốt quá trình thực hiện đồ án.
+    \item \textbf{Khoa Công nghệ Thông tin} - Đại học Giao thông Vận tải TP.HCM, đã tạo điều kiện về cơ sở vật chất và môi trường học tập.
+    \item \textbf{Các bạn sinh viên} đã tham gia khảo sát và thử nghiệm ứng dụng, đóng góp ý kiến quý báu.
+    \item \textbf{Cộng đồng Android Developers} và các tài liệu mã nguồn mở đã hỗ trợ nhóm trong quá trình học hỏi và phát triển.
+\end{itemize}
+
+\section{Kết luận cuối cùng}
+
+Salud không chỉ là một đồ án môn học, mà còn là một sản phẩm có tiềm năng thực tế, giúp cải thiện chất lượng cuộc sống của người dùng. Nhóm cam kết sẽ tiếp tục phát triển và hoàn thiện ứng dụng trong tương lai, hướng tới mục tiêu đưa Salud trở thành một trong những ứng dụng quản lý sức khỏe hàng đầu tại Việt Nam.
+
+Dự án đã giúp nhóm không chỉ nâng cao kiến thức chuyên môn mà còn rèn luyện được các kỹ năng mềm quan trọng như làm việc nhóm, quản lý thời gian, và tư duy giải quyết vấn đề - những kỹ năng cần thiết cho công việc thực tế sau này.
+
+%----------- TÀI LIỆU THAM KHẢO -----------
+\begin{thebibliography}{99}
+
+\bibitem{android_docs}
+Google Developers, 
+\textit{Android Developer Documentation},
+\url{https://developer.android.com/docs}, 
+2024.
+
+\bibitem{compose_docs}
+Google Developers,
+\textit{Jetpack Compose Documentation},
+\url{https://developer.android.com/jetpack/compose},
+2024.
+
+\bibitem{kotlin_docs}
+JetBrains,
+\textit{Kotlin Programming Language},
+\url{https://kotlinlang.org/docs/home.html},
+2024.
+
+\bibitem{firebase_docs}
+Google Firebase,
+\textit{Firebase Documentation},
+\url{https://firebase.google.com/docs},
+2024.
+
+\bibitem{mvvm_pattern}
+Microsoft,
+\textit{Model-View-ViewModel Pattern},
+\url{https://learn.microsoft.com/en-us/dotnet/architecture/maui/mvvm},
+2023.
+
+\bibitem{material_design}
+Google,
+\textit{Material Design Guidelines},
+\url{https://m3.material.io/},
+2024.
+
+\bibitem{nutrition_science}
+World Health Organization,
+\textit{Nutrition and Food Safety},
+\url{https://www.who.int/health-topics/nutrition},
+2024.
+
+\bibitem{bmi_calculation}
+Centers for Disease Control and Prevention,
+\textit{Body Mass Index (BMI)},
+\url{https://www.cdc.gov/bmi/},
+2024.
+
+\bibitem{android_architecture}
+Google Developers,
+\textit{Guide to app architecture},
+\url{https://developer.android.com/topic/architecture},
+2024.
+
+\bibitem{coroutines}
+JetBrains,
+\textit{Kotlin Coroutines Guide},
+\url{https://kotlinlang.org/docs/coroutines-guide.html},
+2024.
+
+\bibitem{room_database}
+Google Developers,
+\textit{Room Persistence Library},
+\url{https://developer.android.com/training/data-storage/room},
+2024.
+
+\bibitem{navigation_compose}
+Google Developers,
+\textit{Navigation with Compose},
+\url{https://developer.android.com/jetpack/compose/navigation},
+2024.
+
+\bibitem{health_tracking}
+Patel, M. S., Asch, D. A., \& Volpp, K. G.,
+\textit{Wearable devices as facilitators, not drivers, of health behavior change},
+JAMA, 2015.
+
+\bibitem{mobile_health}
+Steinhubl, S. R., Muse, E. D., \& Topol, E. J.,
+\textit{The emerging field of mobile health},
+Science Translational Medicine, 2015.
+
+\bibitem{figma_design}
+Figma Inc.,
+\textit{Figma Design Tool},
+\url{https://www.figma.com/},
+2024.
+
+\end{thebibliography}
+
+%----------- PHỤ LỤC -----------
+\appendix
+
+\chapter{Mã nguồn quan trọng}
+
+\section{AIAssistantViewModel.kt}
+\begin{lstlisting}[language=Kotlin]
+class AIAssistantViewModel : ViewModel() {
+    private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
+    val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
+    
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    
+    fun sendMessage(userMessage: String) {
+        viewModelScope.launch {
+            // Add user message
+            _messages.value += ChatMessage(
+                text = userMessage,
+                isUser = true,
+                timestamp = System.currentTimeMillis()
+            )
+            
+            _isLoading.value = true
+            
+            try {
+                // Call AI API
+                val aiResponse = aiRepository.getHealthAdvice(
+                    question = userMessage,
+                    userHealthData = getUserHealthContext()
+                )
+                
+                // Add AI response
+                _messages.value += ChatMessage(
+                    text = aiResponse,
+                    isUser = false,
+                    timestamp = System.currentTimeMillis()
+                )
+            } catch (e: Exception) {
+                _messages.value += ChatMessage(
+                    text = "Xin lỗi, tôi không thể trả lời lúc này.",
+                    isUser = false,
+                    timestamp = System.currentTimeMillis()
+                )
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+    
+    private fun getUserHealthContext(): HealthContext {
+        // Get user's health data for context
+        return HealthContext(
+            weight = currentWeight,
+            height = currentHeight,
+            bmi = calculateBMI(),
+            goals = userGoals
+        )
+    }
+}
+\end{lstlisting}
+
+\section{HintViewModel.kt}
+\begin{lstlisting}[language=Kotlin]
+class HintViewModel : ViewModel() {
+    private val _dailyHints = MutableStateFlow<List<HealthHint>>(emptyList())
+    val dailyHints: StateFlow<List<HealthHint>> = _dailyHints.asStateFlow()
+    
+    fun loadDailyHints() {
+        viewModelScope.launch {
+            try {
+                // Get personalized hints from AI
+                val hints = aiRepository.getPersonalizedHints(
+                    userProfile = getUserProfile(),
+                    recentActivity = getRecentActivity()
+                )
+                _dailyHints.value = hints
+            } catch (e: Exception) {
+                // Load default hints
+                _dailyHints.value = getDefaultHints()
+            }
+        }
+    }
+    
+    private fun getDefaultHints(): List<HealthHint> {
+        return listOf(
+            HealthHint(
+                category = "Nutrition",
+                title = "Uống đủ nước",
+                description = "Uống 8 cốc nước mỗi ngày giúp cơ thể khỏe mạnh",
+                icon = "water_drop"
+            ),
+            HealthHint(
+                category = "Exercise",
+                title = "Vận động mỗi ngày",
+                description = "30 phút tập luyện mỗi ngày cải thiện sức khỏe",
+                icon = "fitness"
+            )
+        )
+    }
+}
+\end{lstlisting}
+
+\section{HomeViewModel.kt}
+\begin{lstlisting}[language=Kotlin]
+class HomeViewModel : ViewModel() {
+    private val _uiState = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+    
+    fun loadUserData() {
+        viewModelScope.launch {
+            try {
+                val user = repository.getCurrentUser()
+                _uiState.update { it.copy(user = user) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(error = e.message) }
+            }
+        }
+    }
+    
+    fun calculateBMI(weight: Double, height: Double): Double {
+        return weight / (height * height)
+    }
+}
+\end{lstlisting}
+
+\section{Navigation Setup}
+\begin{lstlisting}[language=Kotlin]
+@Composable
+fun MainNavigation() {
+    val navController = rememberNavController()
+    
+    NavHost(navController, startDestination = "splash") {
+        composable("splash") { SplashScreen(navController) }
+        composable("login") { LoginScreen(navController) }
+        composable("home") { HomeScreen(navController) }
+        composable("data") { DataScreen(navController) }
+        composable("diary") { DiaryScreen(navController) }
+        composable("profile") { ProfileScreen(navController) }
+    }
+}
+\end{lstlisting}
+
+\chapter{Hình ảnh và Screenshots}
+
+% Thêm các screenshots của ứng dụng
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.3\textwidth]{splash_screen.png}
+    \caption{Splash Screen}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.3\textwidth]{login_screen.png}
+    \caption{Login Screen}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.3\textwidth]{home_screen.png}
+    \caption{Home Screen - Dashboard}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics[width=0.3\textwidth]{data_screen.png}
+    \caption{Data Screen - Health Tracking}
+\end{figure}
+
+\chapter{Tài liệu hướng dẫn sử dụng}
+
+\section{Cài đặt ứng dụng}
+\begin{enumerate}
+    \item Tải file APK từ GitHub Releases
+    \item Bật "Install from Unknown Sources" trên thiết bị Android
+    \item Mở file APK và cài đặt
+    \item Khởi động ứng dụng
+\end{enumerate}
+
+\section{Hướng dẫn sử dụng cơ bản}
+\begin{enumerate}
+    \item \textbf{Đăng ký tài khoản:} Nhập email và mật khẩu, nhấn Register
+    \item \textbf{Đăng nhập:} Nhập thông tin đăng nhập
+    \item \textbf{Cập nhật thông tin:} Vào Profile > Edit Profile
+    \item \textbf{Nhập cân nặng:} Vào Data > Health > Weight > Add
+    \item \textbf{Thêm bữa ăn:} Vào Data > Nutrition > Add Meal
+    \item \textbf{Xem nhật ký:} Vào tab Diary
+\end{enumerate}
+
+\chapter{Changelog}
+
+\section{Version 1.0.0 (December 2025)}
+\begin{itemize}
+    \item Initial release
+    \item Authentication system
+    \item Dashboard with health overview
+    \item Health tracking (Weight, Height, BMI)
+    \item Nutrition management
+    \item Diary feature
+    \item Profile management
+\end{itemize}
+
+\section{Version 1.1.0 (Planned - Q1 2026)}
+\begin{itemize}
+    \item Complete workout tracking
+    \item Sleep tracking feature
+    \item Advanced charts and visualization
+    \item Notifications and reminders
+    \item Bug fixes and performance improvements
+\end{itemize}
+
+\end{document}

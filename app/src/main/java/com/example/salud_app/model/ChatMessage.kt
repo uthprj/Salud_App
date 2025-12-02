@@ -10,7 +10,8 @@ data class ChatMessage(
 enum class SuggestionType {
     MEAL_PLAN,
     EXERCISE_PLAN,
-    GENERAL_HEALTH
+    GENERAL_HEALTH,
+    DAILY_TIPS
 }
 
 data class QuickSuggestion(
