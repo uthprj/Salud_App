@@ -41,11 +41,12 @@ Salud hướng đến một tệp người dùng đa dạng, bao gồm:
 | :------------------------ | :-------------------------------------------------------------------------------------------- | :---------------- |
 | 👤 **Quản lý Tài khoản**    | Đăng ký, đăng nhập an toàn để cá nhân hóa trải nghiệm.                                        | ✅ Hoàn thành     |
 | 📊 **Dashboard Tổng quan**  | Hiển thị các chỉ số quan trọng ngay màn hình chính: cân nặng, BMI, calo trong ngày.            | ✅ Hoàn thành     |
-| ❤️ **Theo dõi Sức khỏe**   | Ghi nhận và trực quan hóa các chỉ số (cân nặng, huyết áp, nhịp tim) qua biểu đồ theo thời gian. | ⏳ Đang phát triển |
-| 🥗 **Quản lý Dinh dưỡng**  | Theo dõi lượng calo nạp vào từ các bữa ăn, tìm kiếm thực phẩm và xây dựng thực đơn.              | ⏳ Đang phát triển |
-| 🏃‍♂️ **Quản lý Vận động**    | Ghi nhận các hoạt động thể chất, theo dõi thời lượng và lượng calo tiêu thụ.                   | 📝 Lên kế hoạch   |
-| 💤 **Theo dõi Giấc ngủ**    | Ghi nhận thời gian ngủ và thức dậy, đánh giá chất lượng giấc ngủ.                               | 📝 Lên kế hoạch   |
-| 🎯 **Thiết lập Mục tiêu**   | Đặt ra các mục tiêu sức khỏe (ví dụ: giảm 5kg) và theo dõi tiến trình thực hiện.                | 📝 Lên kế hoạch   |
+| ❤️ **Theo dõi Sức khỏe**   | Ghi nhận và trực quan hóa các chỉ số (cân nặng, huyết áp, nhịp tim) qua biểu đồ theo thời gian. | ✅ Hoàn thành |
+| 🥗 **Quản lý Dinh dưỡng**  | Theo dõi lượng calo nạp vào từ các bữa ăn, tìm kiếm thực phẩm và xây dựng thực đơn.              | ✅ Hoàn thành |
+| 🏃‍♂️ **Quản lý Vận động**    | Ghi nhận các hoạt động thể chất, theo dõi thời lượng và lượng calo tiêu thụ.                   | ✅ Hoàn thành   |
+| 💤 **Theo dõi Giấc ngủ**    | Ghi nhận thời gian ngủ và thức dậy, đánh giá chất lượng giấc ngủ.                               | ✅ Hoàn thành   |
+| 🎯 **Thiết lập Mục tiêu**   | Đặt ra các mục tiêu sức khỏe (ví dụ: giảm 5kg) và theo dõi tiến trình thực hiện.                | ✅ Hoàn thành   |
+| 🎯 **AI hỗ trợ**   | AI giúp báo cáo tổng quan về sức khỏe, gợi ý bữa ăn và tập phù hợp với tình trạng, mục tiêu                | ✅ Hoàn thành   |
 
 
 ## 4. Công nghệ sử dụng
@@ -62,7 +63,6 @@ Dự án được xây dựng hoàn toàn bằng các công nghệ hiện đại
 
 Salud không chỉ dừng lại ở các tính năng hiện tại mà còn có tiềm năng mở rộng trong tương lai:
 - **Tích hợp Smartwatch/Google Fit**: Đồng bộ dữ liệu vận động và nhịp tim tự động.
-- **Gợi ý thông minh (AI)**: Dùng AI để phân tích dữ liệu và đưa ra gợi ý về dinh dưỡng, luyện tập phù hợp với từng cá nhân.
 - **Cộng đồng**: Xây dựng một mạng xã hội nhỏ để người dùng có thể chia sẻ thành tích, công thức nấu ăn và tạo động lực cho nhau.
 - **Quét mã vạch sản phẩm**: Nhanh chóng lấy thông tin dinh dưỡng của thực phẩm.
 
