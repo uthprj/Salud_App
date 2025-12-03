@@ -122,8 +122,10 @@ fun MainTopBar(title: String) {
                 }
                 IconButton(onClick = { expanded = true }) {
                     Icon(
-                        imageVector = Icons.Default.FormatListBulleted,
-                        contentDescription = "Menu"
+                        painter = painterResource(id = R.drawable.dehaze_24px),
+                        tint = Color.Black,
+                        modifier = Modifier.padding(12.dp),
+                        contentDescription = "Menu",
                     )
                     DropdownMenu(
                         expanded = expanded,

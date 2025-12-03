@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.salud_app.R
+import com.example.salud_app.components.dialog.InputDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -356,54 +357,38 @@ fun LoginScreen(
         }
 
         // Forgot Password Dialog
-        if (showForgotPasswordDialog) {
-            AlertDialog(
-                onDismissRequest = { showForgotPasswordDialog = false },
-                title = { Text("Quên mật khẩu") },
-                text = {
-                    Column {
-                        Text("Nhập email của bạn để nhận liên kết đặt lại mật khẩu")
-                        Spacer(modifier = Modifier.height(12.dp))
-                        OutlinedTextField(
-                            value = resetEmail,
-                            onValueChange = { resetEmail = it },
-                            placeholder = { Text("Email") },
-                            singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            viewModel.resetPassword(
-                                email = resetEmail,
-                                onSuccess = {
-                                    Toast.makeText(context, "Email đặt lại mật khẩu đã được gửi", Toast.LENGTH_SHORT).show()
-                                    showForgotPasswordDialog = false
-                                    resetEmail = ""
-                                },
-                                onFailure = { error ->
-                                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                                }
-                            )
-                        }
-                    ) {
-                        Text("Gửi")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = {
+        InputDialog(
+            showDialog = showForgotPasswordDialog,
+            title = "Quên mật khẩu",
+            message = "Nhập email của bạn để nhận liên kết đặt lại mật khẩu",
+            inputValue = resetEmail,
+            onInputChange = { resetEmail = it },
+            inputPlaceholder = "Email",
+            icon = Icons.Default.Email,
+            iconTint = Color(0xFF6AB9F5),
+            confirmButtonText = "Gửi",
+            dismissButtonText = "Hủy",
+            onConfirm = {
+                viewModel.resetPassword(
+                    email = resetEmail,
+                    onSuccess = {
+                        Toast.makeText(context, "Email đặt lại mật khẩu đã được gửi", Toast.LENGTH_SHORT).show()
                         showForgotPasswordDialog = false
                         resetEmail = ""
-                    }) {
-                        Text("Hủy")
+                    },
+                    onFailure = { error ->
+                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                    }
+                )
+            },
+            onDismiss = {
+                showForgotPasswordDialog = false
+                resetEmail = ""
+            }
+        )
                     }
                 }
-            )
-        }
-    }
-}
+
 
 //@Preview
 //@Composable

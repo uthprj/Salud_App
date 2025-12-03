@@ -15,9 +15,10 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import com.example.salud_app.components.dialog.ConfirmDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,22 +90,22 @@ fun SplashScreen(
     }
 
     // Dialog không có internet
-    if (showNoInternetDialog) {
-        AlertDialog(
-            onDismissRequest = { },
-            title = { Text("Không có kết nối") },
-            text = { Text("Vui lòng kết nối internet và quay lại sau.") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        activity?.finishAffinity()
-                    }
-                ) {
-                    Text("Đồng ý")
-                }
-            }
-        )
-    }
+    ConfirmDialog(
+        showDialog = showNoInternetDialog,
+        title = "Không có kết nối",
+        message = "Vui lòng kết nối internet và quay lại sau.",
+        icon = Icons.Default.WifiOff,
+        iconTint = androidx.compose.ui.graphics.Color(0xFFE74C3C),
+        confirmButtonText = "Đồng ý",
+        dismissButtonText = "Thoát",
+        confirmButtonColor = androidx.compose.ui.graphics.Color(0xFF6AB9F5),
+        onConfirm = {
+            activity?.finishAffinity()
+        },
+        onDismiss = {
+            activity?.finishAffinity()
+        }
+    )
 
     LaunchedEffect(Unit) {
 

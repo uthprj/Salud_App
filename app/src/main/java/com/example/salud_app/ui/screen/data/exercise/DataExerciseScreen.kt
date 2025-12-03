@@ -32,6 +32,7 @@ import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
 import com.example.salud_app.components.date_picker.CompactDatePicker
+import com.example.salud_app.components.dialog.ConfirmDialog
 import com.example.salud_app.components.draw_chart.AppLineChart
 import com.example.salud_app.components.draw_chart.ChartDataPoint
 import com.example.salud_app.model.Exercise
@@ -686,28 +687,23 @@ fun ExerciseHistoryItem(
         }
     }
 
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Xác nhận xóa") },
-            text = { Text("Bạn có chắc muốn xóa bài tập này?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete()
-                        showDeleteDialog = false
-                    }
-                ) {
-                    Text("Xóa", color = Color.Red)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text("Hủy")
-                }
-            }
-        )
-    }
+    ConfirmDialog(
+        showDialog = showDeleteDialog,
+        title = "Xác nhận xóa",
+        message = "Bạn có chắc muốn xóa bài tập này?",
+        icon = Icons.Default.Warning,
+        iconTint = Color(0xFFE74C3C),
+        confirmButtonText = "Xóa",
+        dismissButtonText = "Hủy",
+        confirmButtonColor = Color(0xFFE74C3C),
+        onConfirm = {
+            onDelete()
+            showDeleteDialog = false
+        },
+        onDismiss = {
+            showDeleteDialog = false
+        }
+    )
 }
 
 fun getExerciseIcon(type: String): ImageVector {

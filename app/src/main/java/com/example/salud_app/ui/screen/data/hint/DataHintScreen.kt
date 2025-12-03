@@ -13,7 +13,11 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
+import com.example.salud_app.components.dialog.ConfirmDialog
+import com.example.salud_app.components.dialog.InputDialog
+import com.example.salud_app.components.dialog.ListDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -440,53 +444,25 @@ fun SaveChatDialog(
 ) {
     var chatName by remember { mutableStateOf("") }
     
-    AlertDialog(
-        onDismissRequest = { if (!isSaving) onDismiss() },
-        title = { Text("Lưu đoạn chat") },
-        text = {
-            Column {
-                Text(
-                    text = "Nhập tên cho đoạn chat này:",
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                OutlinedTextField(
-                    value = chatName,
-                    onValueChange = { chatName = it },
-                    placeholder = { Text("Ví dụ: Kế hoạch tập gym") },
-                    singleLine = true,
-                    enabled = !isSaving,
-                    modifier = Modifier.fillMaxWidth()
-                )
+    InputDialog(
+        showDialog = true,
+        title = "Lưu đoạn chat",
+        message = "Nhập tên cho đoạn chat này:",
+        inputValue = chatName,
+        onInputChange = { chatName = it },
+        inputPlaceholder = "Ví dụ: Kế hoạch tập gym",
+        icon = Icons.Default.Save,
+        iconTint = Color(0xFF4CAF50),
+        confirmButtonText = "Lưu",
+        dismissButtonText = "Hủy",
+        confirmButtonColor = Color(0xFF4CAF50),
+        isLoading = isSaving,
+        onConfirm = {
+            if (chatName.isNotBlank()) {
+                onSave(chatName.trim())
             }
         },
-        confirmButton = {
-            TextButton(
-                onClick = { 
-                    if (chatName.isNotBlank()) {
-                        onSave(chatName.trim())
-                    }
-                },
-                enabled = chatName.isNotBlank() && !isSaving
-            ) {
-                if (isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Lưu")
-                }
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                enabled = !isSaving
-            ) {
-                Text("Hủy")
-            }
-        }
+        onDismiss = onDismiss
     )
 }
 
@@ -499,69 +475,49 @@ fun SavedChatsDialog(
 ) {
     var chatToDelete by remember { mutableStateOf<String?>(null) }
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { 
-            Text(
-                "Chat đã lưu",
-                fontWeight = FontWeight.Bold
-            )
-        },
-        text = {
-            if (savedChats.isEmpty()) {
-                Text(
-                    "Chưa có đoạn chat nào được lưu",
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(vertical = 16.dp)
+    ListDialog(
+        showDialog = true,
+        title = "Chat đã lưu",
+        icon = Icons.Default.History,
+        iconTint = Color(0xFF6AB9F5),
+        isEmpty = savedChats.isEmpty(),
+        emptyMessage = "Chưa có đoạn chat nào được lưu",
+        closeButtonText = "Đóng",
+        onDismiss = onDismiss
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(savedChats) { chat ->
+                SavedChatItem(
+                    savedChat = chat,
+                    onLoadClick = { onLoadChat(chat) },
+                    onDeleteClick = { chatToDelete = chat.id }
                 )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(savedChats) { chat ->
-                        SavedChatItem(
-                            savedChat = chat,
-                            onLoadClick = { onLoadChat(chat) },
-                            onDeleteClick = { chatToDelete = chat.id }
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Đóng")
             }
         }
-    )
+    }
     
     // Delete confirmation dialog
-    if (chatToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { chatToDelete = null },
-            title = { Text("Xác nhận xóa") },
-            text = { Text("Bạn có chắc muốn xóa đoạn chat này?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDeleteChat(chatToDelete!!)
-                        chatToDelete = null
-                    }
-                ) {
-                    Text("Xóa", color = Color.Red)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { chatToDelete = null }) {
-                    Text("Hủy")
-                }
-            }
-        )
-    }
+    ConfirmDialog(
+        showDialog = chatToDelete != null,
+        title = "Xác nhận xóa",
+        message = "Bạn có chắc muốn xóa đoạn chat này?",
+        icon = Icons.Default.Warning,
+        iconTint = Color(0xFFE74C3C),
+        confirmButtonText = "Xóa",
+        dismissButtonText = "Hủy",
+        confirmButtonColor = Color(0xFFE74C3C),
+        onConfirm = {
+            chatToDelete?.let { onDeleteChat(it) }
+            chatToDelete = null
+        },
+        onDismiss = {
+            chatToDelete = null
+        }
+    )
 }
 
 @Composable
