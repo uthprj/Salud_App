@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +23,7 @@ import com.example.salud_app.R
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
+import com.example.salud_app.components.dialog.ConfirmDialog
 import com.example.salud_app.components.draw_chart.AppLineChart
 import com.example.salud_app.components.draw_chart.ChartDataPoint
 import com.example.salud_app.components.number_picker.NumberPicker
@@ -155,7 +159,8 @@ fun DataHealthBPScreen(
                                 systolic = record.systolic,
                                 diastolic = record.diastolic,
                                 category = viewModel.getBPCategory(record.systolic, record.diastolic),
-                                color = viewModel.getBPColor(record.systolic, record.diastolic)
+                                color = viewModel.getBPColor(record.systolic, record.diastolic),
+                                onDelete = { viewModel.deleteBP(record.id) }
                             )
                         }
                     }
@@ -432,8 +437,11 @@ fun BPHistoryItem(
     systolic: Long,
     diastolic: Long,
     category: String,
-    color: Color
+    color: Color,
+    onDelete: () -> Unit
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -453,11 +461,47 @@ fun BPHistoryItem(
                 color = color
             )
         }
-        Text(
-            text = "$systolic/$diastolic mmHg",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = color
-        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "$systolic/$diastolic mmHg",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = color
+            )
+
+            IconButton(
+                onClick = { showDeleteDialog = true },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Xóa",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
     }
+
+    ConfirmDialog(
+        showDialog = showDeleteDialog,
+        title = "Xác nhận xóa",
+        message = "Bạn có chắc muốn xóa dữ liệu huyết áp này?",
+        icon = Icons.Default.Warning,
+        iconTint = Color(0xFFE74C3C),
+        confirmButtonText = "Xóa",
+        dismissButtonText = "Hủy",
+        confirmButtonColor = Color(0xFFE74C3C),
+        onConfirm = {
+            onDelete()
+            showDeleteDialog = false
+        },
+        onDismiss = {
+            showDeleteDialog = false
+        }
+    )
 }

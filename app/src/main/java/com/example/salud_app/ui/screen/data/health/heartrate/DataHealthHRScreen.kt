@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +25,7 @@ import com.example.salud_app.R
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.AppDatePicker
+import com.example.salud_app.components.dialog.ConfirmDialog
 import com.example.salud_app.components.draw_chart.AppLineChart
 import com.example.salud_app.components.draw_chart.ChartDataPoint
 import com.example.salud_app.components.number_picker.NumberPicker
@@ -144,7 +148,8 @@ fun DataHealthHRScreen(
                                 time = record.date,
                                 heartRate = record.heartRate,
                                 category = viewModel.getHRCategory(record.heartRate),
-                                color = viewModel.getHRColor(record.heartRate)
+                                color = viewModel.getHRColor(record.heartRate),
+                                onDelete = { viewModel.deleteHR(record.id) }
                             )
                         }
                     }
@@ -316,8 +321,11 @@ fun HRHistoryItem(
     time: String,
     heartRate: Long,
     category: String,
-    color: Color
+    color: Color,
+    onDelete: () -> Unit
 ) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -337,13 +345,49 @@ fun HRHistoryItem(
                 color = color
             )
         }
-        Text(
-            text = "$heartRate bpm",
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = color
-        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "$heartRate bpm",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = color
+            )
+
+            IconButton(
+                onClick = { showDeleteDialog = true },
+                modifier = Modifier.size(32.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Xóa",
+                    tint = Color.Gray,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
     }
+
+    ConfirmDialog(
+        showDialog = showDeleteDialog,
+        title = "Xác nhận xóa",
+        message = "Bạn có chắc muốn xóa dữ liệu nhịp tim này?",
+        icon = Icons.Default.Warning,
+        iconTint = Color(0xFFE74C3C),
+        confirmButtonText = "Xóa",
+        dismissButtonText = "Hủy",
+        confirmButtonColor = Color(0xFFE74C3C),
+        onConfirm = {
+            onDelete()
+            showDeleteDialog = false
+        },
+        onDismiss = {
+            showDeleteDialog = false
+        }
+    )
 }
 
 @Preview(showBackground = true)

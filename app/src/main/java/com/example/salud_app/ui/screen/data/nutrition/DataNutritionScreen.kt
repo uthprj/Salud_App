@@ -8,7 +8,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.DonutLarge
 import androidx.compose.material.icons.outlined.LocalFireDepartment
 import androidx.compose.material.icons.outlined.Spa
@@ -30,6 +32,8 @@ import androidx.navigation.compose.rememberNavController
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.CompactDatePicker
+import com.example.salud_app.components.dialog.ConfirmDialog
+import com.example.salud_app.model.Nutrition
 import com.example.salud_app.model.NutritionSummary
 import com.example.salud_app.ui.theme.Salud_AppTheme
 
@@ -195,6 +199,43 @@ fun DataNutritionScreen(
                 onDateChange = { currentDate = it },
                 onTimeChange = { currentTime = it }
             )
+
+            // Phần danh sách lịch sử
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            )
+
+            Text(
+                text = "Lịch sử hôm nay",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Normal
+            )
+
+            if (uiState.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else if (uiState.nutritionRecords.isEmpty()) {
+                Text(
+                    text = "Chưa có dữ liệu",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                uiState.nutritionRecords.forEach { record ->
+                    NutritionHistoryItem(
+                        nutrition = record,
+                        onDelete = { nutritionViewModel.deleteMeal(record.id) }
+                    )
+                }
+            }
         }
     }
 }
@@ -500,7 +541,127 @@ fun InputFormSection(
     }
 }
 
+@Composable
+fun NutritionHistoryItem(
+    nutrition: Nutrition,
+    onDelete: () -> Unit
+) {
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(
+                            Color(0xFFFFF9C4),
+                            RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.LocalFireDepartment,
+                        contentDescription = null,
+                        tint = Color(0xFFAF861D),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = nutrition.mealName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = nutrition.mealType,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = "•",
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = nutrition.time,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "${nutrition.calories.toInt()}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFE74C3C)
+                    )
+                    Text(
+                        text = "kcal",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+
+                IconButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Xóa",
+                        tint = Color.Gray,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+    }
+
+    ConfirmDialog(
+        showDialog = showDeleteDialog,
+        title = "Xác nhận xóa",
+        message = "Bạn có chắc muốn xóa món ăn này?",
+        icon = Icons.Default.Warning,
+        iconTint = Color(0xFFE74C3C),
+        confirmButtonText = "Xóa",
+        dismissButtonText = "Hủy",
+        confirmButtonColor = Color(0xFFE74C3C),
+        onConfirm = {
+            onDelete()
+            showDeleteDialog = false
+        },
+        onDismiss = {
+            showDeleteDialog = false
+        }
+    )
+}
 
 @Preview(showBackground = true)
 @Composable
