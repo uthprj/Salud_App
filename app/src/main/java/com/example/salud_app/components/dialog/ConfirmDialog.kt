@@ -15,8 +15,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.salud_app.R
+
 
 
 /**
@@ -171,7 +175,7 @@ fun DeleteConfirmDialog(
         iconTint = Color(0xFFE74C3C),
         onConfirm = onConfirm,
         onDismiss = onDismiss,
-        icon = Icons.Default.Warning
+        icon = Icons.Default.Delete
     )
 }
 

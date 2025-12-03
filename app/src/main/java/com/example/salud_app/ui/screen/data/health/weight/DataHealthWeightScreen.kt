@@ -52,11 +52,11 @@ fun DataHealthWeightScreen(
 
     // Tạo danh sách giá trị cho picker
     val integerItems = remember { (0..200).map { it.toString() } }
-    val fractionalItems = remember { (0..99).map { "%02d".format(it) } }
+    val fractionalItems = remember { (0..9).map { it.toString() } }
     
     // Trạng thái picker
     val integerState = rememberPickerState("70")
-    val fractionalState = rememberPickerState("00")
+    val fractionalState = rememberPickerState("0")
 
     // Hiển thị Toast khi lưu thành công
     LaunchedEffect(uiState.saveSuccess) {
@@ -304,7 +304,7 @@ fun WeightInputRow(
             NumberPicker(
                 state = fractionalState,
                 items = fractionalItems,
-                startIndex = fractionalItems.indexOf("00"),
+                startIndex = fractionalItems.indexOf("0"),
                 textStyle = textStyle,
                 modifier = Modifier
                     .weight(1f)

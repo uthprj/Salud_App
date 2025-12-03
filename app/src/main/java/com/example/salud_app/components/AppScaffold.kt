@@ -124,7 +124,7 @@ fun MainTopBar(title: String) {
                     Icon(
                         painter = painterResource(id = R.drawable.dehaze_24px),
                         tint = Color.Black,
-                        modifier = Modifier.padding(12.dp),
+                        modifier = Modifier.padding(0.dp),
                         contentDescription = "Menu",
                     )
                     DropdownMenu(
