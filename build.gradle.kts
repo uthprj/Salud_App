@@ -7,9 +7,10 @@ plugins {
     id("com.google.gms.google-services") version "4.4.4" apply false
 }
 
+
 // Load API_KEY from local.properties or environment for BuildConfig
 val localProperties = java.util.Properties().apply {
-    val file = rootProject.file("local.properties")
+    val file = rootProject.file("gradle.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
 val API_KEY: String = (

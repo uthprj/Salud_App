@@ -2,12 +2,18 @@ package com.example.salud_app.ui.screen.home
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.example.salud_app.R
@@ -33,11 +39,21 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.salud_app.components.draw_chart.AppLineChart
+import com.example.salud_app.components.draw_chart.ChartDataPoint
 
 data class RingData(
     val progress: Float,
     val color: Color,
     val stroke: Dp
+)
+
+// Data class cho option biểu đồ
+data class ChartOption(
+    val id: String,
+    val name: String,
+    val color: Color,
+    val unit: String
 )
 
 @Composable
@@ -56,11 +72,12 @@ fun MultiRingProgress(
 
                 val strokePx = 16.dp.toPx()
                 val inset = index * 50f
-
+                
+                // Vẽ background track (vòng tròn nền) - LUÔN HIỂN THỊ
                 drawArc(
-                    color = ring.color,
+                    color = ring.color.copy(alpha = 0.2f), // Màu nhạt hơn làm nền
                     startAngle = -90f,
-                    sweepAngle = 360f * ring.progress,
+                    sweepAngle = 360f, // Vẽ full vòng tròn
                     useCenter = false,
                     style = Stroke(width = strokePx, cap = StrokeCap.Round),
                     topLeft = Offset(strokePx + inset, strokePx + inset),
@@ -69,6 +86,22 @@ fun MultiRingProgress(
                         size.toPx() - (strokePx * 2) - inset * 2
                     )
                 )
+
+                // Vẽ progress (phần tiến độ) - chỉ vẽ khi có dữ liệu
+                if (ring.progress > 0f) {
+                    drawArc(
+                        color = ring.color,
+                        startAngle = -90f,
+                        sweepAngle = 360f * ring.progress,
+                        useCenter = false,
+                        style = Stroke(width = strokePx, cap = StrokeCap.Round),
+                        topLeft = Offset(strokePx + inset, strokePx + inset),
+                        size = Size(
+                            size.toPx() - (strokePx * 2) - inset * 2,
+                            size.toPx() - (strokePx * 2) - inset * 2
+                        )
+                    )
+                }
             }
         }
     }
@@ -165,6 +198,153 @@ fun HomeScreen(
                                 color = Color(0xFF2F9909),
                                 indicator = uiState.exerciseMinutes
                             )
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Section Chỉ số sức khỏe
+                        Text(
+                            text = "Chỉ số sức khỏe",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(15.dp))
+
+                        // Card hiển thị các chỉ số cơ bản
+                        HealthMetricsCard(
+                            weight = uiState.weight,
+                            height = uiState.height,
+                            bmi = uiState.bmi,
+                            heartRate = uiState.heartRate,
+                            systolicBP = uiState.systolicBP,
+                            diastolicBP = uiState.diastolicBP
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Biểu đồ đường với dropdown chọn loại
+                        val healthHistory = uiState.healthHistory
+                        
+                        // Danh sách các option biểu đồ
+                        val chartOptions = listOf(
+                            ChartOption("weight", "Cân nặng", Color(0xFF6AB9F5), "kg"),
+                            ChartOption("height", "Chiều cao", Color(0xFF4CAF50), "cm"),
+                            ChartOption("bmi", "BMI", Color(0xFFFF9800), ""),
+                            ChartOption("hr", "Nhịp tim", Color(0xFFF44336), "bpm"),
+                            ChartOption("bp_sys", "HA tâm thu", Color(0xFF9C27B0), "mmHg"),
+                            ChartOption("bp_dia", "HA tâm trương", Color(0xFF673AB7), "mmHg")
+                        )
+                        
+                        // State cho dropdown
+                        var selectedChartOption by remember { mutableStateOf(chartOptions[0]) }
+                        var dropdownExpanded by remember { mutableStateOf(false) }
+                        
+                        // Lấy data points theo option đã chọn
+                        val selectedDataPoints: List<ChartDataPoint> = when (selectedChartOption.id) {
+                            "weight" -> healthHistory.weightHistory
+                            "height" -> healthHistory.heightHistory
+                            "bmi" -> healthHistory.bmiHistory
+                            "hr" -> healthHistory.heartRateHistory
+                            "bp_sys" -> healthHistory.systolicBPHistory
+                            "bp_dia" -> healthHistory.diastolicBPHistory
+                            else -> emptyList()
+                        }
+
+                        // Card chứa biểu đồ
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            ) {
+                                // Header với dropdown
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "Biểu đồ theo dõi",
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    
+                                    // Dropdown button
+                                    Box {
+                                        OutlinedButton(
+                                            onClick = { dropdownExpanded = true },
+                                            shape = RoundedCornerShape(8.dp),
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                                        ) {
+                                            Text(
+                                                text = selectedChartOption.name,
+                                                color = selectedChartOption.color,
+                                                fontSize = 13.sp,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowDropDown,
+                                                contentDescription = null,
+                                                tint = selectedChartOption.color
+                                            )
+                                        }
+                                        
+                                        DropdownMenu(
+                                            expanded = dropdownExpanded,
+                                            onDismissRequest = { dropdownExpanded = false }
+                                        ) {
+                                            chartOptions.forEach { option ->
+                                                DropdownMenuItem(
+                                                    text = {
+                                                        Text(
+                                                            text = option.name,
+                                                            color = option.color,
+                                                            fontWeight = if (option.id == selectedChartOption.id) FontWeight.Bold else FontWeight.Normal
+                                                        )
+                                                    },
+                                                    onClick = {
+                                                        selectedChartOption = option
+                                                        dropdownExpanded = false
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                Spacer(modifier = Modifier.height(12.dp))
+                                
+                                // Biểu đồ
+                                if (selectedDataPoints.isNotEmpty()) {
+                                    AppLineChart(
+                                        dataPoints = selectedDataPoints,
+                                        lineColor = selectedChartOption.color,
+                                        chartHeight = 200.dp,
+                                        unit = selectedChartOption.unit,
+                                        showGrid = true,
+                                        showLabels = true
+                                    )
+                                } else {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(150.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "Chưa có dữ liệu ${selectedChartOption.name}",
+                                            color = Color.Gray,
+                                            fontSize = 14.sp
+                                        )
+                                    }
+                                }
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -429,6 +609,164 @@ fun InfoItemWithProgress(
                 modifier = Modifier.width(40.dp)
             )
         }
+    }
+}
+
+/**
+ * Card hiển thị các chỉ số sức khỏe cơ bản
+ */
+@Composable
+fun HealthMetricsCard(
+    weight: Double,
+    height: Double,
+    bmi: Double,
+    heartRate: Long,
+    systolicBP: Long,
+    diastolicBP: Long
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            // Row 1: Weight, Height, BMI
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                HealthMetricItem(
+                    icon = R.drawable.monitor_weight_24px,
+                    label = "Cân nặng",
+                    value = if (weight > 0) String.format("%.1f", weight) else "--",
+                    unit = "kg",
+                    color = Color(0xFF6AB9F5)
+                )
+                HealthMetricItem(
+                    icon = R.drawable.height_24px,
+                    label = "Chiều cao",
+                    value = if (height > 0) String.format("%.0f", height) else "--",
+                    unit = "cm",
+                    color = Color(0xFF4CAF50)
+                )
+                HealthMetricItem(
+                    icon = R.drawable.calculate_24px,
+                    label = "BMI",
+                    value = if (bmi > 0) String.format("%.1f", bmi) else "--",
+                    unit = getBmiStatus(bmi),
+                    color = getBmiColor(bmi)
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Row 2: Heart Rate, Blood Pressure
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                HealthMetricItem(
+                    icon = R.drawable.favorite_24px,
+                    label = "Nhịp tim",
+                    value = if (heartRate > 0) heartRate.toString() else "--",
+                    unit = "bpm",
+                    color = Color(0xFFF44336)
+                )
+                HealthMetricItem(
+                    icon = R.drawable.bloodtype_24px,
+                    label = "Huyết áp",
+                    value = if (systolicBP > 0 && diastolicBP > 0) "$systolicBP/$diastolicBP" else "--/--",
+                    unit = "mmHg",
+                    color = Color(0xFF9C27B0)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun HealthMetricItem(
+    icon: Int,
+    label: String,
+    value: String,
+    unit: String,
+    color: Color
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(100.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .background(color.copy(alpha = 0.15f), RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = icon),
+                contentDescription = label,
+                modifier = Modifier.size(28.dp),
+                colorFilter = ColorFilter.tint(color)
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = Color.Gray
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        Text(
+            text = value,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black
+        )
+        
+        Text(
+            text = unit,
+            fontSize = 11.sp,
+            color = color
+        )
+    }
+}
+
+/**
+ * Lấy trạng thái BMI
+ */
+fun getBmiStatus(bmi: Double): String {
+    return when {
+        bmi <= 0 -> ""
+        bmi < 18.5 -> "Thiếu cân"
+        bmi < 25 -> "Bình thường"
+        bmi < 30 -> "Thừa cân"
+        else -> "Béo phì"
+    }
+}
+
+/**
+ * Lấy màu BMI
+ */
+fun getBmiColor(bmi: Double): Color {
+    return when {
+        bmi <= 0 -> Color.Gray
+        bmi < 18.5 -> Color(0xFFFF9800)
+        bmi < 25 -> Color(0xFF4CAF50)
+        bmi < 30 -> Color(0xFFFF9800)
+        else -> Color(0xFFF44336)
     }
 }
 
