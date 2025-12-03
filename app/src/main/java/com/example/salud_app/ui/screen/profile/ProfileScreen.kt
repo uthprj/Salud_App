@@ -318,25 +318,33 @@ fun ProfileScreen(
                 )
             },
             confirmButton = {
-                Button(
-                    onClick = {
-                        auth.signOut()
-                        navController.navigate("sign-in") {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF5350))
-                ) {
-                    Text("Đăng xuất")
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = {
+                            auth.signOut()
+                            navController.navigate("sign-in") {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEF5350))
+                    ) {
+                        Text("Đăng xuất")
+                    }
+
+                    OutlinedButton(
+                        onClick = { showLogoutDialog = false },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Hủy")
+                    }
                 }
             },
-            dismissButton = {
-                OutlinedButton(onClick = { showLogoutDialog = false }) {
-                    Text("Hủy")
-                }
-            }
+            // dismissButton bỏ trống vì đã đặt trong Row
+            dismissButton = {}
         )
     }
+
 }
 
 @Composable

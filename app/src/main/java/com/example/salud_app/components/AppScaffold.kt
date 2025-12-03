@@ -2,6 +2,7 @@ package com.example.salud_app.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -16,6 +17,10 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PendingActions
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.zIndex
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.*
@@ -23,9 +28,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -102,6 +109,13 @@ fun AppScaffold(
 @Composable
 fun MainTopBar(title: String) {
     var expanded by remember { mutableStateOf(false) }
+    var showComingSoonDialog by remember { mutableStateOf(false) }
+    
+    // Coming Soon Dialog
+    if (showComingSoonDialog) {
+        ComingSoonDialog(onDismiss = { showComingSoonDialog = false })
+    }
+    
     TopAppBar(
         title = {
             Row(
@@ -136,25 +150,37 @@ fun MainTopBar(title: String) {
                     ) {
                         DropdownMenuItem(
                             text = { Text("Tìm phòng tập") },
-                            onClick = { expanded = false },
+                            onClick = { 
+                                expanded = false
+                                showComingSoonDialog = true
+                            },
                             leadingIcon = { Icon(Icons.Default.Place, contentDescription = null) }
                         )
 
                         DropdownMenuItem(
                             text = { Text("Đánh giá") },
-                            onClick = { expanded = false },
+                            onClick = { 
+                                expanded = false
+                                showComingSoonDialog = true
+                            },
                             leadingIcon = { Icon(Icons.Default.Chat, contentDescription = null) }
                         )
 
                         DropdownMenuItem(
                             text = { Text("Hỗ trợ") },
-                            onClick = { expanded = false },
+                            onClick = { 
+                                expanded = false
+                                showComingSoonDialog = true
+                            },
                             leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) }
                         )
 
                         DropdownMenuItem(
                             text = { Text("Thông tin") },
-                            onClick = { expanded = false },
+                            onClick = { 
+                                expanded = false
+                                showComingSoonDialog = true
+                            },
                             leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) }
                         )
                     }
@@ -244,84 +270,141 @@ fun BottomNavigationBar(navController: NavController) {
         else -> 0
     }
 
-    NavigationBar(
-        containerColor = MaterialTheme.colorScheme.primary,
-        tonalElevation = 3.dp
+    val primaryColor = MaterialTheme.colorScheme.primary
+    val unselectedColor = Color(0xFFB0C4FF)
+    val indicatorColor = Color(0xFF274B8A)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp),
+
     ) {
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-            label = { Text("Tổng quan") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color(0xFFB0C4FF),
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)
-            ),
-            selected = selectedIndex == 0,
-            onClick = {
-                navController.navigate("home") {
-                    popUpTo("home") { inclusive = true }
-                    launchSingleTop = true
+        // Bottom Navigation Bar
+        NavigationBar(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth(),
+            containerColor = primaryColor,
+            tonalElevation = 3.dp
+        ) {
+            Spacer(modifier = Modifier.weight(0.2f))
+            // Home
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                label = { Text("Home", fontSize = 11.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = unselectedColor,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = unselectedColor,
+                    indicatorColor = indicatorColor
+                ),
+                selected = selectedIndex == 0,
+                onClick = {
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
-            }
-        )
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.PendingActions, contentDescription = "Nhật ký") },
-            label = { Text("Nhật ký") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color(0xFFB0C4FF),
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)
-            ),
-            selected = selectedIndex == 1,
-            onClick = {
-                navController.navigate("diary") {
-                    popUpTo("home")
-                    launchSingleTop = true
+            )
+            
+            // Nhật ký
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.PendingActions, contentDescription = "Nhật ký") },
+                label = { Text("Nhật ký", fontSize = 11.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = unselectedColor,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = unselectedColor,
+                    indicatorColor = indicatorColor
+                ),
+                selected = selectedIndex == 1,
+                onClick = {
+                    navController.navigate("diary") {
+                        popUpTo("home")
+                        launchSingleTop = true
+                    }
                 }
-            }
-        )
+            )
+            
+            // Spacer cho nút + ở giữa
+            Spacer(modifier = Modifier.weight(1f))
+            
+            // Dữ liệu
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Favorite, contentDescription = "Dữ liệu") },
+                label = { Text("Dữ liệu", fontSize = 11.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = unselectedColor,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = unselectedColor,
+                    indicatorColor = indicatorColor
+                ),
+                selected = selectedIndex == 2,
+                onClick = {
+                    navController.navigate("data") {
+                        popUpTo("home")
+                        launchSingleTop = true
+                    }
+                }
+            )
+            
+            // Cá nhân
+            NavigationBarItem(
+                icon = { Icon(Icons.Default.Person, contentDescription = "Cá nhân") },
+                label = { Text("Cá nhân", fontSize = 11.sp) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color.White,
+                    unselectedIconColor = unselectedColor,
+                    selectedTextColor = Color.White,
+                    unselectedTextColor = unselectedColor,
+                    indicatorColor = indicatorColor
+                ),
+                selected = selectedIndex == 3,
+                onClick = {
+                    navController.navigate("profile") {
+                        popUpTo("home")
+                        launchSingleTop = true
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.weight(0.2f))
+        }
+        
+        // Floating + Button ở giữa
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .offset(y = (-10).dp)
+                .zIndex(1f)
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    navController.navigate("data-hint") {
+                        popUpTo("home")
+                        launchSingleTop = true
+                    }
+                },
+                modifier = Modifier
+                    .size(65.dp)
+                    .offset(y = (-10).dp)
+                    .border(2.dp, Color(0xFFFFFFFF), CircleShape),
 
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Favorite, contentDescription = "Dữ liệu") },
-            label = { Text("Dữ liệu") },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color(0xFFB0C4FF),
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)
-            ),
-            selected = selectedIndex == 2,
-            onClick = {
-                navController.navigate("data") {
-                    popUpTo("home")
-                    launchSingleTop = true
-                }
+                shape = CircleShape,
+                containerColor = Color(0xFF92C2FC),
+                contentColor = primaryColor
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.robot_2_24px),
+                    contentDescription = "a.i",
+                    colorFilter = ColorFilter.tint(Color(0xFFFFFFFF)),
+                    modifier = Modifier.size(40.dp)
+                )
             }
-        )
-
-        NavigationBarItem(
-            icon = { Icon(Icons.Default.Person, contentDescription = "Hồ sơ") },
-            label = { Text("Hồ sơ") },
-            selected = selectedIndex == 3,
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color.White,
-                unselectedIconColor = Color(0xFFB0C4FF),
-                selectedTextColor = Color.White,
-                unselectedTextColor = Color(0xFFB0C4FF),
-                indicatorColor = Color(0xFF274B8A)
-            ),
-            onClick = {
-                navController.navigate("profile") {
-                    popUpTo("home")
-                    launchSingleTop = true
-                }
-            }
-        )
+        }
     }
 }
 
@@ -343,4 +426,65 @@ fun AppScaffoldPreview() {
             }
         }
     }
+}
+
+/**
+ * Dialog hiển thị thông báo "Coming Soon" cho các chức năng chưa phát triển
+ */
+@Composable
+fun ComingSoonDialog(onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.salud_logo),
+                contentDescription = null,
+                modifier = Modifier.size(60.dp),
+                tint = Color.Unspecified
+            )
+        },
+        title = {
+            Text(
+                text = "Sắp ra mắt!",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                color = MaterialTheme.colorScheme.primary
+            )
+        },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp) // khoảng cách đều giữa các Text
+            ) {
+                Text(
+                    text = "Tính năng này đang được phát triển.",
+                    fontSize = 16.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center // đảm bảo text căn giữa trong box
+                )
+                Text(
+                    text = "Vui lòng quay lại sau nhé !",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+        },
+        confirmButton = {
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Text("Đã hiểu", color = Color.White)
+            }
+        },
+        containerColor = Color.White,
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+    )
 }

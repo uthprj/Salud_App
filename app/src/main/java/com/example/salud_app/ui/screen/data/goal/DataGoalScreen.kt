@@ -100,11 +100,11 @@ fun DataGoalScreen(
             goalViewModel.saveLongTermGoal(targetWeight, targetHeight)
 
             // Lưu mục tiêu hàng ngày
-            val caloriesInTarget = caloriesInTargetInput.toDoubleOrNull() ?: 2000.0
-            val caloriesOutTarget = caloriesOutTargetInput.toDoubleOrNull() ?: 500.0
+            val caloriesInTarget = caloriesInTargetInput.toDoubleOrNull() ?: 2500.0
+            val caloriesOutTarget = caloriesOutTargetInput.toDoubleOrNull() ?: 1500.0
             val sleepTarget = (sleepTargetInput.toIntOrNull() ?: 8) * 60 // Convert hours to minutes
-            val exerciseTarget = exerciseTargetInput.toIntOrNull() ?: 30
-            val stepsTarget = stepsTargetInput.toIntOrNull() ?: 10000
+            val exerciseTarget = exerciseTargetInput.toIntOrNull() ?: 90
+            val stepsTarget = stepsTargetInput.toIntOrNull() ?: 2000
             goalViewModel.saveDailyTargets(caloriesInTarget, caloriesOutTarget, sleepTarget, exerciseTarget, stepsTarget)
 
             // Chỉ cập nhật bước chân thủ công khi không có sensor

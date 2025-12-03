@@ -1,6 +1,7 @@
 package com.example.salud_app.ui.screen.data.nutrition
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,14 +22,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.salud_app.R
 import com.example.salud_app.components.AppScaffold
 import com.example.salud_app.components.ScreenLevel
 import com.example.salud_app.components.date_picker.CompactDatePicker
@@ -564,6 +568,7 @@ fun NutritionHistoryItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
+                modifier = Modifier.weight(5f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -576,11 +581,10 @@ fun NutritionHistoryItem(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.LocalFireDepartment,
-                        contentDescription = null,
-                        tint = Color(0xFFAF861D),
-                        modifier = Modifier.size(24.dp)
+                    Image(
+                        painter = painterResource(id = R.drawable.fork_spoon_24px),
+                        contentDescription = "Eat Icon",
+                        colorFilter = ColorFilter.tint(Color(0xFFFB8C00)) // Cam
                     )
                 }
 
@@ -612,6 +616,7 @@ fun NutritionHistoryItem(
             }
 
             Row(
+                modifier = Modifier.weight(1.5f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -648,7 +653,7 @@ fun NutritionHistoryItem(
         showDialog = showDeleteDialog,
         title = "Xác nhận xóa",
         message = "Bạn có chắc muốn xóa món ăn này?",
-        icon = Icons.Default.Warning,
+        icon = Icons.Default.Delete,
         iconTint = Color(0xFFE74C3C),
         confirmButtonText = "Xóa",
         dismissButtonText = "Hủy",

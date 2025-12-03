@@ -253,6 +253,11 @@
         </div>
 
         <div class="content">
+            <!-- <div id="errorMessage" class="message error"></div>
+            <div id="successMessage" class="message success">
+                ✓ Đặt lại mật khẩu thành công!<br>
+                <span style="font-size: 14px; font-weight: normal;">Bạn có thể đăng nhập với mật khẩu mới.</span>
+            </div> -->
 
             <form id="resetForm">
                 <div class="form-group password-toggle">
@@ -432,10 +437,8 @@
                 await auth.confirmPasswordReset(oobCode, newPassword);
                 showSuccess();
                 
-                // Redirect về app sau 3 giây
-                setTimeout(() => {
-                    window.location.href = 'your-app-scheme://login'; // Hoặc về trang login web
-                }, 3000);
+                // Không redirect, chỉ hiển thị thông báo thành công
+                // Người dùng sẽ tự mở app để đăng nhập
             } catch (error) {
                 console.error(error);
                 let errorMessage = 'Có lỗi xảy ra. Vui lòng thử lại.';
