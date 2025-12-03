@@ -231,8 +231,8 @@ fun LoginScreen(
                                     fullName = fullName,
                                     onSuccess = {
                                         Toast.makeText(context, "Đăng ký thành công", Toast.LENGTH_SHORT).show()
-                                        navController.navigate("fill-info") {
-                                            popUpTo("login") { inclusive = true }
+                                        navController.navigate("home") {
+                                            popUpTo("sign-in") { inclusive = true }
                                         }
                                     },
                                     onFailure = { error ->
@@ -245,8 +245,8 @@ fun LoginScreen(
                                     password = password,
                                     onSuccess = {
                                         Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
-                                        navController.navigate("fill-info") {
-                                            popUpTo("login") { inclusive = true }
+                                        navController.navigate("home") {
+                                            popUpTo("sign-in") { inclusive = true }
                                         }
                                     },
                                     onFailure = { error ->
@@ -300,8 +300,8 @@ fun LoginScreen(
                                 launcher = null,
                                 onSuccess = {
                                     Toast.makeText(context, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
-                                    navController.navigate("fill-info") {
-                                        popUpTo("login") { inclusive = true }
+                                    navController.navigate("home") {
+                                        popUpTo("sign-in") { inclusive = true }
                                     }
                                 },
                                 onFailure = { error ->
