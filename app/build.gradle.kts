@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.generativeai)
     // Firestore KTX provided explicitly above; remove libs alias to avoid unresolved alias
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation(libs.androidx.foundation)
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
     implementation("com.google.accompanist:accompanist-permissions:0.37.3")
