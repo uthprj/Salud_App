@@ -1,18 +1,27 @@
-\documentclass[13pt,a4paper]{report}
+\documentclass[12pt,a4paper]{report}
 \usepackage[utf8]{vietnam}
-\usepackage{graphicx}
 \usepackage{geometry}
 \usepackage{fancyhdr}
 \usepackage{hyperref}
 \usepackage{listings}
-
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage{float}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{mathptmx}
+\usepackage{longtable}
+
+\usepackage{tikz}
+\usetikzlibrary{calc}
+% ------------------------------------
+
 \graphicspath{ {./img/} }
 
 \lstdefinelanguage{json}{
-  morestring=[b]",%
+  morestring=[b]",
   morecomment=[l]{//},
   morekeywords={true,false,null},
   sensitive=false,
@@ -20,17 +29,13 @@
   moredelim=[l][\color{black}\bfseries]{"},
   moredelim=[s][\color{black}\bfseries]{:}{,},
 }
-\usepackage{xcolor}
-\usepackage{amsmath}
-\usepackage{titlesec}
-\usepackage{tocloft}
 
 \geometry{
-    a4paper,
-    left=3cm,
-    right=2cm,
-    top=2cm,
-    bottom=2cm
+  a4paper,
+  left=3cm,
+  right=2cm,
+  top=2cm,
+  bottom=2cm
 }
 
 \pagestyle{fancy}
@@ -39,52 +44,71 @@
 \fancyfoot[C]{\thepage}
 
 \hypersetup{
-    colorlinks=true,
-    linkcolor=black,
-    filecolor=blue,
-    urlcolor=blue,
-    citecolor=black
+  colorlinks=true,
+  linkcolor=black,
+  filecolor=blue,
+  urlcolor=blue,
+  citecolor=black
 }
 
 % Định dạng code
 \lstset{
-    basicstyle=\ttfamily\small,
-    breaklines=true,
-    frame=single,
-    language=Java,
-    showstringspaces=false,
-    commentstyle=\color{gray},
-    keywordstyle=\color{blue},
-    stringstyle=\color{red}
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  language=Java,
+  showstringspaces=false,
+  commentstyle=\color{gray},
+  keywordstyle=\color{blue},
+  stringstyle=\color{red}
 }
 
 \begin{document}
 
 %----------- TRANG BÌA -----------
 \begin{titlepage}
+    \begin{tikzpicture}[overlay,remember picture]
+        \draw [line width=3pt]
+            ($ (current page.north west) + (3.0cm,-2.0cm) $)
+            rectangle
+            ($ (current page.south east) + (-2.0cm,2.0cm) $);
+        \draw [line width=1pt]
+            ($ (current page.north west) + (3.15cm,-2.15cm) $)
+            rectangle
+            ($ (current page.south east) + (-2.15cm,2.15cm) $);
+    \end{tikzpicture}
+
     \begin{center}
-        \textbf{\Large TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI TP. HỒ CHÍ MINH}\\[0.3cm]
-        \textbf{\large Viện Công nghệ thông tin và Điện, Điện tử}\\[1.5cm]
+        % \textbf{\large BỘ GIAO THÔNG VẬN TẢI}\\
+        \textbf{\large TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI}\\[0.2cm] 
+        \textbf{\large TP. HỒ CHÍ MINH}\\[0.5cm]
+        \textbf{\large Viện Công nghệ thông tin và Điện, Điện tử}\\[2cm]
         
-        \includegraphics[width=0.8\textwidth]{./img/ut-logo.png}\\[1.5cm]
+        \includegraphics[width=10cm, keepaspectratio]{./img/ut-logo.png}\\[2cm]
         
         \textbf{\LARGE BÁO CÁO ĐỒ ÁN MÔN HỌC}\\[0.5cm]
-        \textbf{\Large LẬP TRÌNH THIẾT BỊ DI ĐỘNG}\\[2 cm]
+        \textbf{\Large LẬP TRÌNH THIẾT BỊ DI ĐỘNG}\\[1.5cm]
         
-        \textbf{\huge SALUD}\\[0.3cm]
-        \textbf{\Large Ứng dụng Quản lý Sức khỏe Cá nhân}\\[3cm]
+        \textbf{\huge SALUD}\\[0.5cm]
+        \textbf{\Large Ứng dụng Quản lý Sức khỏe Cá nhân}\\[2.5cm]
         
-        \begin{flushleft}
-        \hspace{3cm}\textbf{GVHD:} TS. Nguyễn Văn A\\[0.3cm]
-        \hspace{3cm}\textbf{SVTH:}\\
-        \hspace{4cm}Nguyễn Đức Duy - MSSV: 083205012971\\
-        \hspace{4cm}Võ Văn Hiền - MSSV: 087205002322\\
-        \end{flushleft}
+        \begin{table}[h]
+            \centering
+            \begin{tabular}{r l}
+                \textbf{Giảng viên hướng dẫn:} & Thầy Trương Quang Tuấn \\[0.5cm]
+                \textbf{Sinh viên thực hiện:} & Nguyễn Đức Duy - 083205012971 \\
+                               & Võ Văn Hiền \hspace{0.70cm} - 087205002322 \\
+            \end{tabular}
+        \end{table}
         
         \vfill
-        \textbf{TP. Hồ Chí Minh, 02 tháng 12 năm 2025}
+        
+        % Ngày tháng
+        \textbf{Tp. Hồ Chí Minh, Tháng 12 năm 2025}
     \end{center}
 \end{titlepage}
+
+
 
 %----------- MỤC LỤC -----------
 \tableofcontents
@@ -260,7 +284,7 @@ Nhóm áp dụng mô hình \textbf{Agile - Scrum} với các bước:
 
 \subsection{Công cụ phát triển}
 \begin{itemize}
-    \item \textbf{IDE:} Android Studio (Hedgehog 2023.1.1+)
+    \item \textbf{IDE:} Android Studio (Narwhal 3 Feature Drop | 2025.1.3)
     \item \textbf{Version Control:} GitHub
     \item \textbf{Design Tool:} Figma
     \item \textbf{Project Management:} Báo cáo tiến độ qua Zalo, trao đổi trực tuyến qua Discord.
@@ -268,12 +292,23 @@ Nhóm áp dụng mô hình \textbf{Agile - Scrum} với các bước:
 
 \subsection{Công nghệ sử dụng}
 
-\begin{table}[h]
-\centering
-\small
-\begin{tabular}{|p{3.8cm}|p{5cm}|p{5.5cm}|}
+\subsection{Công nghệ sử dụng}
+
+\begin{longtable}{|p{4cm}|p{5.5cm}|p{5.5cm}|}
+\caption{Các công nghệ cốt lõi và nổi bật trong ứng dụng Salud} \label{tab:technologies} \\
 \hline
 \textbf{Công nghệ} & \textbf{Chức năng} & \textbf{Nơi sử dụng} \\ \hline
+\endfirsthead
+
+\hline
+\textbf{Công nghệ} & \textbf{Chức năng} & \textbf{Nơi sử dụng} \\ \hline
+\endhead
+
+\hline
+\endfoot
+
+\hline
+\endlastfoot
 
 \multicolumn{3}{|c|}{\textbf{Ngôn ngữ \& Framework}} \\ \hline
 Kotlin & Ngôn ngữ lập trình chính với Coroutines, Null-safety và Extension Functions & Toàn bộ source code ứng dụng \\ \hline
@@ -304,7 +339,7 @@ ViewModel + StateFlow & MVVM pattern, reactive state management & HomeViewModel,
 Kotlin Coroutines & Asynchronous programming, structured concurrency & Gọi Firebase, Gemini AI, xử lý background tasks \\ \hline
 
 \multicolumn{3}{|c|}{\textbf{UI/UX Components}} \\ \hline
-Material Design 3 & Hệ thống thiết kế hiện đại  & Theme, Typography, ColorScheme, Components \\ \hline
+Material Design 3 & Hệ thống thiết kế hiện đại & Theme, Typography, ColorScheme, Components \\ \hline
 Material Icons Extended & Bộ icon phong phú 2000+ icons & Icons xuyên suốt ứng dụng \\ \hline
 Coil & Image loading \& caching hiệu suất cao & AsyncImage - Avatar, hình ảnh món ăn \\ \hline
 Canvas API & Vẽ đồ họa tùy chỉnh & Biểu đồ vòng tròn tiến độ, Line Chart \\ \hline
@@ -315,10 +350,7 @@ Kotlin Serialization & JSON parsing type-safe & Parse response Gemini AI, data m
 \multicolumn{3}{|c|}{\textbf{Security \& Permissions}} \\ \hline
 Accompanist Permissions & Runtime permissions handling & Location, Notification, Activity Recognition permissions \\ \hline
 
-\end{tabular}
-\caption{Các công nghệ cốt lõi và nổi bật trong ứng dụng Salud}
-\label{tab:technologies}
-\end{table}
+\end{longtable}
 
 
 
@@ -508,18 +540,18 @@ BMI = \frac{Weight (kg)}{Height^2 (m^2)}
 \subsection{Cấu trúc thư mục}
 \begin{lstlisting}
 app/src/main/java/com/example/salud_app/
-├── model/              # Data classes, Entities
-├── ui/
-│   ├── screen/        # Cac man hinh
-│   │   ├── sign/      # SignIn, SignUp
-│   │   ├── home/      # HomeScreen, HomeViewModel
-│   │   ├── data/      # Data tracking screens
-│   │   ├── diary/     # DiaryScreen, DiaryViewModel
-│   │   └── profile/   # ProfileScreen, ProfileViewModel
-│   ├── components/    # Reusable UI components
-│   └── theme/         # Theme, Colors, Typography
-├── navigation/        # Navigation setup
-└── MainActivity.kt    # Entry point
+|-- model/              # Data classes, Entities
+|-- ui/
+|   |-- screen/         # Cac man hinh
+|   |   |-- sign/       # SignIn, SignUp
+|   |   |-- home/       # HomeScreen, HomeViewModel
+|   |   |-- data/       # Data tracking screens
+|   |   |-- diary/      # DiaryScreen, DiaryViewModel
+|   |   |-- profile/    # ProfileScreen, ProfileViewModel
+|   |-- components/     # Reusable UI components
+|   |-- theme/          # Theme, Colors, Typography
+|-- navigation/         # Navigation setup
+|-- MainActivity.kt     # Entry point
 \end{lstlisting}
 
 \section{Thiết kế Database}
@@ -785,6 +817,17 @@ Quản lý trợ lý AI:
     \item Tích hợp Firebase thành công
 \end{itemize}
 
+\subsection{Đánh giá tiến độ so với thiết kế}
+Ứng dụng được hoàn thành khoảng 90\% so với thiết kế ban đầu trên Figma, trong đó có phát triển thêm trong quá trình xây dựng và phát triển dự án.
+
+\begin{figure}[H] 
+        \centering
+        \includegraphics[width=15cm]{img/Mobile App UI.png}
+        \caption{Thiết kế ban đầu trên Figma}
+        \label{fig:qr_code}
+    \end{figure}
+
+
 \subsection{Hình ảnh ứng dụng}
 
 \begin{figure}[H]
@@ -827,7 +870,7 @@ Quản lý trợ lý AI:
         \begin{subfigure}[b]{0.23\textwidth}
             \centering
             \includegraphics[width=\textwidth]{forgot_pass2.jpg}
-            \caption{Thông báo thành công}   
+            \caption{Thông báo}   
         \end{subfigure}
         
     \end{subfigure}
@@ -1205,7 +1248,7 @@ Figma Inc.,
 \chapter{Mã nguồn quan trọng}
 
 \section{HomeViewModel.kt}
-\begin{lstlisting}[language=Kotlin]
+\begin{lstlisting}[language=Java]
 class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -1228,7 +1271,7 @@ class HomeViewModel : ViewModel() {
 \end{lstlisting}
 
 \section{Navigation Setup}
-\begin{lstlisting}[language=Kotlin]
+\begin{lstlisting}[language=Java]
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
@@ -1244,38 +1287,20 @@ fun MainNavigation() {
 }
 \end{lstlisting}
 
-\chapter{Hình ảnh và Screenshots}
-
-% Thêm các screenshots của ứng dụng
-\begin{figure}[h]
-    \centering
-    % \includegraphics[width=0.3\textwidth]{splash_screen.png}
-    \caption{Splash Screen}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    % \includegraphics[width=0.3\textwidth]{login_screen.png}
-    \caption{Login Screen}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    % \includegraphics[width=0.3\textwidth]{home_screen.png}
-    \caption{Home Screen - Dashboard}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    % \includegraphics[width=0.3\textwidth]{data_screen.png}
-    \caption{Data Screen - Health Tracking}
-\end{figure}
 
 \chapter{Tài liệu hướng dẫn sử dụng}
 
 \section{Cài đặt ứng dụng}
 \begin{enumerate}
-    \item Tải file APK từ GitHub Releases
+    \item Tải file APK từ \href{https://github.com/uthprj/Salud_App}{Github} hoặc tại \href{https://hiennam2803.github.io/Salud_download_web/}{Website}
+    
+    \begin{figure}[H] 
+        \centering
+        \includegraphics[width=0.3\textwidth]{img/salud_qr.png}
+        \caption{Quét mã QR để tải nhanh ứng dụng}
+        \label{fig:qr_code}
+    \end{figure}
+
     \item Bật "Install from Unknown Sources" trên thiết bị Android
     \item Mở file APK và cài đặt
     \item Khởi động ứng dụng
@@ -1291,26 +1316,10 @@ fun MainNavigation() {
     \item \textbf{Xem nhật ký:} Vào tab Diary
 \end{enumerate}
 
-\chapter{Changelog}
+\begin{center}
+-- Hết --
+\end{center}
 
-\section{Version 1.0.0 (December 2025)}
-\begin{itemize}
-    \item Initial release
-    \item Authentication system
-    \item Dashboard with health overview
-    \item Health tracking (Weight, Height, BMI)
-    \item Nutrition management
-    \item Diary feature
-    \item Profile management
-\end{itemize}
 
-\section{Version 1.1.0 (Planned - Q1 2026)}
-\begin{itemize}
-    \item Complete workout tracking
-    \item Sleep tracking feature
-    \item Advanced charts and visualization
-    \item Notifications and reminders
-    \item Bug fixes and performance improvements
-\end{itemize}
 
 \end{document}
