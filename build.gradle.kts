@@ -10,7 +10,7 @@ plugins {
 
 // Load API_KEY from local.properties or environment for BuildConfig
 val localProperties = java.util.Properties().apply {
-    val file = rootProject.file("gradle.properties")
+    val file = rootProject.file("local.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
 val API_KEY: String = (
