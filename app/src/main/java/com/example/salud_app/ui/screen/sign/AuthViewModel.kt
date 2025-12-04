@@ -76,7 +76,7 @@ class SignInViewModel : ViewModel() {
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     _isLoading.value = false
-                    onFailure("Đăng nhập thất bại: ${e.localizedMessage}")
+                    onFailure("Mật khẩu hoặc mail sai")
                 }
             }
         }
