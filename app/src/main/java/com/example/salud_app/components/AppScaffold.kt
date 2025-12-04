@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Chat
@@ -259,7 +260,6 @@ fun SubTopBar(
 /* BOTTOM NAVIGATION BAR */
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    // Lấy route hiện tại từ navController
     val currentRoute = navController.currentBackStackEntry?.destination?.route
 
     val selectedIndex = when (currentRoute) {
@@ -271,116 +271,102 @@ fun BottomNavigationBar(navController: NavController) {
     }
 
     val primaryColor = MaterialTheme.colorScheme.primary
-    val unselectedColor = Color(0xFFB0C4FF)
-    val indicatorColor = Color(0xFF274B8A)
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(80.dp),
-
+            .height(90.dp)
     ) {
-        // Bottom Navigation Bar
-        NavigationBar(
+        // Background với curve ở giữa
+        Surface(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth(),
-            containerColor = primaryColor,
-            tonalElevation = 3.dp
+                .fillMaxWidth()
+                .height(80.dp),
+            color = primaryColor,
+            shadowElevation = 16.dp
         ) {
-            Spacer(modifier = Modifier.weight(0.2f))
-            // Home
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                label = { Text("Home", fontSize = 11.sp) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.White,
-                    unselectedIconColor = unselectedColor,
-                    selectedTextColor = Color.White,
-                    unselectedTextColor = unselectedColor,
-                    indicatorColor = indicatorColor
-                ),
-                selected = selectedIndex == 0,
-                onClick = {
-                    navController.navigate("home") {
-                        popUpTo("home") { inclusive = true }
-                        launchSingleTop = true
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Home
+                NavBarItem(
+                    icon = R.drawable.home_24px,
+                    label = "Home",
+                    selected = selectedIndex == 0,
+                    onClick = {
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
-                }
-            )
-            
-            // Nhật ký
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.PendingActions, contentDescription = "Nhật ký") },
-                label = { Text("Nhật ký", fontSize = 11.sp) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.White,
-                    unselectedIconColor = unselectedColor,
-                    selectedTextColor = Color.White,
-                    unselectedTextColor = unselectedColor,
-                    indicatorColor = indicatorColor
-                ),
-                selected = selectedIndex == 1,
-                onClick = {
-                    navController.navigate("diary") {
-                        popUpTo("home")
-                        launchSingleTop = true
+                )
+                
+                // Nhật ký
+                NavBarItem(
+                    icon = R.drawable.pending_actions_24px,
+                    label = "Nhật ký",
+                    selected = selectedIndex == 1,
+                    onClick = {
+                        navController.navigate("diary") {
+                            popUpTo("home")
+                            launchSingleTop = true
+                        }
                     }
-                }
-            )
-            
-            // Spacer cho nút + ở giữa
-            Spacer(modifier = Modifier.weight(1f))
-            
-            // Dữ liệu
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Favorite, contentDescription = "Dữ liệu") },
-                label = { Text("Dữ liệu", fontSize = 11.sp) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.White,
-                    unselectedIconColor = unselectedColor,
-                    selectedTextColor = Color.White,
-                    unselectedTextColor = unselectedColor,
-                    indicatorColor = indicatorColor
-                ),
-                selected = selectedIndex == 2,
-                onClick = {
-                    navController.navigate("data") {
-                        popUpTo("home")
-                        launchSingleTop = true
+                )
+                
+                // Spacer cho FAB
+                Spacer(modifier = Modifier.width(72.dp))
+                
+                // Dữ liệu
+                NavBarItem(
+                    icon = R.drawable.favorite_24px,
+                    label = "Dữ liệu",
+                    selected = selectedIndex == 2,
+                    onClick = {
+                        navController.navigate("data") {
+                            popUpTo("home")
+                            launchSingleTop = true
+                        }
                     }
-                }
-            )
-            
-            // Cá nhân
-            NavigationBarItem(
-                icon = { Icon(Icons.Default.Person, contentDescription = "Cá nhân") },
-                label = { Text("Cá nhân", fontSize = 11.sp) },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = Color.White,
-                    unselectedIconColor = unselectedColor,
-                    selectedTextColor = Color.White,
-                    unselectedTextColor = unselectedColor,
-                    indicatorColor = indicatorColor
-                ),
-                selected = selectedIndex == 3,
-                onClick = {
-                    navController.navigate("profile") {
-                        popUpTo("home")
-                        launchSingleTop = true
+                )
+                
+                // Cá nhân
+                NavBarItem(
+                    icon = R.drawable.person_24px,
+                    label = "Cá nhân",
+                    selected = selectedIndex == 3,
+                    onClick = {
+                        navController.navigate("profile") {
+                            popUpTo("home")
+                            launchSingleTop = true
+                        }
                     }
-                }
-            )
-            Spacer(modifier = Modifier.weight(0.2f))
+                )
+            }
         }
         
-        // Floating + Button ở giữa
+        // Floating AI Button ở giữa
         Box(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-10).dp)
-                .zIndex(1f)
+                .offset(y = 0.dp)
         ) {
+            // Vòng tròn nền trắng phía sau
+            Surface(
+                modifier = Modifier
+                    .size(72.dp)
+                    .align(Alignment.Center),
+                shape = CircleShape,
+                color = Color.White,
+                shadowElevation = 8.dp
+            ) {}
+            
+            // FAB chính
             FloatingActionButton(
                 onClick = {
                     navController.navigate("data-hint") {
@@ -389,22 +375,73 @@ fun BottomNavigationBar(navController: NavController) {
                     }
                 },
                 modifier = Modifier
-                    .size(65.dp)
-                    .offset(y = (-10).dp)
-                    .border(2.dp, Color(0xFFFFFFFF), CircleShape),
-
+                    .size(64.dp)
+                    .align(Alignment.Center),
                 shape = CircleShape,
-                containerColor = Color(0xFF92C2FC),
-                contentColor = primaryColor
+                containerColor = Color(0xFF5B9FE8),
+                contentColor = Color.White,
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 12.dp
+                )
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.robot_2_24px),
-                    contentDescription = "a.i",
-                    colorFilter = ColorFilter.tint(Color(0xFFFFFFFF)),
-                    modifier = Modifier.size(40.dp)
+                    contentDescription = "AI Assistant",
+                    colorFilter = ColorFilter.tint(Color.White),
+                    modifier = Modifier.size(36.dp)
                 )
             }
         }
+    }
+}
+
+@Composable
+fun NavBarItem(
+    icon: Int,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val selectedColor = Color.White
+    val unselectedColor = Color.White.copy(alpha = 0.5f)
+    val currentColor = if (selected) selectedColor else unselectedColor
+    
+    Column(
+        modifier = Modifier
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = onClick
+            )
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .size(if (selected) 40.dp else 36.dp)
+                .background(
+                    color = if (selected) Color.White.copy(alpha = 0.2f) else Color.Transparent,
+                    shape = CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = label,
+                tint = currentColor,
+                modifier = Modifier.size(24.dp)
+            )
+        }
+
+        
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            color = currentColor
+        )
     }
 }
 

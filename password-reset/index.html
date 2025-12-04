@@ -56,11 +56,14 @@
         .header h1 {
             font-size: 28px;
             margin-bottom: 10px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .header p {
             font-size: 16px;
             opacity: 0.9;
+            font-weight: 500;
         }
 
         .content {
@@ -141,14 +144,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        .message.success {
-            background: #D1FAE5;
-            color: #065F46;
-            border: 1px solid #6EE7B7;
-            display: block;
-            font-weight: 500;
         }
 
         .message.error {
@@ -232,95 +227,279 @@
             height: 20px;
         }
 
-        .header h1 {
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        /* SUCCESS SCREEN STYLES */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 30px;
         }
 
-        .header p {
-            font-weight: 500;
+        .success-screen.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: bounceIn 0.6s ease;
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .success-icon svg {
+            width: 60px;
+            height: 60px;
+            color: white;
+            animation: checkmark 0.5s ease 0.3s both;
+        }
+
+        @keyframes checkmark {
+            0% { stroke-dashoffset: 100; opacity: 0; }
+            100% { stroke-dashoffset: 0; opacity: 1; }
+        }
+
+        .success-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 15px;
+        }
+
+        .success-message {
+            font-size: 16px;
+            color: #6B7280;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .success-message strong {
+            color: #10B981;
+        }
+
+        .success-tips {
+            background: #F0FDF4;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 30px;
+            border: 1px solid #BBF7D0;
+        }
+
+        .success-tips h3 {
+            font-size: 14px;
+            color: #166534;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .success-tips ul {
+            font-size: 13px;
+            color: #15803D;
+            padding-left: 20px;
+        }
+
+        .success-tips li {
+            margin: 6px 0;
+        }
+
+        .app-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .app-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #1F2937;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .app-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-badge svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .app-badge span {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #4A7FFF;
+            animation: confettiFall 3s ease-out forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <div class="logo">
-                <img src="https://raw.githubusercontent.com/uthprj/Salud_App/main/app/src/main/res/drawable/salud_logo.png" alt="Salud Logo">
+        <!-- RESET PASSWORD SCREEN -->
+        <div id="resetScreen">
+            <div class="header">
+                <div class="logo">
+                    <img src="https://raw.githubusercontent.com/uthprj/Salud_App/main/app/src/main/res/drawable/salud_logo.png" alt="Salud Logo">
+                </div>
+                <h1>Đặt lại mật khẩu</h1>
+                <p>Salud App - Sức khỏe của bạn là niềm vui của chúng tôi</p>
             </div>
-            <h1>Đặt lại mật khẩu</h1>
-            <p>Salud App - Sức khỏe của bạn là niềm vui của chúng tôi</p>
+
+            <div class="content">
+                <div id="errorMessage" class="message error"></div>
+
+                <form id="resetForm">
+                    <div class="form-group password-toggle">
+                        <label for="newPassword">Mật khẩu mới</label>
+                        <input 
+                            type="password" 
+                            id="newPassword" 
+                            name="newPassword" 
+                            placeholder="Nhập mật khẩu mới"
+                            required
+                            minlength="6"
+                        >
+                        <button type="button" class="toggle-btn" id="toggleNewPassword" onclick="togglePassword('newPassword')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="form-group password-toggle">
+                        <label for="confirmPassword">Xác nhận mật khẩu</label>
+                        <input 
+                            type="password" 
+                            id="confirmPassword" 
+                            name="confirmPassword" 
+                            placeholder="Nhập lại mật khẩu mới"
+                            required
+                            minlength="6"
+                        >
+                        <button type="button" class="toggle-btn" id="toggleConfirmPassword" onclick="togglePassword('confirmPassword')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div id="passwordMismatch" style="display: none; color: #DC2626; font-size: 14px; margin-top: -15px; margin-bottom: 15px; padding: 10px; background: #FEE2E2; border-radius: 8px; border-left: 3px solid #DC2626;">
+                        Mật khẩu xác nhận không khớp!
+                    </div>
+
+                    <ul class="password-requirements">
+                        <li>✓ Ít nhất 6 ký tự</li>
+                        <li>✓ Nên bao gồm chữ hoa, chữ thường và số</li>
+                        <li>✓ Không sử dụng mật khẩu dễ đoán</li>
+                    </ul>
+
+                    <button type="submit" class="btn" id="submitBtn">
+                        Đặt lại mật khẩu
+                    </button>
+                </form>
+            </div>
+
+            <div class="footer">
+                © 2025 Salud App. All rights reserved.
+            </div>
         </div>
 
-        <div class="content">
-            <!-- <div id="errorMessage" class="message error"></div>
-            <div id="successMessage" class="message success">
-                ✓ Đặt lại mật khẩu thành công!<br>
-                <span style="font-size: 14px; font-weight: normal;">Bạn có thể đăng nhập với mật khẩu mới.</span>
-            </div> -->
+        <!-- SUCCESS SCREEN -->
+        <div id="successScreen" class="success-screen">
+            <div class="success-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            
+            <h2 class="success-title">Thành công! 🎉</h2>
+            
+            <p class="success-message">
+                Mật khẩu của bạn đã được <strong>đặt lại thành công</strong>.<br>
+                Bây giờ bạn có thể đăng nhập vào ứng dụng với mật khẩu mới.
+            </p>
 
-            <form id="resetForm">
-                <div class="form-group password-toggle">
-                    <label for="newPassword">Mật khẩu mới</label>
-                    <input 
-                        type="password" 
-                        id="newPassword" 
-                        name="newPassword" 
-                        placeholder="Nhập mật khẩu mới"
-                        required
-                        minlength="6"
-                    >
-                    <button type="button" class="toggle-btn" id="toggleNewPassword" onclick="togglePassword('newPassword')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="form-group password-toggle">
-                    <label for="confirmPassword">Xác nhận mật khẩu</label>
-                    <input 
-                        type="password" 
-                        id="confirmPassword" 
-                        name="confirmPassword" 
-                        placeholder="Nhập lại mật khẩu mới"
-                        required
-                        minlength="6"
-                    >
-                    <button type="button" class="toggle-btn" id="toggleConfirmPassword" onclick="togglePassword('confirmPassword')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                    </button>
-                </div>
-
-                <div id="passwordMismatch" style="display: none; color: #DC2626; font-size: 14px; margin-top: -15px; margin-bottom: 15px; padding: 10px; background: #FEE2E2; border-radius: 8px; border-left: 3px solid #DC2626;">
-                    Mật khẩu xác nhận không khớp!
-                </div>
-
-                <ul class="password-requirements">
-                    <li>✓ Ít nhất 6 ký tự</li>
-                    <li>✓ Nên bao gồm chữ hoa, chữ thường và số</li>
-                    <li>✓ Không sử dụng mật khẩu dễ đoán</li>
+            <div class="success-tips">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    Bước tiếp theo
+                </h3>
+                <ul>
+                    <li>Mở ứng dụng <strong>Salud App</strong> trên điện thoại</li>
+                    <li>Đăng nhập bằng email và mật khẩu mới</li>
+                    <li>Tận hưởng hành trình sức khỏe của bạn! 💪</li>
                 </ul>
+            </div>
 
-                <button type="submit" class="btn" id="submitBtn">
-                    Đặt lại mật khẩu
-                </button>
-            </form>
-        </div>
-
-        <div class="footer">
-            © 2025 Salud App. All rights reserved.
+            <!-- <div class="app-badges">
+                <div class="app-badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.523 2.047a.5.5 0 0 0-.738-.238L12 4.756 7.215 1.809a.5.5 0 0 0-.738.238L4.47 6.291a.5.5 0 0 0 .19.594l4.085 2.738v10.877a.5.5 0 0 0 .755.431L12 19.438l2.5 1.493a.5.5 0 0 0 .755-.431V9.623l4.085-2.738a.5.5 0 0 0 .19-.594l-2.007-4.244z"/>
+                    </svg>
+                </div>
+            </div> -->
         </div>
     </div>
+
+    <!-- Confetti container -->
+    <div id="confetti" class="confetti"></div>
 
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script>
-        // Firebase config của Salud App
         const firebaseConfig = {
             apiKey: "AIzaSyDZ_pYYTR0GiQl5jhmpL3W4gUphCIGTp1o",
             authDomain: "salud-app-263a5.firebaseapp.com",
@@ -340,9 +519,7 @@
             
             input.type = isPassword ? 'text' : 'password';
             
-            // Đổi icon: mắt mở khi hiện, mắt có gạch khi ẩn
             if (isPassword) {
-                // Icon mắt mở (hiện password)
                 button.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -350,7 +527,6 @@
                     </svg>
                 `;
             } else {
-                // Icon mắt có gạch (ẩn password)
                 button.innerHTML = `
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
@@ -364,13 +540,31 @@
             const errorDiv = document.getElementById('errorMessage');
             errorDiv.textContent = '✗ ' + message;
             errorDiv.style.display = 'block';
-            document.getElementById('successMessage').style.display = 'none';
+        }
+
+        function createConfetti() {
+            const confettiContainer = document.getElementById('confetti');
+            const colors = ['#4A7FFF', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+            
+            for (let i = 0; i < 50; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDelay = Math.random() * 2 + 's';
+                piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confettiContainer.appendChild(piece);
+            }
+
+            setTimeout(() => {
+                confettiContainer.innerHTML = '';
+            }, 5000);
         }
 
         function showSuccess() {
-            document.getElementById('successMessage').style.display = 'block';
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('resetForm').style.display = 'none';
+            document.getElementById('resetScreen').style.display = 'none';
+            document.getElementById('successScreen').classList.add('show');
+            createConfetti();
         }
 
         function setLoading(isLoading) {
@@ -384,7 +578,6 @@
             }
         }
 
-        // Lấy oobCode từ URL
         const urlParams = new URLSearchParams(window.location.search);
         const oobCode = urlParams.get('oobCode');
 
@@ -393,7 +586,6 @@
             document.getElementById('resetForm').style.display = 'none';
         }
 
-        // Real-time validation cho mật khẩu
         const newPasswordInput = document.getElementById('newPassword');
         const confirmPasswordInput = document.getElementById('confirmPassword');
         const mismatchDiv = document.getElementById('passwordMismatch');
@@ -433,12 +625,8 @@
             setLoading(true);
 
             try {
-                // Xác thực và đặt lại mật khẩu
                 await auth.confirmPasswordReset(oobCode, newPassword);
                 showSuccess();
-                
-                // Không redirect, chỉ hiển thị thông báo thành công
-                // Người dùng sẽ tự mở app để đăng nhập
             } catch (error) {
                 console.error(error);
                 let errorMessage = 'Có lỗi xảy ra. Vui lòng thử lại.';
