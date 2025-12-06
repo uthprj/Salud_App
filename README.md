@@ -56,13 +56,11 @@ Dự án được xây dựng hoàn toàn bằng các công nghệ hiện đại
 - **Ngôn ngữ**: [Kotlin](https://kotlinlang.org/) (Sử dụng các tính năng mới nhất như Coroutines, Flow).
 - **Giao diện người dùng (UI)**: [Jetpack Compose](https://developer.android.com/jetpack/compose) (Declarative UI, giúp xây dựng giao diện nhanh chóng và linh hoạt).
 - **Kiến trúc**: MVVM (Model-View-ViewModel) - Giúp phân tách logic và UI, dễ dàng cho việc bảo trì và mở rộng.
-- **Lưu trữ cục bộ**: [Room Database](https://developer.android.com/training/data-storage/room) (Một lớp trừu tượng trên SQLite để quản lý dữ liệu hiệu quả).
 - **Navigation**: [Navigation Compose](https://developer.android.com/jetpack/compose/navigation) (Quản lý luồng di chuyển giữa các màn hình).
 
 ## 5. Hướng phát triển
 
 Salud không chỉ dừng lại ở các tính năng hiện tại mà còn có tiềm năng mở rộng trong tương lai:
-- **Tích hợp Smartwatch/Google Fit**: Đồng bộ dữ liệu vận động và nhịp tim tự động.
-- **Cộng đồng**: Xây dựng một mạng xã hội nhỏ để người dùng có thể chia sẻ thành tích, công thức nấu ăn và tạo động lực cho nhau.
-- **Quét mã vạch sản phẩm**: Nhanh chóng lấy thông tin dinh dưỡng của thực phẩm.
+- **Tích hợp Smartwatch/Google Fit**: Đồng bộ dữ liệu vận động và nhịp tim tự độngjso
+- **Kết nối với bác sĩ**: Kết nối với bác sĩ để được tư vấn trực tiếp
 
