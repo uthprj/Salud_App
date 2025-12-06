@@ -1,4 +1,4 @@
-# Salud - Trợ lý Sức khỏe Cá nhân 🥗🏃‍♂️💤
+# Salud - Ứng dụng Quản lý sức khỏe 🥗🏃‍♂️💤
 
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-blue.svg?logo=kotlin)](https://kotlinlang.org) [![Jetpack Compose](https://img.shields.io/badge/Jetpack_Compose-2024.09.00-4285F4.svg?logo=jetpackcompose)](https://developer.android.com/jetpack/compose) [![Nền tảng](https://img.shields.io/badge/Nền_tảng-Android-3DDC84.svg?logo=android)](https://www.android.com/)
 
@@ -24,7 +24,7 @@
 
 ## 1. Lý do ra đời
 
-Trong xã hội hiện đại, việc duy trì một lối sống lành mạnh ngày càng trở nên quan trọng nhưng cũng đầy thách thức. Người dùng thường gặp khó khăn trong việc theo dõi các chỉ số sức khỏe, quản lý dinh dưỡng, và duy trì lịch trình luyện tập do thiếu một công cụ hỗ trợ trực quan và hiệu quả.
+Salud (tiếng Tây Ban Nha có nghĩa là "sức khỏe") là ứng dụng di động Android toàn diện, giúp người dùng theo dõi, quản lý và cải thiện sức khỏe thông qua việc giám sát các chỉ số cơ thể, dinh dưỡng, luyện tập và giấc ngủ. Được xây dựng với công nghệ hiện đại như Kotlin, Jetpack Compose và Firebase, kết hợp AI (Google Gemini) để tư vấn thông minh.
 
 ➡️ **Salud** được phát triển để giải quyết vấn đề này, cung cấp một nền tảng "tất cả trong một" để quản lý sức khỏe một cách khoa học và dễ dàng.
 
